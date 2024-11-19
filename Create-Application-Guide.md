@@ -12,7 +12,7 @@ An example of a working application can be found [here](.).
 
 A Nebius AI application follows a defined file and directory structure, which is detailed below:
 
-```
+```text
 product-name/
   ├── chart/             # Helm chart
   ├── icon.svg           # Icon
@@ -27,7 +27,7 @@ product-name/
 - `manifest.yaml`: A YAML manifest that contains the application metadata. For details, see [Manifest](#manifest).
 - `README.md`: A Markdown file that contains the documentation for your application, including its description, usage instructions, support information, and links. For details, see [README](#readme).
 - `values.form.json`: A JSON file that defines the application installation form in the Nebius AI web console. This form allows users to enter parameters that are passed to the Helm chart to set up the application. For details, see [UI installation form](#ui-installation-form-valuesformjson).
-- `values.k3s.yaml`: A YAML file containing Helm value overrides for deploying the application to Compute virtual machines using [K3s](https://k3s.io/). For details, see [K3s overrides for installation on VMs](#k3s-overrides-for-installation-on-VMs-valuesk3syaml).
+- `values.k3s.yaml`: A YAML file containing Helm value overrides for deploying the application to Compute virtual machines using [K3s](https://k3s.io/). For details, see [K3s overrides for installation on VMs](#k3s-overrides-for-installation-on-vms-valuesk3syaml).
 
 ### Manifest
 
@@ -54,14 +54,14 @@ defined in `values.yaml`:
   > Example:
   >
   > - `values.yaml`:
-  > 
+  >
   >   ```yaml
   >   imageWithRepository:
   >     repository: cr-testing.eu-north1.nebius.cloud/e0txwed46999g5htgx/nebius
   >     image: nginx
   >     version: "1.27.1"
   >   ```
-  > 
+  >
   > - `images` entry:
   >
   >   ```yaml
@@ -74,8 +74,8 @@ defined in `values.yaml`:
 
   Use this format if the repository and tag are defined as separate fields in `values.yaml`.
 
-  > Example: 
-  > 
+  > Example:
+  >
   > - `values.yaml`:
   >
   >   ```yaml
@@ -153,7 +153,7 @@ You can use these values in the `categories` list in `manifest.yaml`:
    Installation instructions, including prerequisites. They will be displayed to users on the application installation page. Their aim is to give users all the information they need to get the application up and running. This section can include links (`[text](URL)`) and special blocks to make the tutorial easier to follow and understand.
 
    > Examples of special blocks:
-   > 
+   >
    > ```yaml
    > {% note warning %}
    > 
@@ -189,7 +189,7 @@ You can use these values in the `categories` list in `manifest.yaml`:
    Use this section to include useful links such as documentation, tutorials, source code, or any other relevant resources related to your application.
 
    > Example:
-   > 
+   >
    > ```yaml
    > ## Links
    > 
@@ -211,14 +211,14 @@ You can use these values in the `categories` list in `manifest.yaml`:
 
 ### UI installation form (`values.form.json`)
 
-`values.form.json` defines a [Gravity UI Dynamic Form](https://preview.gravity-ui.com/dynamic-forms/?path=/story/array-base--base) that allows users to configure the application in the Nebius AI web console during installation. Each field name should match a valid path in `chart/values.yaml`, ensuring that the form value is passed to the corresponding value in the Helm chart. 
+`values.form.json` defines a [Gravity UI Dynamic Form](https://preview.gravity-ui.com/dynamic-forms/?path=/story/array-base--base) that allows users to configure the application in the Nebius AI web console during installation. Each field name should match a valid path in `chart/values.yaml`, ensuring that the form value is passed to the corresponding value in the Helm chart.
 
 In addition to the fields defined in the `values.form.json` file, the form also includes `name` and `namespace` fields by default, which are passed directly to Helm during chart installation.
 
 For a detailed example and the list of all supported field types, see [values.form.json](values.form.json).
 
 > Example:
-> 
+>
 > - `values.form.json`:
 >
 >   ```yaml
@@ -235,7 +235,7 @@ For a detailed example and the list of all supported field types, see [values.fo
 >   ```
 >
 > - `chart/values.yaml` value:
-> 
+>
 >   ```yaml
 >   gradioExampleValues:
 >     simpleString: ""
