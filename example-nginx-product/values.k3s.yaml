@@ -1,0 +1,4 @@
+replicaCount: 1
+
+serviceAccount:
+  name: "k3s-appropriate-value"

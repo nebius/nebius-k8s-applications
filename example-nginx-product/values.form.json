@@ -1,0 +1,136 @@
+{
+  "defaultValue": {
+    "gradioExampleValues.simpleString": "1.1.1",
+    "gradioExampleValues.simpleBoolean": false,
+    "gradioExampleValues.sizeSelector": "10Gi",
+    "gradioExampleValues.optionSelector": "option1",
+    "gradioExampleValues.complexOptionSelector": "option2"
+  },
+  "type": "object",
+  "properties": {
+    "gradioExampleValues.simpleString": {
+      "type": "string",
+      "viewSpec": {
+        "layoutTitle": "String input",
+        "layout": "row",
+        "type": "base",
+        "disabled": false
+      },
+      "required": true
+    },
+    "gradioExampleValues.simpleBoolean": {
+      "type": "boolean",
+      "viewSpec": {
+        "layoutTitle": "Boolean Switch",
+        "layoutDescription": "Example tooltip.",
+        "layout": "row",
+        "type": "switch",
+        "disabled": false
+      }
+    },
+    "gradioExampleValues.sizeSelector": {
+      "type": "string",
+      "viewSpec": {
+        "layoutTitle": "Custom Size Selector",
+        "layoutDescription": "Example tooltip.",
+        "layout": "row",
+        "type": "rangeinputpicker",
+        "inputProps": {
+          "suffix": "Gi",
+          "min": 10,
+          "max": 1024
+        },
+        "disabled": false
+      },
+      "required": false
+    },
+    "gradioExampleValues.password": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9-!@#\\$%\\^&*]{8,}$",
+      "viewSpec": {
+        "layoutTitle": "Password input",
+        "layout": "row",
+        "type": "password",
+        "generateRandomValueButton": true,
+        "disabled": false
+      },
+      "required": true
+    },
+    "gradioExampleValues.textArea": {
+      "type": "string",
+      "viewSpec": {
+        "layoutTitle": "Text Area Input",
+        "layoutDescription": "Example tooltip.",
+        "layout": "row",
+        "type": "textarea",
+        "placeholder": "Example placeholder.",
+        "disabled": false
+      },
+      "required": true
+    },
+    "gradioExampleValues.optionSelector": {
+      "type": "string",
+      "enum": [
+        "option1",
+        "option2",
+        "option3"
+      ],
+      "viewSpec": {
+        "layoutTitle": "Option selector",
+        "layout": "row",
+        "type": "select"
+      },
+      "required": true
+    },
+    "gradioExampleValues.complexOptionSelector": {
+      "type": "string",
+      "enum": [
+        "option1",
+        "option2"
+      ],
+      "description": {
+        "option1": "Option 1.",
+        "option2": "Option 2."
+      },
+      "viewSpec": {
+        "layoutTitle": "Complex Option Selector.",
+        "layout": "row",
+        "type": "select",
+        "disabled": false,
+        "selectParams": {
+          "filterPlaceholder": "LoadBalancer",
+          "meta": {
+            "option1": "Option 1 description.",
+            "option2": "Option 2 description."
+          }
+        }
+      },
+      "required": true
+    },
+    "gradioExampleValues.validatedString": {
+      "type": "string",
+      "pattern": "^\\d+(y|w|d|h|m|s|ms)$",
+      "viewSpec": {
+        "layoutTitle": "Validated String Input",
+        "layout": "row",
+        "type": "base",
+        "disabled": false
+      },
+      "required": true
+    }
+  },
+  "viewSpec": {
+    "type": "base",
+    "layout": "",
+    "order": [
+      "gradioExampleValues.simpleString",
+      "gradioExampleValues.simpleBoolean",
+      "gradioExampleValues.sizeSelector",
+      "gradioExampleValues.password",
+      "gradioExampleValues.textArea",
+      "gradioExampleValues.optionSelector",
+      "gradioExampleValues.complexOptionSelector",
+      "gradioExampleValues.validatedString"
+    ]
+  }
+}

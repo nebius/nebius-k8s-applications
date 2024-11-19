@@ -1,0 +1,17 @@
+# Default manifest for test-nginx-product
+# This is a YAML-formatted file.
+# Declare variables to be passed into marketplace product.
+
+slug: test-nginx-product
+publisherName: Nebius
+ownerName: Nebius
+categories:
+  - devtools
+tariff_type: free
+images:
+  - registry: imageWithRepository.repository
+    tag: imageWithRepository.version
+    nameWithoutRegistry: imageWithRepository.image
+  - nameWithRegistry: image.repository
+    tag: image.tag
+  - full: fullImage
