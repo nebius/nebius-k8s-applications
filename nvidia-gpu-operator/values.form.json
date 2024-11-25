@@ -1,0 +1,50 @@
+{
+  "defaultValue": {
+    "driver.rdma.enabled": true,
+    "driver.version": "535.161.08"
+  },
+  "type": "object",
+  "properties": {
+    "driver.rdma.enabled": {
+      "type": "boolean",
+      "viewSpec": {
+        "layoutTitle": "RDMA",
+        "layout": "row",
+        "type": "switch",
+        "disabled": false,
+        "layoutDescription": "Recommended to switch on"
+      }
+    },
+    "driver.version": {
+      "type": "string",
+      "enum": [
+        "550.54.15",
+        "535.161.08"
+      ],
+      "description": {
+        "550.54.15": "550.54.15",
+        "535.161.08": "535.161.08"
+      },
+      "viewSpec": {
+        "type": "select",
+        "layout": "row",
+        "layoutTitle": "Driver version",
+        "placeholder": "535.161.08",
+        "selectParams": {
+          "filterPlaceholder": "535.161.08",
+          "meta": {
+            "535.161.08": "",
+            "550.54.15": ""
+          }
+        }
+      }
+    }
+  },
+  "viewSpec": {
+    "type": "base",
+    "layout": "",
+    "order": [
+      "driver.rdma.enabled"
+    ]
+  }
+}

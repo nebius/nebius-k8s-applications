@@ -1,0 +1,72 @@
+slug: nvidia-network-operator
+ownerName: NVIDIA
+publisherName: Nebius
+name: NVIDIA® Network Operator
+categories:
+  - training
+images:
+  - full: sriov-network-operator.images.operator
+  - full: sriov-network-operator.images.sriovConfigDaemon
+  - full: sriov-network-operator.images.sriovCni
+  - full: sriov-network-operator.images.ibSriovCni
+  - full: sriov-network-operator.images.ovsCni
+  - full: sriov-network-operator.images.rdmaCni
+  - full: sriov-network-operator.images.sriovDevicePlugin
+  - full: sriov-network-operator.images.resourcesInjector
+  - full: sriov-network-operator.images.webhook
+  - full: nebius.images.ulimitFixer
+  - tag: node-feature-discovery.image.tag
+    nameWithRegistry: node-feature-discovery.image.repository
+
+  - registry: operator.repository
+    tag: operator.tag
+    nameWithoutRegistry: operator.image
+
+  - registry: ofedDriver.repository
+    tag: ofedDriver.versionFake
+    nameWithoutRegistry: ofedDriver.image
+  - full: ofedDriver.full_alternative_image
+  - registry: ofedDriver.initContainer.repository
+    tag: ofedDriver.initContainer.version
+    nameWithoutRegistry: ofedDriver.initContainer.image
+
+  - registry: rdmaSharedDevicePlugin.repository
+    nameWithoutRegistry: rdmaSharedDevicePlugin.image
+    tag: rdmaSharedDevicePlugin.version
+
+  - registry: sriovDevicePlugin.repository
+    nameWithoutRegistry: sriovDevicePlugin.image
+    tag: sriovDevicePlugin.version
+
+  - registry: ibKubernetes.repository
+    nameWithoutRegistry: ibKubernetes.image
+    tag: ibKubernetes.version
+
+  - registry: nvIpam.repository
+    nameWithoutRegistry: nvIpam.image
+    tag: nvIpam.version
+
+  - registry: secondaryNetwork.cniPlugins.repository
+    nameWithoutRegistry: secondaryNetwork.cniPlugins.image
+    tag: secondaryNetwork.cniPlugins.version
+
+  - registry: secondaryNetwork.multus.repository
+    nameWithoutRegistry: secondaryNetwork.multus.image
+    tag: secondaryNetwork.multus.version
+
+  - registry: secondaryNetwork.ipoib.repository
+    nameWithoutRegistry: secondaryNetwork.ipoib.image
+    tag: secondaryNetwork.ipoib.version
+
+  - registry: secondaryNetwork.ipamPlugin.repository
+    nameWithoutRegistry: secondaryNetwork.ipamPlugin.image
+    tag: secondaryNetwork.ipamPlugin.version
+
+  - registry: nicFeatureDiscovery.repository
+    nameWithoutRegistry: nicFeatureDiscovery.image
+    tag: nicFeatureDiscovery.version
+
+  - registry: docaTelemetryService.repository
+    nameWithoutRegistry: docaTelemetryService.image
+    tag: docaTelemetryService.version
+

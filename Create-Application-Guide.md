@@ -34,8 +34,8 @@ product-name/
 `manifest.yaml` is a YAML file that must contain the following keys:
 
 - `slug`: A unique product identifier. This value will be part of the application's URL, but will not be directly visible to users.
-- `publisherName`: The value of this field must be `Nebius`.
-- `ownerName`: The name of your company.
+- `publisherName`: The name of your company.
+- `ownerName`: The name of the product owner’s company.
 - `categories`: A list of categories that best describe your application. For supported categories, see [Application categories](#application-categories) section.
 - `tariff_type`: The value of this field must be `free`. Currently, Nebius AI only supports free applications. As soon as paid applications are supported, this tutorial will be updated accordingly.
 - `images`: List of references to locations in `chart/values.yaml` where Docker images are defined. For details, see [List of images](#list-of-images).
@@ -197,16 +197,16 @@ You can use these values in the `categories` list in `manifest.yaml`:
    > [Source code](https://github.com/nginx/nginx)
    > ```
 
-1. `## Term of service`
+1. `## Legal`
 
-   This section must include links to any relevant third party terms of service. Make sure you use the exact format shown in the example below.
+   This section must include details about any relevant third party terms of service.
 
    > Example:
    >
    > ```yaml
-   > ## Term of service
-   > 
-   > - [Nginx](https://nginx.org/LICENSE "additional-third-party-tos")
+   > ## Legal
+   >
+   > By using the application, you agree to their terms and conditions: [the helm-chart](https://github.com/nebius/nebius-k8s-applications/blob/main/LICENSE) and [Nginx](https://nginx.org/LICENSE).
    > ```
 
 ### UI installation form (`values.form.json`)

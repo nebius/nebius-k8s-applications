@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: ulimit-fixer
+  labels:
+    app: ulimit-fixer
+spec:
+  selector:
+    matchLabels:
+      app: ulimit-fixer
+  template:
+    metadata:
+      labels:
+        app: ulimit-fixer
+    spec:
+      containers:
+        - name: ulimit-fixer
+          image: {{ $.Values.nebius.images.ulimitFixer }}
+          command:
+            [
+              "sh",
+              "-c",
+              "ulimit -Hl unlimited && ulimit -Sl unlimited; tail -f /dev/null;",
+            ]
+          securityContext:
+            privileged: true

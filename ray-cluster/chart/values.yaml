@@ -1,0 +1,342 @@
+# Default values for ray-cluster.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# The KubeRay community welcomes PRs to expose additional configuration
+# in this Helm chart.
+
+image:
+  repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/ray-cluster/image/ray-ml
+  tag: 2.37.0.1b620f-cpu
+  pullPolicy: IfNotPresent
+
+nameOverride: "kuberay"
+fullnameOverride: ""
+
+imagePullSecrets: []
+  # - name: an-existing-secret
+
+common:
+  containerEnv:
+    - name: RAY_REDIS_ADDRESS
+      value: "redis://{{ .Release.Name }}-redis-master:6379"
+    - name: AWS_EC2_METADATA_DISABLED
+      value: "TRUE"
+
+head:
+  # rayVersion determines the autoscaler's image version.
+  # It should match the Ray version in the image of the containers.
+  # rayVersion: 2.34.0
+  # If enableInTreeAutoscaling is true, the autoscaler sidecar will be added to the Ray head pod.
+  # Ray autoscaler integration is supported only for Ray versions >= 1.11.0
+  # Ray autoscaler integration is Beta with KubeRay >= 0.3.0 and Ray >= 2.0.0.
+  enableInTreeAutoscaling: true
+  # autoscalerOptions is an OPTIONAL field specifying configuration overrides for the Ray autoscaler.
+  # The example configuration shown below represents the DEFAULT values.
+  # autoscalerOptions:
+    # upscalingMode: Default
+    # idleTimeoutSeconds is the number of seconds to wait before scaling down a worker pod which is not using Ray resources.
+    # idleTimeoutSeconds: 60
+    # imagePullPolicy optionally overrides the autoscaler container's default image pull policy (IfNotPresent).
+    # imagePullPolicy: IfNotPresent
+    # Optionally specify the autoscaler container's securityContext.
+    # securityContext: {}
+    # env: []
+    # envFrom: []
+    # resources specifies optional resource request and limit overrides for the autoscaler container.
+    # For large Ray clusters, we recommend monitoring container resource usage to determine if overriding the defaults is required.
+    # resources:
+    #   limits:
+    #     cpu: "500m"
+    #     memory: "512Mi"
+    #   requests:
+    #     cpu: "500m"
+    #     memory: "512Mi"
+  labels: {}
+  # Note: From KubeRay v0.6.0, users need to create the ServiceAccount by themselves if they specify the `serviceAccountName`
+  # in the headGroupSpec. See https://github.com/ray-project/kuberay/pull/1128 for more details.
+  serviceAccountName: ""
+  restartPolicy: ""
+  rayStartParams:
+    dashboard-host: '0.0.0.0'
+  # containerEnv specifies environment variables for the Ray container,
+  # Follows standard K8s container env schema.
+  containerEnv:
+    - name: NVIDIA_VISIBLE_DEVICES
+      value: "void"
+  # - name: EXAMPLE_ENV
+  #   value: "1"
+  envFrom: []
+    # - secretRef:
+    #     name: my-env-secret
+  # ports optionally allows specifying ports for the Ray container.
+  # ports: []
+  # resource requests and limits for the Ray head container.
+  # Modify as needed for your application.
+  # Note that the resources in this example are much too small for production;
+  # we don't recommend allocating less than 8G memory for a Ray pod in production.
+  # Ray pods should be sized to take up entire K8s nodes when possible.
+  # Always set CPU and memory limits for Ray pods.
+  # It is usually best to set requests equal to limits.
+  # See https://docs.ray.io/en/latest/cluster/kubernetes/user-guides/config.html#resources
+  # for further guidance.
+  resources:
+    limits:
+      cpu: "4"
+      memory: "8Gi"
+    requests:
+      cpu: "{{ .Values.head.resources.limits.cpu }}"
+      memory: "{{ .Values.head.resources.limits.memory }}"
+  annotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: nvidia.com/gpu.count
+            operator: DoesNotExist
+  # Pod security context.
+  podSecurityContext: {}
+  # Ray container security context.
+  securityContext: {}
+  # Optional: The following volumes/volumeMounts configurations are optional but recommended because
+  # Ray writes logs to /tmp/ray/session_latests/logs instead of stdout/stderr.
+  volumes:
+    - name: log-volume
+      emptyDir: {}
+  volumeMounts:
+    - mountPath: /tmp/ray
+      name: log-volume
+  # sidecarContainers specifies additional containers to attach to the Ray pod.
+  # Follows standard K8s container spec.
+  sidecarContainers: []
+  # See docs/guidance/pod-command.md for more details about how to specify
+  # container command for head Pod.
+  command: []
+  args: []
+  # Optional, for the user to provide any additional fields to the service.
+  # See https://pkg.go.dev/k8s.io/Kubernetes/pkg/api/v1#Service
+  headService: {}
+    # metadata:
+    #   annotations:
+    #     prometheus.io/scrape: "true"
+
+worker:
+  # If you want to disable the default workergroup
+  # uncomment the line below
+  # disabled: true
+  groupName: gpu
+  replicas: 0
+  minReplicas: 1
+  maxReplicas: 1
+  labels: {}
+  serviceAccountName: ""
+  restartPolicy: ""
+  rayStartParams: {}
+  # containerEnv specifies environment variables for the Ray container,
+  # Follows standard K8s container env schema.
+  containerEnv: []
+  # - name: EXAMPLE_ENV
+  #   value: "1"
+  envFrom: []
+    # - secretRef:
+    #     name: my-env-secret
+  # ports optionally allows specifying ports for the Ray container.
+  # ports: []
+  # resource requests and limits for the Ray head container.
+  # Modify as needed for your application.
+  # Note that the resources in this example are much too small for production;
+  # we don't recommend allocating less than 8G memory for a Ray pod in production.
+  # Ray pods should be sized to take up entire K8s nodes when possible.
+  # Always set CPU and memory limits for Ray pods.
+  # It is usually best to set requests equal to limits.
+  # See https://docs.ray.io/en/latest/cluster/kubernetes/user-guides/config.html#resources
+  # for further guidance.
+  resources:
+    limits:
+      cpu: '{{ (get .Values.gpuToResourceHelperValues .Values.gpuPlatform).cpu }}'
+      memory: '{{ (get .Values.gpuToResourceHelperValues .Values.gpuPlatform).memory }}Gi'
+      nvidia.com/gpu: "1"
+    requests:
+      cpu: "{{ tpl .Values.worker.resources.limits.cpu . }}"
+      memory: "{{ tpl .Values.worker.resources.limits.memory . }}"
+      nvidia.com/gpu: "1"
+  annotations: {}
+  nodeSelector: {}
+  tolerations:
+    - key: nvidia.com/gpu
+      operator: Exists
+      effect: NoSchedule
+  affinity: {}
+  # Pod security context.
+  podSecurityContext: {}
+  # Ray container security context.
+  securityContext:
+    privileged: true
+  # Optional: The following volumes/volumeMounts configurations are optional but recommended because
+  # Ray writes logs to /tmp/ray/session_latests/logs instead of stdout/stderr.
+  volumes:
+    - name: log-volume
+      emptyDir: {}
+  volumeMounts:
+    - mountPath: /tmp/ray
+      name: log-volume
+  # sidecarContainers specifies additional containers to attach to the Ray pod.
+  # Follows standard K8s container spec.
+  sidecarContainers: []
+  # See docs/guidance/pod-command.md for more details about how to specify
+  # container command for worker Pod.
+  command: []
+  args: []
+  image:
+    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/ray-cluster/image/ray-ml
+    tag: 2.37.0.1b620f-gpu
+    pullPolicy: IfNotPresent
+# The map's key is used as the groupName.
+# For example, key:small-group in the map below
+# will be used as the groupName
+additionalWorkerGroups:
+  cpu:
+    disabled: false
+    replicas: 0
+    minReplicas: 0
+    maxReplicas: 0
+    labels: {}
+    serviceAccountName: ""
+    restartPolicy: ""
+    rayStartParams: {}
+    # containerEnv specifies environment variables for the Ray container,
+    # Follows standard K8s container env schema.
+    containerEnv: []
+      # - name: EXAMPLE_ENV
+      #   value: "1"
+    envFrom: []
+        # - secretRef:
+        #     name: my-env-secret
+    # ports optionally allows specifying ports for the Ray container.
+    # ports: []
+    # resource requests and limits for the Ray head container.
+    # Modify as needed for your application.
+    # Note that the resources in this example are much too small for production;
+    # we don't recommend allocating less than 8G memory for a Ray pod in production.
+    # Ray pods should be sized to take up entire K8s nodes when possible.
+    # Always set CPU and memory limits for Ray pods.
+    # It is usually best to set requests equal to limits.
+    # See https://docs.ray.io/en/latest/cluster/kubernetes/user-guides/config.html#resources
+    # for further guidance.
+    resources:
+      limits:
+        cpu: "16"
+        memory: "30Gi"
+      requests:
+        cpu: "{{ .Values.additionalWorkerGroups.cpu.resources.limits.cpu }}"
+        memory: "{{ .Values.additionalWorkerGroups.cpu.resources.limits.memory }}"
+    annotations: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: nvidia.com/gpu.count
+              operator: DoesNotExist
+    # Pod security context.
+    podSecurityContext: {}
+    # Ray container security context.
+    securityContext: {}
+    # Optional: The following volumes/volumeMounts configurations are optional but recommended because
+    # Ray writes logs to /tmp/ray/session_latests/logs instead of stdout/stderr.
+    volumes:
+      - name: log-volume
+        emptyDir: {}
+    volumeMounts:
+      - mountPath: /tmp/ray
+        name: log-volume
+    sidecarContainers: []
+    # See docs/guidance/pod-command.md for more details about how to specify
+    # container command for worker Pod.
+    command: []
+    args: []
+
+# Configuration for Head's Kubernetes Service
+service:
+  # This is optional, and the default is ClusterIP.
+  type: ClusterIP
+
+customImage: null
+
+gpuPlatform: NVIDIA® H100 NVLink with Intel Sapphire Rapids
+gpuToResourceHelperValues:
+  NVIDIA® H100 NVLink with Intel Sapphire Rapids:
+    cpu: 1450m
+    memory: 180
+
+kuberay-operator:
+  image:
+    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/ray-cluster/image/operator
+    tag: v1.2.1
+    pullPolicy: IfNotPresent
+  singleNamespaceInstall: true
+
+redis:
+  image:
+    registry: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex
+    repository: nebius/ray-cluster/image/redis
+    tag: 7.2.4-debian-12-r9
+    pullPolicy: IfNotPresent
+  auth:
+    enabled: false
+    sentinel: false
+  replica:
+    replicaCount: 3
+    resources:
+      limits:
+        cpu: "2"
+        memory: "4Gi"
+      requests:
+        cpu: "1"
+        memory: "512Mi"
+    persistence:
+      enabled: false
+    serviceAccount:
+      create: false
+    automountServiceAccountToken: true
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: nvidia.com/gpu.count
+              operator: DoesNotExist
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/component: node
+                app.kubernetes.io/instance: '{{ .Release.Name }}'
+                app.kubernetes.io/name: redis
+            topologyKey: kubernetes.io/hostname
+          weight: 1
+  sentinel:
+    image:
+      registry: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex
+      repository: nebius/ray-cluster/image/redis-sentinel
+      tag: 7.2.4-debian-12-r7
+    enabled: true
+    persistence:
+      enabled: false
+    service:
+      createMaster: true
+  kubectl:
+    image:
+      registry: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex
+      repository: nebius/ray-cluster/image/kubectl
+      tag: 1.29.2-debian-12-r3
+  rbac:
+    create: true
+  networkPolicy:
+    enabled: false

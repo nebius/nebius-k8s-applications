@@ -1,0 +1,204 @@
+{
+  "defaultValue": {
+    "newBackend": true,
+    "head.resources.limits.cpu": "4",
+    "head.resources.limits.memory": "8Gi",
+    "head.enableInTreeAutoscaling": true,
+    "gpuPlatform": "NVIDIA® H100 NVLink with Intel Sapphire Rapids",
+    "worker.minReplicas": "1",
+    "worker.maxReplicas": "3",
+    "additionalWorkerGroups.cpu.disabled": false,
+    "additionalWorkerGroups.cpu.minReplicas": "0",
+    "additionalWorkerGroups.cpu.maxReplicas": "0",
+    "additionalWorkerGroups.cpu.resources.limits.cpu": "16",
+    "additionalWorkerGroups.cpu.resources.limits.memory": "30Gi",
+    "redis.replica.replicaCount": 3
+  },
+  "type": "object",
+  "properties": {
+    "newBackend": {
+      "type": "boolean",
+      "viewSpec": {
+        "type": "base",
+        "layout": "row",
+        "hidden": "true"
+      },
+      "required": true
+    },
+    "head.resources.limits.cpu": {
+      "type": "string",
+      "viewSpec": {
+        "layoutTitle": "Head pod vCPUs",
+        "layoutDescription":"Enter the number of vCPUs that the head pod will use on its node.\n",
+        "layout": "row",
+        "type": "rangeinputpicker",
+        "inputProps": {
+          "min": 1,
+          "max": 32
+        }
+      },
+      "required": false
+    },
+    "head.resources.limits.memory": {
+      "type": "string",
+      "viewSpec": {
+        "type": "rangeinputpicker",
+        "layout": "row",
+        "layoutTitle": "Head pod RAM",
+        "layoutDescription": "Enter the size of RAM that the head pod will use on its node.\n",
+        "inputProps": {
+          "suffix": "Gi",
+          "min": 1,
+          "max": 64
+        }
+      },
+      "required": false
+    },
+    "head.enableInTreeAutoscaling": {
+      "type": "boolean",
+      "viewSpec": {
+        "layoutTitle": "Enable KubeRay Autoscaling",
+        "layout": "row",
+        "type": "switch",
+        "disabled": true
+      }
+    },
+    "gpuPlatform": {
+      "type": "string",
+      "enum": [
+        "NVIDIA® H100 NVLink with Intel Sapphire Rapids"
+      ],
+      "viewSpec": {
+        "layoutTitle": "GPU worker platform",
+        "layoutDescription": "Select the same VM platform as the platform you selected when creating a node group with GPUs.",
+        "layout": "row",
+        "type": "select",
+        "disabled": true
+      },
+      "required": true
+    },
+    "worker.minReplicas": {
+      "type": "string",
+      "viewSpec": {
+        "layoutTitle": "Min. number of GPU workers",
+        "layoutDescription": "Enter the minimum number of worker pods with GPUs. Each worker will use one GPU.\n",
+        "layout": "row",
+        "type": "rangeinputpicker",
+        "inputProps": {
+          "min": 1,
+          "max": 64
+        }
+      },
+      "required": false
+    },
+    "worker.maxReplicas": {
+      "type": "string",
+      "viewSpec": {
+        "layoutTitle": "Max. number of GPU workers",
+        "layoutDescription": "Enter the maximum number of worker pods with GPUs. Each worker will use one GPU.\n",
+        "layout": "row",
+        "type": "rangeinputpicker",
+        "inputProps": {
+          "min": 1,
+          "max": 64
+        }
+      },
+      "required": false
+    },
+    "additionalWorkerGroups.cpu.minReplicas": {
+      "type": "string",
+      "viewSpec": {
+        "layoutTitle": "Min. number of non-GPU workers",
+        "layoutDescription": "Enter the minimum number of worker pods without GPUs\n",
+        "layout": "row",
+        "type": "rangeinputpicker",
+        "inputProps": {
+          "min": 1,
+          "max": 32
+        }
+      },
+      "required": false
+    },
+    "additionalWorkerGroups.cpu.maxReplicas": {
+      "type": "string",
+      "viewSpec": {
+        "layoutTitle": "Max. number of non-GPU workers",
+        "layoutDescription": "Enter the maximum number of worker pods without GPUs.\n",
+        "layout": "row",
+        "type": "rangeinputpicker",
+        "inputProps": {
+          "min": 1,
+          "max": 32
+        }
+      },
+      "required": false
+    },
+    "additionalWorkerGroups.cpu.resources.limits.cpu": {
+      "type": "string",
+      "viewSpec": {
+        "layoutTitle": "Non-GPU worker vCPUs",
+        "layoutDescription": "Enter the number of vCPUs that each worker pod without GPUs will use on its node.\n",
+        "layout": "row",
+        "type": "rangeinputpicker",
+        "inputProps": {
+          "min": 1,
+          "max": 32
+        }
+      },
+      "required": false
+    },
+    "additionalWorkerGroups.cpu.resources.limits.memory": {
+      "type": "string",
+      "viewSpec": {
+        "layoutTitle": "Non-GPU worker RAM",
+        "layoutDescription": "Enter the size of RAM that the each worker pod without GPUs will use on its node.\n",
+        "layout": "row",
+        "type": "rangeinputpicker",
+        "inputProps": {
+          "suffix": "Gi",
+          "min": 1,
+          "max": 64
+        }
+      },
+      "required": false
+    },
+    "redis.replica.replicaCount": {
+      "type": "number",
+      "viewSpec": {
+        "layoutTitle": "Redis replica count",
+        "layout": "row",
+        "type": "base"
+      },
+      "required": false
+    },
+    "customImage": {
+      "type": "string",
+      "viewSpec": {
+        "layoutTitle": "Ray Docker image",
+        "layoutDescription": "Enter the URL of a custom Ray Docker image for the head and worker pods.\nThe image must carry version 2.9.3 of Ray.\nBy default, the official rayproject/ray-ml:2.9.3-gpu image hosted in the Nebius AI container registry is used.\n",
+        "layout": "row",
+        "type": "base",
+        "disabled": false
+      },
+      "required": false
+    }
+  },
+  "viewSpec": {
+    "type": "base",
+    "layout": "",
+    "order": [
+      "newBackend",
+      "head.resources.limits.cpu",
+      "head.resources.limits.memory",
+      "head.enableInTreeAutoscaling",
+      "gpuPlatform",
+      "worker.minReplicas",
+      "worker.maxReplicas",
+      "additionalWorkerGroups.cpu.minReplicas",
+      "additionalWorkerGroups.cpu.maxReplicas",
+      "additionalWorkerGroups.cpu.resources.limits.cpu",
+      "additionalWorkerGroups.cpu.resources.limits.memory",
+      "redis.replica.replicaCount"
+    ]
+  }
+}

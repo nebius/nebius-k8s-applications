@@ -1,0 +1,96 @@
+name: NVIDIA® GPU Operator
+slug: nvidia-gpu-operator
+ownerName: NVIDIA
+publisherName: Nebius
+categories:
+  - training
+  - k3s-training
+images:
+  - registry: validator.repository
+    nameWithoutRegistry: validator.image
+    tag: validator.version
+
+  - registry: operator.repository
+    nameWithoutRegistry: operator.image
+    tag: operator.version
+
+  - registry: operator.initContainer.repository
+    nameWithoutRegistry: operator.initContainer.image
+    tag: operator.initContainer.version
+
+  - registry: driver.repository
+    nameWithoutRegistry: driver.image
+    tag: driver.full_version
+
+  - full: driver.full_alternative_image
+
+  - full: driver.full_new_image
+
+  - full: driver.full_new_alternative_image
+
+  - registry: driver.manager.repository
+    nameWithoutRegistry: driver.manager.image
+    tag: driver.manager.version
+
+  - registry: toolkit.repository
+    nameWithoutRegistry: toolkit.image
+    tag: toolkit.version
+
+  - registry: devicePlugin.repository
+    nameWithoutRegistry: devicePlugin.image
+    tag: devicePlugin.version
+
+  - registry: dcgm.repository
+    nameWithoutRegistry: dcgm.image
+    tag: dcgm.version
+
+  - registry: dcgmExporter.repository
+    nameWithoutRegistry: dcgmExporter.image
+    tag: dcgmExporter.version
+
+  - registry: gfd.repository
+    nameWithoutRegistry: gfd.image
+    tag: gfd.version
+
+  - registry: migManager.repository
+    nameWithoutRegistry: migManager.image
+    tag: migManager.version
+
+  - registry: nodeStatusExporter.repository
+    nameWithoutRegistry: nodeStatusExporter.image
+    tag: nodeStatusExporter.version
+
+  - registry: vgpuManager.driverManager.repository
+    nameWithoutRegistry: vgpuManager.driverManager.image
+    tag: vgpuManager.driverManager.version
+
+  - registry: vgpuDeviceManager.repository
+    nameWithoutRegistry: vgpuDeviceManager.image
+    tag: vgpuDeviceManager.version
+
+  - registry: vfioManager.repository
+    nameWithoutRegistry: vfioManager.image
+    tag: vfioManager.version
+
+  - registry: vfioManager.driverManager.repository
+    nameWithoutRegistry: vfioManager.driverManager.image
+    tag: vfioManager.driverManager.version
+
+  - registry: kataManager.repository
+    nameWithoutRegistry: kataManager.image
+    tag: kataManager.version
+
+  - registry: sandboxDevicePlugin.repository
+    nameWithoutRegistry: sandboxDevicePlugin.image
+    tag: sandboxDevicePlugin.version
+
+  - registry: ccManager.repository
+    nameWithoutRegistry: ccManager.image
+    tag: ccManager.version
+
+  - nameWithRegistry: node-feature-discovery.image.repository
+    tag: node-feature-discovery.image.tag
+
+  - registry: gdrcopy.repository
+    nameWithoutRegistry: gdrcopy.image
+    tag: gdrcopy.fullVersion

@@ -1,3 +1,5 @@
+# Nebius package for Nginx
+
 ## Description
 
 nginx is a high-performance web server, reverse proxy and load balancer, designed to handle large numbers of concurrent connections with low memory usage. It is widely used to serve dynamic and static content and to optimize traffic distribution in complex web applications.
@@ -33,33 +35,37 @@ This application exposes nginx as a `LoadBalancer` service with a public IP addr
     1. [Install kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl) if you haven't already.
     1. [Connect to your cluster using kubectl](https://docs.nebius.com/kubernetes/connect/).
     1. Set up port forwarding:
+
         ```bash
         kubectl --namespace=<namespace> port-forward service/proxy-public 8080:http
         ```
+
     1. Go to <http://localhost:8080> in your browser.
-    
+
 - Using service IP address
     1. [Install kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl) if you haven't already.
     1. [Connect to your cluster using kubectl](https://docs.nebius.com/kubernetes/connect/).
     1. Get the public IP address of the `nginx` service:
+
        ```bash
         kubectl describe svc nginx -n <namespace> | grep "LoadBalancer Ingress:"
        ```
+
     1. Go to `http://<ip_address>` in your browser.
 
 {% endlist %}
 
 ## Use cases
 
-* Serving static content.
-* Load balancing.
-* Reverse proxy.
+- Serving static content.
+- Load balancing.
+- Reverse proxy.
 
 ## Links
 
 [nginx documentation](https://nginx.org/en/docs/index.html)
 [nginx on GitHub](https://github.com/nginx/nginx)
 
-## Term of service
+## Legal
 
-- [nginx](https://nginx.org/LICENSE "additional-third-party-tos")
+By using the application, you agree to their terms and conditions: [the helm-chart](https://github.com/nebius/nebius-k8s-applications/blob/main/LICENSE) and [Nginx](https://nginx.org/LICENSE).

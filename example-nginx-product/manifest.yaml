@@ -3,8 +3,8 @@
 # Declare variables to be passed into marketplace product.
 
 slug: test-nginx-product
+ownerName: Nginx
 publisherName: Nebius
-ownerName: Nebius
 categories:
   - devtools
 tariff_type: free

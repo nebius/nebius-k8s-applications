@@ -23,7 +23,9 @@ This repository serves as a central hub for managing and deploying Kubernetes ap
 
 ## Applications
 
-[] add Applications
+- [NVIDIA® GPU Operator](nvidia-gpu-operator/README.md)
+- [NVIDIA® Network Operator](nvidia-netwrok-operator/README.md)
+- [Ray Cluster](ray-cluster/README.md)
 
 ---
 
