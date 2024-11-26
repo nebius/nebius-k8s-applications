@@ -1,0 +1,5 @@
+!go.mod
+.DS_Store
+/.idea/
+# icons
+*.svg
