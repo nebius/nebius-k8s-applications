@@ -17,7 +17,7 @@ Welcome to the **Nebius library of applications for Kubernetes** repository! Thi
 
 ## Overview
 
-This repository serves as a central hub for managing and deploying Kubernetes applications built for the Nebius platform. These applications are designed to ensure high availability, scalability and seamless integration with the Nebius ecosystem.
+This repository serves as a central hub for managing and deploying applications for Kubernetes built for the Nebius platform. These applications are designed to ensure high availability, scalability and seamless integration with the Nebius ecosystem.
 
 ---
 
