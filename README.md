@@ -1,6 +1,6 @@
-# Nebius Kubernetes applications library of helm charts
+# Nebius library of applications for Kubernetes®
 
-Welcome to the **Nebius Kubernetes Applications** repository! This repository contains the configuration, manifests and Helm charts for deploying and managing Nebius' Kubernetes applications.
+Welcome to the **Nebius library of applications for Kubernetes** repository! This repository contains the configuration, manifests and Helm charts for deploying and managing applications for Kubernetes.
 
 ---
 
@@ -24,7 +24,7 @@ This repository serves as a central hub for managing and deploying Kubernetes ap
 ## Applications
 
 - [NVIDIA® GPU Operator](nvidia-gpu-operator/README.md)
-- [NVIDIA® Network Operator](nvidia-netwrok-operator/README.md)
+- [NVIDIA® Network Operator](nvidia-network-operator/README.md)
 - [Ray Cluster](ray-cluster/README.md)
 
 ---
@@ -63,3 +63,8 @@ This project is licensed under the [Apache License 2.0](LICENSE).
 ## Support
 
 For support or to report issues, please create an issue in this repository.
+
+---
+_Kubernetes® is a registered trademark of The Linux Foundation®_
+
+
