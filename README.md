@@ -53,9 +53,9 @@ helm --kube-context <local-kube-context-name> install <chart-path> [-f values.ya
 
 We welcome contributions from the community! To contribute:
 
-1.Fork the repository.
-1.Create a new branch for your feature or bugfix.
-1.Submit a pull request with a detailed explanation of your changes.
+1. Fork the repository.
+1. Create a new branch for your feature or bugfix.
+1. Submit a pull request with a detailed explanation of your changes.
 
 ## License
 
