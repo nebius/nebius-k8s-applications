@@ -148,6 +148,8 @@ driver:
   full_alternative_image: "cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2/driver:535.161.08-ubuntu22.04"
   full_new_image: "cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2/driver:550.54.15-ubuntu20.04"
   full_new_alternative_image: "cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2/driver:550.54.15-ubuntu22.04"
+  full_image-550-127-08: "cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2/driver:550.127.08-ubuntu20.04"
+  full_alternative_image-550-127-08: "cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2/driver:550.127.08-ubuntu22.04"
   imagePullPolicy: IfNotPresent
   imagePullSecrets: [ ]
   startupProbe:
@@ -301,7 +303,7 @@ devicePlugin:
 # standalone dcgm hostengine
 dcgm:
   # disabled by default to use embedded nv-hostengine by exporter
-  enabled: true
+  enabled: false
   repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2
   image: dcgm
   version: 3.3.7-1-ubuntu22.04

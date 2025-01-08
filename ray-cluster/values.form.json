@@ -12,7 +12,7 @@
     "additionalWorkerGroups.cpu.maxReplicas": "0",
     "additionalWorkerGroups.cpu.resources.limits.cpu": "16",
     "additionalWorkerGroups.cpu.resources.limits.memory": "30Gi",
-    "redis.replica.replicaCount": 3
+    "redis.replica.replicaCount": 2
   },
   "type": "object",
   "properties": {

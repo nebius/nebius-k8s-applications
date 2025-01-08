@@ -291,7 +291,7 @@ redis:
     enabled: false
     sentinel: false
   replica:
-    replicaCount: 3
+    replicaCount: 2
     resources:
       limits:
         cpu: "2"
@@ -300,7 +300,7 @@ redis:
         cpu: "1"
         memory: "512Mi"
     persistence:
-      enabled: false
+      size: 16Gi
     serviceAccount:
       create: false
     automountServiceAccountToken: true
@@ -328,7 +328,7 @@ redis:
       tag: 7.2.4-debian-12-r7
     enabled: true
     persistence:
-      enabled: false
+      size: 16Gi
     service:
       createMaster: true
   kubectl:

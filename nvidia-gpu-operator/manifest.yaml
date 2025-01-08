@@ -28,6 +28,10 @@ images:
 
   - full: driver.full_new_alternative_image
 
+  - full: driver.full_image-550-127-08
+
+  - full: driver.full_alternative_image-550-127-08
+
   - registry: driver.manager.repository
     nameWithoutRegistry: driver.manager.image
     tag: driver.manager.version
