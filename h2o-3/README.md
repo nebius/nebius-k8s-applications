@@ -58,7 +58,7 @@ To install the product:
 
 ## Usage
 
-1. [Install kubectl](https://kubernetes.io/docs/tasks/tools/##kubectl){target="\_blank"} and [configure it to work with the created cluster](https://nebius.ai/docs/managed-kubernetes/operations/connect/##kubectl-connect)
+1. [Install kubectl](https://kubernetes.io/docs/tasks/tools/##kubectl) and [configure it to work with the created cluster](https://nebius.ai/docs/managed-kubernetes/operations/connect/##kubectl-connect)
 1. To check that H2O-3 is working, launch [H2O Flow](https://docs.h2o.ai/h2o/latest-stable/h2o-docs/flow.html), the H2O-3 user interface:
 
     1. Configure port forwarding:

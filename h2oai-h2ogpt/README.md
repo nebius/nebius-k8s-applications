@@ -2,7 +2,7 @@
 
 ## Description
 
-[h2oGPT](https://h2o.ai/platform/open-source-gpt-and-llm-studio/){target="\_blank"} is a suite of components designed to facilitate the deployment and utilization of large language models (LLMs), specifically leveraging the power of the GPT architecture. The components included in the suite are a large language model, an embedding model, a database for document embeddings, and a graphical user interface. h2oGPT enables users to harness the capabilities of advanced language models for a variety of applications, from text generation to sentiment analysis. It maintains control over your data and ensures privacy while still having access to powerful language processing capabilities. This product offers commercially usable code, data, and models. It supports several types of documents including plain text (.txt), comma-separated values (.csv), Word (.docx and .doc), PDF, Markdown (.md), HTML, EPUB, and email files (.eml and .msg).
+[h2oGPT](https://h2o.ai/platform/open-source-gpt-and-llm-studio/) is a suite of components designed to facilitate the deployment and utilization of large language models (LLMs), specifically leveraging the power of the GPT architecture. The components included in the suite are a large language model, an embedding model, a database for document embeddings, and a graphical user interface. h2oGPT enables users to harness the capabilities of advanced language models for a variety of applications, from text generation to sentiment analysis. It maintains control over your data and ensures privacy while still having access to powerful language processing capabilities. This product offers commercially usable code, data, and models. It supports several types of documents including plain text (.txt), comma-separated values (.csv), Word (.docx and .doc), PDF, Markdown (.md), HTML, EPUB, and email files (.eml and .msg).
 
 ## Short description
 
@@ -52,7 +52,7 @@ If you want to use h2oGPT with GPUs and have them in your node group, install th
 
 To check that h2oGPT is working, access its UI:
 
-1. [Install kubectl](https://kubernetes.io/docs/tasks/tools/##kubectl){target="\_blank"} and [configure it to work with the created cluster](https://nebius.ai/docs/managed-kubernetes/operations/connect/##kubectl-connect).
+1. [Install kubectl](https://kubernetes.io/docs/tasks/tools/##kubectl) and [configure it to work with the created cluster](https://nebius.ai/docs/managed-kubernetes/operations/connect/##kubectl-connect).
 1. Set up port forwarding:
 
     ```bash
@@ -60,4 +60,4 @@ To check that h2oGPT is working, access its UI:
       service/h2ogpt-web 8080:80
     ```
 
-1. Go to [http://localhost:8080/](http://localhost:8080/){target="\_blank"} in your web browser.
+1. Go to [http://localhost:8080/](http://localhost:8080/) in your web browser.

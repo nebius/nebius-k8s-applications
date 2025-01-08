@@ -57,7 +57,7 @@ By using the application, you agree to their terms and conditions: [the helm-cha
 
       ```
 
-   1. Go to [http://localhost:8080](http://localhost:8080){target="\_blank"} and use the following credentials to log in:
+   1. Go to [http://localhost:8080](http://localhost:8080) and use the following credentials to log in:
 
       - Username: `admin`.
 

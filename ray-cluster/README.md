@@ -18,7 +18,7 @@ Ray simplifies scalable AI workload deployment with Kubernetes orchestration.
 
 **Before installing this product:**
 
-   1. [Create a node group](https://nebius.ai/docs/managed-kubernetes/operations/node-group/node-group-create){target="_blank"} with GPUs in it. The product supports the following [VM platforms](https://nebius.ai/docs/compute/concepts/vm-platforms){target="_blank"} with GPUs:
+   1. [Create a node group](https://nebius.ai/docs/managed-kubernetes/operations/node-group/node-group-create) with GPUs in it. The product supports the following [VM platforms](https://nebius.ai/docs/compute/concepts/vm-platforms) with GPUs:
 
       * NVIDIA® H100 NVLink with Intel Sapphire Rapids
 
@@ -34,8 +34,8 @@ Ray simplifies scalable AI workload deployment with Kubernetes orchestration.
 
       {% note info %}
 
-         It is stronly recommended to keep the default values for the [head pod](https://docs.ray.io/en/latest/cluster/kubernetes/user-guides/config.html#pod-configuration-headgroupspec-and-workergroupspecs){target="_blank"} and worker pods without GPUs so that it takes up an entire node.
-         For more details, see the [Ray documentation](https://docs.ray.io/en/latest/cluster/kubernetes/user-guides/config.html#resources){target="_blank"}.
+         It is stronly recommended to keep the default values for the [head pod](https://docs.ray.io/en/latest/cluster/kubernetes/user-guides/config.html#pod-configuration-headgroupspec-and-workergroupspecs) and worker pods without GPUs so that it takes up an entire node.
+         For more details, see the [Ray documentation](https://docs.ray.io/en/latest/cluster/kubernetes/user-guides/config.html#resources).
 
       {% endnote %}
 
@@ -53,7 +53,7 @@ Ray simplifies scalable AI workload deployment with Kubernetes orchestration.
         services/<application_name>-kuberay-head-svc 8265:8265
       ```
 
-   1. Go to [http://localhost:8265/](http://localhost:8265/){target="_blank"} in your web browser.
+   1. Go to [http://localhost:8265/](http://localhost:8265/) in your web browser.
 
 ## Use cases
 
