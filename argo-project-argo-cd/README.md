@@ -1,3 +1,5 @@
+# Nebius package for Argo CD
+
 ## Description
 
 [Argo CD](https://argo-cd.readthedocs.io/en/stable/) is a declarative, GitOps continuous delivery tool for Kubernetes. It allows you to develop and maintain your Kubernetes application using a declarative approach, and set up automated and auditable deployment and lifecycle management. Argo CD is implemented as a Kubernetes controller that compares the current state of your application with its declared target state, reports and visualizes the differences, and provides facilities to synchronize the states.

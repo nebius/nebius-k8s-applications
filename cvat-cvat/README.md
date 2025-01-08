@@ -11,11 +11,8 @@ A tool for annotation workflows, efficient model training and inference.
 ## Use cases
 
 * Annotation of objects within images and videos for tasks such as object detection, instance segmentation, and object tracking.
-
 * Labelling images with corresponding categories or tags to train classification models for tasks like image recognition and content-based retrieval.
-
 * Defining pixel-level annotations to create detailed masks for each object class, essential for applications such as scene understanding and image segmentation.
-
 * Labelling video frames to generate annotated datasets for video understanding tasks, including action recognition, event detection, and surveillance.
 
 ## Links
@@ -40,11 +37,11 @@ To connect to the CVAT UI:
 1. [Install kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl) and [configure it to work with the created cluster](https://nebius.ai/docs/managed-kubernetes/operations/connect/#kubectl-connect).
 
 1. Find out the CVAT server pod’s name:
-   
+
     ```bash
     kubectl get pods -n <namespace> -l app=cvat-app -l component=server
     ```
-   
+
 1. Connect to the CVAT pod:
 
     ```bash
@@ -68,7 +65,6 @@ To connect to the CVAT UI:
     For example, `kubectl port-forward service/cvat-traefik 8000:80 -n cvat`.
 
 1. Add `127.0.0.1 <hostname>` line to the `/etc/hosts` file.
-
 
 To check that CVAT is working:
 
