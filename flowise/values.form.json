@@ -1,0 +1,80 @@
+{
+  "type": "object",
+  "viewSpec": {
+    "type": "base",
+    "order": ["config", "postgresql", "mariadb"],
+    "layout": ""
+  },
+  "defaultValue": {
+    "config": { "password": "", "username": "" },
+    "mariadb": { "enabled": false },
+    "postgresql": { "enabled": true }
+  },
+  "properties": {
+    "config": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "order": ["username", "password"],
+        "layout": ""
+      },
+      "properties": {
+        "password": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "disabled": false,
+            "generateRandomValueButton": true,
+            "layout": "row",
+            "layoutTitle": "Password",
+            "layoutDescription": "Create a password for the user name.",
+            "type": "password"
+          },
+          "pattern": "^[a-zA-Z0-9-!@#\\$%\\^\u0026*]{8,}$"
+        },
+        "username": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Username",
+            "layoutDescription": "Create a user name to access Flowise UI."
+          }
+        }
+      }
+    },
+    "mariadb": {
+      "type": "object",
+      "viewSpec": { "type": "base", "order": ["enabled"], "layout": "" },
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "viewSpec": {
+            "disabled": false,
+            "layout": "row",
+            "layoutTitle": "Enable MariaDB",
+            "layoutDescription": "Select PostgreSQL support. It is recommended to select this database.",
+            "type": "switch"
+          }
+        }
+      }
+    },
+    "postgresql": {
+      "type": "object",
+      "viewSpec": { "type": "base", "order": ["enabled"], "layout": "" },
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "viewSpec": {
+            "disabled": false,
+            "layout": "row",
+            "layoutTitle": "Enable PostgreSQL",
+            "layoutDescription": "Select MariaDB support instead if for any reason PostgreSQL support is not applicable.",
+            "type": "switch"
+          }
+        }
+      }
+    }
+  }
+}

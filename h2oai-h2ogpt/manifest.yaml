@@ -1,0 +1,9 @@
+slug: h2ogpt
+publisherName: Nebius
+ownerName: H2O.ai
+name: h2oGPT
+categories:
+  - llm-apps-framework
+images:
+  - tag: h2ogpt.image.tag
+    nameWithRegistry: h2ogpt.image.repository

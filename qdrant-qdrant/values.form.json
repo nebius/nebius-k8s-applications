@@ -1,0 +1,37 @@
+{
+  "type": "object",
+  "viewSpec": {
+    "type": "base",
+    "order": ["persistence", "replicaCount"],
+    "layout": ""
+  },
+  "defaultValue": { "persistence": { "size": "10Gi" }, "replicaCount": "1" },
+  "properties": {
+    "persistence": {
+      "type": "object",
+      "viewSpec": { "type": "base", "order": ["size"], "layout": "" },
+      "properties": {
+        "size": {
+          "type": "string",
+          "viewSpec": {
+            "disabled": false,
+            "inputProps": { "max": 1000, "min": 5, "suffix": "Gi" },
+            "layout": "row",
+            "layoutTitle": "Qdrant disk size in Gi",
+            "type": "rangeinputpicker"
+          }
+        }
+      }
+    },
+    "replicaCount": {
+      "type": "string",
+      "viewSpec": {
+        "disabled": false,
+        "inputProps": { "max": 10, "min": 1 },
+        "layout": "row",
+        "layoutTitle": "Replica count",
+        "type": "rangeinputpicker"
+      }
+    }
+  }
+}

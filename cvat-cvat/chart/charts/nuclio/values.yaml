@@ -1,0 +1,450 @@
+# possible release name overrides
+# nameOverride:
+# fullnameOverride:
+
+# if true, all components assume no internet connectivity
+offline: false
+
+# Controller settings
+controller:
+  enabled: true
+  image:
+    repository: ""
+    tag: ""
+    pullPolicy: IfNotPresent
+  resources: {}
+
+  ## Node labels for pod assignment
+  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector: {}
+
+  ## List of node taints to tolerate (requires Kubernetes >= 1.6)
+  tolerations: []
+  #  - key: "key"
+  #    operator: "Equal|Exists"
+  #    value: "value"
+  #    effect: "NoSchedule|PreferNoSchedule|NoExecute"
+
+  ## Affinity
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+
+  ## Pod Priority
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#pod-priority
+  priorityClassName: ""
+
+  # Uncomment to have the controller to listen only the namespace's events,
+  # change to listen on other specific namespace
+  # namespace: "@nuclio.selfNamespace"
+
+  # Resync interval defines how often the Controller goes through all nuclio CRDs (functions, apigateways, etc)
+  #  in its cache and fires update again.
+  # Note: 0 means cancelling resync mechanism. any other value (e.g.: 10m) would turn it on.
+  resyncInterval: 0
+
+  operator:
+    function:
+      numWorkers: 4
+    functionEvent:
+      numWorkers: 2
+    project:
+      numWorkers: 2
+    apiGateway:
+      numWorkers: 2
+
+  monitoring:
+    function:
+      interval: 3m
+
+  # the image of the created k8s cron job for function cron triggers
+  cronTriggerCronJobImage:
+    repository: ""
+    tag: ""
+    pullPolicy: IfNotPresent
+
+# Dashboard settings
+dashboard:
+  enabled: true
+  replicas: 1
+  image:
+    repository: ""
+    tag: ""
+    pullPolicy: IfNotPresent
+  resources: {}
+
+  ## Node labels for pod assignment
+  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector: {}
+
+  ## List of node taints to tolerate (requires Kubernetes >= 1.6)
+  tolerations: []
+  #  - key: "key"
+  #    operator: "Equal|Exists"
+  #    value: "value"
+  #    effect: "NoSchedule|PreferNoSchedule|NoExecute"
+
+  ## Affinity
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+
+  ## Pod Priority
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#pod-priority
+  priorityClassName: ""
+
+  baseImagePullPolicy: IfNotPresent
+  externalIPAddresses: []
+  imageNamePrefixTemplate: ""
+
+  # Supported container builders: "kaniko", "docker"
+  containerBuilderKind: "docker"
+
+  # Monitor docker deamon connectivity, in conjunction with container builder kind "docker"
+  monitorDockerDeamon:
+    enabled: true
+    interval: 5s
+    maxConsecutiveErrors: 5
+
+  kaniko:
+
+    #  Set this flag to specify a remote repository for storing cached layers
+    #
+    # cacheRepo: someurl
+
+    # Set this flag to push images to a plain HTTP registry
+    insecurePushRegistry: false
+
+    # Set this flag to pull images from a plain HTTP registry
+    insecurePullRegistry: false
+
+    image:
+      repository: ""
+      tag: ""
+      pullPolicy: IfNotPresent
+
+    initContainerImage:
+      repository: ""
+      tag: ""
+
+    # How long to wait before deleting the build job
+    jobDeletionTimeout: 30m
+
+    # How many times to retry pushing images to registry
+    pushImagesRestries: 3
+
+  # Uncomment to configure node port
+  # nodePort: 32050
+
+  # Uncomment if you serve the templates locally (for offline environments);
+  # otherwise, the templates will be pulled from GitHub
+  # templatesArchiveAddress: <url>
+
+  ingress:
+    enabled: false
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    path: /
+    hosts:
+      - nuclio.local
+    tls: []
+    #  - secretName: nuclio-tls
+    #    hosts:
+    #      - nuclio.local
+
+  authConfig:
+
+    # either one of "nop" or "iguazio"
+    kind: nop
+
+    iguazio:
+
+      # endpoint which verify incoming request session
+      sessionVerificationURL: "http://somewhere.com"
+
+      # endpoint with which to verify and enrich incoming request sessions with data plane permissions
+      sessionVerificationDataEnrichmentURL: "http://somewhereelse.com"
+
+      # session verification request timeout
+      timeout: 30s
+
+      # how many entries to cache
+      cacheSize: 100
+
+      # invalidate a cache entry after specific timeout
+      cacheExpirationTimeout: 60s
+
+  opa:
+    enabled: false
+    name: opa-server
+    fullnameOverride:
+
+    config: {}
+    # services:
+    #   acmecorp:
+    #     url: https://example.com/control-plane-api/v1
+    #     response_header_timeout_seconds: 5
+    #     credentials:
+    #       bearer:
+    #         token: "bGFza2RqZmxha3NkamZsa2Fqc2Rsa2ZqYWtsc2RqZmtramRmYWxkc2tm"
+
+    # bundles:
+    #   authz:
+    #     service: acmecorp
+    #     resource: bundles/http/example/authz.tar.gz
+    #     persist: true
+    #     polling:
+    #       min_delay_seconds: 60
+    #       max_delay_seconds: 120
+    #     signing:
+    #       keyid: global_key
+    #       scope: write
+
+    logLevel: info
+    logFormat: json
+
+    image:
+      repository: ""
+      tag: ""
+      pullPolicy: IfNotPresent
+      pullSecrets: []
+
+    securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
+
+    readinessProbe:
+      httpGet:
+        path: /health?bundle=true
+        port: http
+      initialDelaySeconds: 10
+      timeoutSeconds: 10
+      periodSeconds: 15
+      successThreshold: 3
+      failureThreshold: 4
+
+    livenessProbe:
+      httpGet:
+        port: http
+      initialDelaySeconds: 15
+      timeoutSeconds: 10
+      periodSeconds: 15
+      failureThreshold: 4
+
+  # Uncomment to volumize pip ca cert
+  # Note: secret name must contain "pip-ca-certificates.crt" key
+  # pipCACertSecretName: secret-name
+
+autoscaler:
+  enabled: false
+  replicas: 1
+  image:
+    repository: ""
+    tag: ""
+    pullPolicy: IfNotPresent
+  resources: {}
+
+  ## Node labels for pod assignment
+  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector: {}
+
+  ## List of node taints to tolerate (requires Kubernetes >= 1.6)
+  tolerations: []
+  #  - key: "key"
+  #    operator: "Equal|Exists"
+  #    value: "value"
+  #    effect: "NoSchedule|PreferNoSchedule|NoExecute"
+
+  ## Affinity
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+
+  ## Pod Priority
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#pod-priority
+  priorityClassName: ""
+
+dlx:
+  enabled: false
+  replicas: 1
+  image:
+    repository: ""
+    tag: ""
+    pullPolicy: IfNotPresent
+  resources: {}
+
+  ## Node labels for pod assignment
+  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector: {}
+
+  ## List of node taints to tolerate (requires Kubernetes >= 1.6)
+  tolerations: []
+  #  - key: "key"
+  #    operator: "Equal|Exists"
+  #    value: "value"
+  #    effect: "NoSchedule|PreferNoSchedule|NoExecute"
+
+  ## Affinity
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+
+  ## Pod Priority
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#pod-priority
+  priorityClassName: ""
+
+  # Whether to verify function readiness before redirecting incoming requests
+  functionReadinessVerificationEnabled: true
+
+registry:
+
+  # By default, the chart does not advocate using helm to manage registry credentials. You should create a secret
+  # manually as follows and specify secret name here:
+  #
+  # kubectl create secret docker-registry <name> --namespace <namespace> \
+  #     --docker-username <username> \
+  #     --docker-password <password> \
+  #     --docker-server <url> \
+  #     --docker-email ignored@nuclio.io
+  #
+  # IMPORTANT:
+  # K8S doesn't allow secret sharing between namespaces, so in order to deploy a nuclio function
+  # to namespace which differs from a namespace in which nuclio is running,
+  # secret must be copied to that namespace:
+  #
+  #  kubectl get secret <secret-name> -n <source-namespace> -o yaml \
+  #     | sed s/"namespace: <source-namespace>"/"namespace: <destination-namespace>"/ \
+  #     | kubectl apply -f -
+  #
+  #
+  # If you'd still like to have this managed as part of the helm chart, populate
+  # the credentials stanza below. The chart will create a secret for you (note: the credentials will be
+  # visible to anyone with access to helm).
+  # If secretName is commented out or empty (and credentials are given) then the
+  # chart will create a secret with default name `{releaseName}-registry-credentials`
+  #
+  # secretName: registry-credentials
+
+  # In some cases the docker server URL in the registry secrets isn't the same as the URL with which
+  # you push and pull. For example, in GKE you log into `gcr.io` (or some other regional URL) yet have
+  # to push/pull from `gcr.io/<project-name>. If this is the case, specify the URL here, and it will be
+  # used instead of the URL in the secrets
+  #
+  # pushPullUrl: gcr.io/<project-name>
+
+  # In case you'd like helm to generate the secret for you, `loginUrl` specifies
+  # the URL with which the components in nuclio will try to log into
+  #
+  # loginUrl: someurl
+
+  # See the note for `secretName`
+  # credentials:
+    # username: someuser
+    # password: somepass
+
+  #  Use a custom "base" images registry (pull registry). Default behavior will pull the default
+  #  base images from the web
+  #  Note: To override a pull registry for both "onbuild" and base images, use `dependantImageRegistryURL`.
+  defaultBaseRegistryURL: ""
+
+  #  Use a custom "onbuild" images registry (pull registry).
+  #  Note: To override a pull registry for both "onbuild" and base images, use `dependantImageRegistryURL`.
+  defaultOnbuildRegistryURL: "quay.io"
+
+  # Use this registry URL as an override for both base and "onbuild" images, so they'll be pulled from the
+  # specified registry URL and not from the default registries
+  # dependantImageRegistryURL: someUrl
+
+rbac:
+
+  # If true, creates the necessary roles and role bindings for nuclio's service account
+  create: true
+
+  # serviceAccountName: service-account-name
+
+  # Allow / deny cluster-wide resource access. values: "cluster", "namespaced".
+  # If set to "namespaced" dashboard will not be able to create nuclio resources in any namespace other
+  # than the one in which it is installed
+  # Likewise, for "namespaced", the controller won't be able to act on these nuclio resources in any
+  # namespace other than the one in which it is installed
+  crdAccessMode: cluster
+
+crd:
+
+  # If true, creates cluster wide custom resources definitions for nuclio's resources
+  create: true
+
+platform: {}
+#  runtime:
+#    python:
+#      pipCAPath: /path/to/pip-ca-file.crt
+#      buildArgs:
+#        PIP_INDEX_URL: "https://test.pypi.org/simple"
+#   logger:
+#     sinks:
+#       myHumanReadableStdout:
+#         kind: stdout
+#         format: humanReadable
+#     system:
+#     - level: debug
+#       sink: myHumanReadableStdout
+#     functions:
+#     - level: debug
+#       sink: myHumanReadableStdout
+#   metrics:
+#     sinks:
+#       myPrometheusPull:
+#         kind: prometheusPull
+#     system:
+#     - myPrometheusPull
+#     functions:
+#     - myPrometheusPull
+#   cronTriggerCreationMode: "kube"
+#   kube:
+#     defaultFunctionNodeSelector:
+#       nodeLabelKey: nodeLabelValue
+#     defaultServiceType: ClusterIP
+#     defaultHTTPIngressHostTemplate: ""
+#     defaultHTTPIngressAnnotations:
+#       ingressAnnotationKey: ingressAnnotationValue
+#   imageRegistryOverrides:
+#     baseImageRegistries:
+#       "python:3.7": "myregistry"
+#     onbuildImageRegistries:
+#       "golang": "myregistry"
+#   functionReadinessTimeout: 120s
+#   opa:
+#
+#     # set to 10 for extra verbosity on top of nuclio logger
+#     logLevel: 0
+#     address: http://1.8.1.0.1:8081
+#     clientKind: nop
+#     requestTimeout: 10
+#     permissionQueryPath: /v1/data/somewhere/authz/allow
+#
+#   defaultUserFunctionPodResources
+#      requests:
+#        cpu: 25m
+#        memory: 1Mi
+#      limits:
+#        cpu: 2
+#        memory: 20Mi
+#
+#   streamMonitoring:
+#     webapiURL: ""
+#     getStreamShardsConcurrentRequests: 64
+
+# global is a stanza that is used if this is used as a subchart. Ignore otherwise
+global:
+  externalHostAddress:
+  registry:
+    url:
+    secretName:
+  nuclio:
+    dashboard:
+      nodePort:

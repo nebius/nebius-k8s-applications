@@ -1,0 +1,76 @@
+{
+  "type": "object",
+  "required": true,
+  "viewSpec": {
+    "type": "base",
+    "order": ["singleuser", "proxy"],
+    "layout": ""
+  },
+  "defaultValue": {
+    "prePuller.hook.enabled": false,
+    "proxy": { "service": { "type": "LoadBalancer" } },
+    "singleuser": { "storage": { "capacity": "50Gi" } }
+  },
+  "properties": {
+    "proxy": {
+      "type": "object",
+      "viewSpec": { "type": "base", "order": ["service"], "layout": "" },
+      "defaultValue": { "service": { "type": "LoadBalancer" } },
+      "properties": {
+        "service": {
+          "type": "object",
+          "viewSpec": { "type": "base", "order": ["type"], "layout": "" },
+          "defaultValue": { "type": "LoadBalancer" },
+          "properties": {
+            "type": {
+              "type": "string",
+              "required": true,
+              "viewSpec": {
+                "type": "select",
+                "layout": "row",
+                "layoutTitle": "JupyterHub accessibility",
+                "layoutDescription": "Select a way to access the JupyterHub cluster.",
+                "selectParams": {
+                  "meta": {
+                    "ClusterIP": "Service type: ClusterIP",
+                    "LoadBalancer": "Service type: LoadBalancer"
+                  }
+                }
+              },
+              "enum": ["LoadBalancer", "ClusterIP"],
+              "description": {
+                "ClusterIP": "Access only within the cluster.",
+                "LoadBalancer": "Access from the Internet and within the cluster."
+              }
+            }
+          }
+        }
+      }
+    },
+    "singleuser": {
+      "type": "object",
+      "viewSpec": { "type": "base", "order": ["storage"], "layout": "" },
+      "defaultValue": { "storage": { "capacity": "50Gi" } },
+      "properties": {
+        "storage": {
+          "type": "object",
+          "viewSpec": { "type": "base", "order": ["capacity"], "layout": "" },
+          "defaultValue": { "capacity": "50Gi" },
+          "properties": {
+            "capacity": {
+              "type": "string",
+              "required": true,
+              "viewSpec": {
+                "inputProps": { "max": 1000, "min": 20, "suffix": "Gi" },
+                "layout": "row",
+                "layoutDescription": "Specify a disk size for a notebook server. One user can only have one server and each server has one disk of the specified size. Disks are persistent between restarts: if you start working in one notebook and then switch to another, your work will still be there. Disks do not scale up automatically, so enter a size sufficient for your needs.\n",
+                "layoutTitle": "Size",
+                "type": "rangeinputpicker"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

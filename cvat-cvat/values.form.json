@@ -1,0 +1,68 @@
+{
+  "type": "object",
+  "required": true,
+  "viewSpec": {
+    "type": "base",
+    "order": ["analytics", "ingress", "nfs"],
+    "layout": ""
+  },
+  "defaultValue": {
+    "analytics": { "enabled": false },
+    "ingress": { "hostname": "cvat.local" },
+    "nfs": { "nfs_pv_size": "120Gi" }
+  },
+  "properties": {
+    "analytics": {
+      "type": "object",
+      "viewSpec": { "type": "base", "order": ["enabled"], "layout": "" },
+      "defaultValue": { "enabled": false },
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "viewSpec": {
+            "disabled": false,
+            "layout": "row",
+            "layoutDescription": "Select the option to monitor collected metrics in Grafana.",
+            "layoutTitle": "Enable Grafana",
+            "type": "switch"
+          }
+        }
+      }
+    },
+    "ingress": {
+      "type": "object",
+      "viewSpec": { "type": "base", "order": ["hostname"], "layout": "" },
+      "defaultValue": { "hostname": "cvat.local" },
+      "properties": {
+        "hostname": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Hostname",
+            "layoutDescription": "Choose a hostname for connecting to CVAT after the installation."
+          }
+        }
+      }
+    },
+    "nfs": {
+      "type": "object",
+      "viewSpec": { "type": "base", "order": ["nfs_pv_size"], "layout": "" },
+      "defaultValue": { "nfs_pv_size": "120Gi" },
+      "properties": {
+        "nfs_pv_size": {
+          "type": "string",
+          "viewSpec": {
+            "disabled": false,
+            "inputProps": { "max": 1024, "min": 10, "suffix": "Gi" },
+            "layout": "row",
+            "layoutDescription": "Enter the size of the default images and datasets storage.",
+            "layoutTitle": "Persistent Volume size in GB",
+            "type": "rangeinputpicker"
+          }
+        }
+      }
+    }
+  }
+}

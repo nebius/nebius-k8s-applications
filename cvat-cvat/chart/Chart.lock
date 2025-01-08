@@ -1,0 +1,33 @@
+dependencies:
+- name: postgresql
+  repository: file://charts/postgresql
+  version: 12.1.15
+- name: nuclio
+  repository: file://charts/nuclio
+  version: 0.12.1
+- name: vector
+  repository: file://charts/vector
+  version: 0.19.2
+- name: clickhouse
+  repository: file://charts/clickhouse
+  version: 4.1.16
+- name: grafana
+  repository: file://charts/grafana
+  version: 6.60.6
+- name: traefik
+  repository: file://charts/traefik
+  version: 25.0.0
+- name: redis
+  repository: file://charts/redis
+  version: 18.5.0
+- name: nfs
+  repository: file://charts/nfs
+  version: 0.1.0
+- name: csi-driver-nfs
+  repository: file://charts/csi-driver-nfs
+  version: v4.6.0
+- name: gpu-operator
+  repository: oci://cr.nemax.nebius.cloud/yc-marketplace/nebius/nvidia-gpu-operator/chart
+  version: v23.9.0
+digest: sha256:7fd4634a4c3407d33caa8a125918fa00f2504d9c022949f19d74f3bbd6c77fd6
+generated: "2024-06-25T18:21:34.52054093+02:00"

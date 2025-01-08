@@ -1,0 +1,33 @@
+{
+  "type": "object",
+  "required": true,
+  "viewSpec": { "type": "base", "order": ["h2ogpt"], "layout": "" },
+  "defaultValue": { "h2ogpt": { "storage": { "size": "128Gi" } } },
+  "properties": {
+    "h2ogpt": {
+      "type": "object",
+      "viewSpec": { "type": "base", "order": ["storage"], "layout": "" },
+      "defaultValue": { "storage": { "size": "128Gi" } },
+      "properties": {
+        "storage": {
+          "type": "object",
+          "viewSpec": { "type": "base", "order": ["size"], "layout": "" },
+          "defaultValue": { "size": "128Gi" },
+          "properties": {
+            "size": {
+              "type": "string",
+              "viewSpec": {
+                "disabled": false,
+                "inputProps": { "max": 1024, "min": 10, "suffix": "Gi" },
+                "layout": "row",
+                "layoutDescription": "Enter the size of a persistent volume that h2oGPT will create for cache and other files.",
+                "layoutTitle": "Persistent volume size in Gb",
+                "type": "rangeinputpicker"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

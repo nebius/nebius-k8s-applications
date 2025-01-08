@@ -1,0 +1,46 @@
+dependencies:
+- condition: postgresql.enabled
+  name: postgresql
+  # repository: https://charts.bitnami.com/bitnami
+  repository: file://charts/postgresql
+  version: 12.1.*
+- condition: nuclio.enabled
+  name: nuclio
+  # repository: https://nuclio.github.io/nuclio/charts
+  repository: file://charts/nuclio
+  version: 0.12.1
+- condition: analytics.enabled
+  name: vector
+  # repository: https://helm.vector.dev
+  repository: file://charts/vector
+  version: 0.19.*
+- condition: analytics.enabled
+  name: clickhouse
+  # repository: https://charts.bitnami.com/bitnami
+  repository: file://charts/clickhouse
+  version: 4.1.*
+- condition: analytics.enabled
+  name: grafana
+  #repository: https://grafana.github.io/helm-charts
+  repository: file://charts/grafana
+  version: 6.60.*
+- condition: traefik.enabled
+  name: traefik
+  # repository: https://helm.traefik.io/traefik
+  repository: file://charts/traefik
+  version: 25.0.0
+- condition: redis.enabled
+  name: redis
+  # repository: https://charts.bitnami.com/bitnami
+  repository: file://charts/redis
+  version: 18.5.*
+- name: nfs
+  repository: file://charts/nfs
+  version: 0.1.0
+- name: csi-driver-nfs
+  repository: file://charts/csi-driver-nfs
+  version: v4.6.0
+- condition: gpu-operator.enabled
+  name: gpu-operator
+  repository: oci://cr.nemax.nebius.cloud/yc-marketplace/nebius/nvidia-gpu-operator/chart
+  version: v23.9.0

@@ -1,0 +1,29 @@
+slug: argo-cd
+# TODO: Swap values between publisherName and ownerName
+publisherName: Nebius
+ownerName: Argo Project
+name: Argo CD
+categories:
+  - dev-tools
+  - k3s-dev-tools
+images:
+  - nameWithRegistry: global.image.repository
+    tag: global.image.tag
+
+  - nameWithRegistry: dex.image.repository
+    tag: dex.image.tag
+
+  - nameWithRegistry: redis.image.repository
+    tag: redis.image.tag
+
+  - nameWithRegistry: redis.exporter.image.repository
+    tag: redis.exporter.image.tag
+
+  - nameWithRegistry: redis-ha.image.repository
+    tag: redis-ha.image.tag
+
+  - nameWithRegistry: redis-ha.exporter.image
+    tag: redis-ha.exporter.tag
+
+  - nameWithRegistry: server.extensions.image.repository
+    tag: server.extensions.image.tag

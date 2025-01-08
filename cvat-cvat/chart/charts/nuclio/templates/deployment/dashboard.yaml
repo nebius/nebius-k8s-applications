@@ -1,0 +1,258 @@
+# Copyright 2017 The Nuclio Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+{{- if .Values.dashboard.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "nuclio.dashboardName" . }}
+spec:
+  replicas: {{ .Values.dashboard.replicas }}
+  selector:
+    matchLabels:
+      app: {{ template "nuclio.name" . }}
+      release: {{ .Release.Name }}
+      nuclio.io/app: dashboard
+      nuclio.io/name: {{ template "nuclio.dashboardName" . }}
+      nuclio.io/class: service
+  template:
+    metadata:
+      labels:
+        app: {{ template "nuclio.name" . }}
+        release: {{ .Release.Name }}
+        nuclio.io/app: dashboard
+        nuclio.io/name: {{ template "nuclio.dashboardName" . }}
+        nuclio.io/class: service
+      annotations:
+        nuclio.io/version: {{ .Values.dashboard.image.tag }}
+        checksum/secret-registry-credentials: {{ include (print $.Template.BasePath "/secret/registry-credentials.yaml") . | sha256sum }}
+        checksum/configmap-registry-url: {{ include (print $.Template.BasePath "/configmap/registry-url.yaml") . | sha256sum }}
+        checksum/configmap-platform: {{ include (print $.Template.BasePath "/configmap/platform.yaml") . | sha256sum }}
+    spec:
+      serviceAccountName: {{ template "nuclio.serviceAccountName" . }}
+      containers:
+      - name: {{ template "nuclio.dashboardName" . }}
+        image: {{ .Values.dashboard.image.repository }}:{{ .Values.dashboard.image.tag }}
+        imagePullPolicy: {{ .Values.dashboard.image.pullPolicy }}
+        ports:
+        - containerPort: 8070
+        - name: liveness-port
+          containerPort: 8082
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: liveness-port
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /live
+            port: liveness-port
+          failureThreshold: 1
+          periodSeconds: 15
+          timeoutSeconds: 5
+        startupProbe:
+          httpGet:
+            path: /live
+            port: liveness-port
+          failureThreshold: 4
+          periodSeconds: 15
+        volumeMounts:
+        {{- if .Values.dashboard.pipCACertSecretName }}
+        - mountPath: /etc/ssl/certs/nuclio
+          name: pip-ca-cert
+          readOnly: true
+        {{- end }}
+        {{- if eq .Values.dashboard.containerBuilderKind "docker" }}
+        - mountPath: /var/run/docker.sock
+          name: docker-sock
+        {{- end }}
+        {{- if (include "nuclio.registry.credentialsSecretName" .) }}
+        - name: registry-credentials
+          mountPath: "/etc/nuclio/dashboard/registry-credentials"
+          readOnly: true
+        {{- end }}
+        {{- if .Values.platform }}
+        - name: platform-config
+          mountPath: /etc/nuclio/config/platform
+        {{- end }}
+        {{- if .Values.dashboard.resources }}
+        resources:
+          {{ toYaml .Values.dashboard.resources | nindent 11 }}
+        {{- end }}
+        env:
+        - name: NUCLIO_BUSYBOX_CONTAINER_IMAGE
+          value: {{ .Values.dashboard.kaniko.initContainerImage.repository }}:{{ .Values.dashboard.kaniko.initContainerImage.tag}}
+        - name: NUCLIO_KANIKO_PUSH_IMAGES_RETRIES
+          value: {{ .Values.dashboard.kaniko.pushImagesRestries | quote }}
+        - name: NUCLIO_AUTH_KIND
+          value: {{ .Values.dashboard.authConfig.kind }}
+        - name: NUCLIO_AUTH_OPTIONS_IGUAZIO_TIMEOUT
+          value: {{ .Values.dashboard.authConfig.iguazio.timeout }}
+        - name: NUCLIO_AUTH_IGUAZIO_VERIFICATION_URL
+          value: {{ .Values.dashboard.authConfig.iguazio.sessionVerificationURL }}
+        - name: NUCLIO_AUTH_IGUAZIO_VERIFICATION_DATA_ENRICHMENT_URL
+          value: {{ .Values.dashboard.authConfig.iguazio.sessionVerificationDataEnrichmentURL }}
+        - name: NUCLIO_AUTH_IGUAZIO_CACHE_SIZE
+          value: {{ .Values.dashboard.authConfig.iguazio.cacheSize | quote }}
+        - name: NUCLIO_AUTH_IGUAZIO_CACHE_EXPIRATION_TIMEOUT
+          value: {{ .Values.dashboard.authConfig.iguazio.cacheExpirationTimeout }}
+        - name: NUCLIO_DASHBOARD_REGISTRY_URL
+          valueFrom:
+            configMapKeyRef:
+              name: {{ template "nuclio.registry.pushPullUrlName" . }}
+              key: "registry_url"
+              optional: true
+        - name: NUCLIO_DASHBOARD_DEPLOYMENT_NAME
+          value: {{ template "nuclio.dashboardName" . }}
+        - name: NUCLIO_CONTAINER_BUILDER_KIND
+          value: {{ .Values.dashboard.containerBuilderKind }}
+        - name: NUCLIO_KANIKO_CONTAINER_IMAGE
+          value: {{ .Values.dashboard.kaniko.image.repository }}:{{ .Values.dashboard.kaniko.image.tag }}
+        - name: NUCLIO_KANIKO_CONTAINER_IMAGE_PULL_POLICY
+          value: {{ .Values.dashboard.kaniko.image.pullPolicy }}
+        - name: NUCLIO_KANIKO_JOB_DELETION_TIMEOUT
+          value: {{ .Values.dashboard.kaniko.jobDeletionTimeout | quote }}
+        {{- if .Values.dashboard.kaniko.insecurePushRegistry }}
+        - name: NUCLIO_KANIKO_INSECURE_PUSH_REGISTRY
+          value: "true"
+        {{- end }}
+        {{- if .Values.dashboard.kaniko.insecurePullRegistry }}
+        - name: NUCLIO_KANIKO_INSECURE_PULL_REGISTRY
+          value: "true"
+        {{- end }}
+        {{- if .Values.registry.defaultBaseRegistryURL }}
+        - name: NUCLIO_DASHBOARD_DEFAULT_BASE_REGISTRY_URL
+          value: {{ .Values.registry.defaultBaseRegistryURL }}
+        {{- end }}
+        {{- if .Values.registry.defaultOnbuildRegistryURL }}
+        - name: NUCLIO_DASHBOARD_DEFAULT_ONBUILD_REGISTRY_URL
+          value: {{ .Values.registry.defaultOnbuildRegistryURL }}
+        {{- end }}
+        {{- if .Values.registry.dependantImageRegistryURL }}
+        - name: NUCLIO_DASHBOARD_DEPENDANT_IMAGE_REGISTRY_URL
+          value: {{ .Values.registry.dependantImageRegistryURL }}
+        {{- end }}
+        {{- if .Values.dashboard.kaniko.cacheRepo }}
+        - name: NUCLIO_DASHBOARD_KANIKO_CACHE_REPO
+          value: {{ .Values.dashboard.kaniko.cacheRepo }}
+        {{- end }}
+#        - name: NUCLIO_DASHBOARD_RUN_REGISTRY_URL
+#          value: "localhost:5000"
+        {{- if eq .Values.dashboard.baseImagePullPolicy "Never" }}
+        - name: NUCLIO_DASHBOARD_NO_PULL_BASE_IMAGES
+          value: "true"
+        {{- end }}
+        {{- if .Values.offline }}
+        - name: NUCLIO_DASHBOARD_OFFLINE
+          value: "true"
+        {{- end }}
+        {{- if .Values.dashboard.templatesArchiveAddress }}
+        - name: NUCLIO_TEMPLATES_ARCHIVE_ADDRESS
+          value: {{ .Values.dashboard.templatesArchiveAddress }}
+        - name: NUCLIO_TEMPLATES_GIT_REPOSITORY
+          value: "nil"
+        - name: NUCLIO_TEMPLATES_GIT_REF
+          value: "nil"
+        {{- end }}
+        - name: NUCLIO_MONITOR_DOCKER_DAEMON
+          value: {{ .Values.dashboard.monitorDockerDeamon.enabled | quote }}
+        - name: NUCLIO_MONITOR_DOCKER_DAEMON_INTERVAL
+          value: {{ .Values.dashboard.monitorDockerDeamon.interval | quote }}
+        - name: NUCLIO_MONITOR_DOCKER_DAEMON_MAX_CONSECUTIVE_ERRORS
+          value: {{ .Values.dashboard.monitorDockerDeamon.maxConsecutiveErrors | quote }}
+        - name: NUCLIO_REGISTRY_CREDENTIALS_SECRET_NAME
+          value: {{ template "nuclio.registry.credentialsSecretName" . }}
+        - name: NUCLIO_DASHBOARD_EXTERNAL_IP_ADDRESSES
+          value: {{ template "nuclio.externalIPAddresses" . }}
+        - name: NUCLIO_DASHBOARD_IMAGE_NAME_PREFIX_TEMPLATE
+          value: {{ .Values.dashboard.imageNamePrefixTemplate | quote }}
+      {{- if .Values.dashboard.opa.enabled }}
+      - name: {{ template "nuclio.name" . }}-{{ .Values.dashboard.opa.name }}
+        securityContext:
+          {{- toYaml .Values.dashboard.opa.securityContext | nindent 12 }}
+        image: "{{ .Values.dashboard.opa.image.repository }}:{{ .Values.dashboard.opa.image.tag }}"
+        imagePullPolicy: {{ .Values.dashboard.opa.image.pullPolicy }}
+        ports:
+          - name: http
+            containerPort: 8181
+        {{- if .Values.dashboard.opa.livenessProbe }}
+        livenessProbe:
+          {{ toYaml .Values.dashboard.opa.livenessProbe | nindent 12 }}
+        {{- end }}
+        {{- if .Values.dashboard.opa.readinessProbe }}
+        readinessProbe:
+          {{ toYaml .Values.dashboard.opa.readinessProbe | nindent 12 }}
+        {{- end }}
+        resources:
+          {{- toYaml .Values.dashboard.opa.resources | nindent 12 }}
+        args:
+          - "run"
+          - "--server"
+          - "--config-file=/config/config.yaml"
+          - "--log-level={{ .Values.dashboard.opa.logLevel }}"
+          - "--log-format={{ .Values.dashboard.opa.logFormat }}"
+          - "--ignore=.*"
+        volumeMounts:
+          - readOnly: true
+            mountPath: /config
+            name: opa-config
+      {{- end }}
+      volumes:
+      {{- if .Values.dashboard.pipCACertSecretName }}
+      - name: pip-ca-cert
+        secret:
+          secretName: {{ .Values.dashboard.pipCACertSecretName }}
+          items:
+            - key: pip-ca-certificates.crt
+              path: pip-ca-certificates.crt
+              mode: 0400
+      {{- end }}
+      {{- if eq .Values.dashboard.containerBuilderKind "docker" }}
+      - name: docker-sock
+        hostPath:
+          path: /var/run/docker.sock
+      {{- end }}
+      {{- if (include "nuclio.registry.credentialsSecretName" .) }}
+      - name: registry-credentials
+        secret:
+          secretName: {{ template "nuclio.registry.credentialsSecretName" . }}
+          optional: true
+      {{- end }}
+      {{- if .Values.platform }}
+      - name: platform-config
+        configMap:
+          name: {{ template "nuclio.platformConfigName" . }}
+      {{- end }}
+      {{- if .Values.dashboard.opa.enabled }}
+      - name: opa-config
+        secret:
+          secretName: {{ template "nuclio.dashboard.opa.fullname" . }}
+      {{- end }}
+      {{- with .Values.dashboard.nodeSelector }}
+      nodeSelector:
+      {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.dashboard.tolerations }}
+      tolerations:
+      {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.dashboard.affinity }}
+      affinity:
+      {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.dashboard.priorityClassName }}
+      priorityClassName: {{ .Values.dashboard.priorityClassName | quote }}
+      {{- end }}
+{{- end }}

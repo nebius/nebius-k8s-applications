@@ -1,0 +1,7 @@
+apiVersion: v2
+appVersion: latest
+description: A Helm chart for Kubernetes
+kubeVersion: '>= 1.19.0-0'
+name: cvat
+type: application
+version: 0.12.0

@@ -1,0 +1,44 @@
+slug: jupyterhub
+# TODO: Swap publisher and owner values
+publisherName: Nebius
+ownerName: Jupyter
+name: JupyterHub with PyTorch and CUDA
+categories:
+  - dev-tools
+  - dataset-preparation
+  - training
+  - inference
+images:
+  - nameWithRegistry: hub.image.name
+    tag: hub.image.tag
+
+  - nameWithRegistry: proxy.chp.image.name
+    tag: proxy.chp.image.tag
+
+  - nameWithRegistry: proxy.traefik.image.name
+    tag: proxy.traefik.image.tag
+
+  - nameWithRegistry: proxy.secretSync.image.name
+    tag: proxy.secretSync.image.tag
+
+  - full: singleuser.profileList.[0].kubespawner_override.image
+
+  - full: singleuser.profileList.[1].kubespawner_override.image
+
+  - nameWithRegistry: singleuser.networkTools.image.name
+    tag: singleuser.networkTools.image.tag
+
+  - nameWithRegistry: singleuser.image.name
+    tag: singleuser.image.tag
+
+  - nameWithRegistry: scheduling.userScheduler.image.name
+    tag: scheduling.userScheduler.image.tag
+
+  - nameWithRegistry: scheduling.userPlaceholder.image.name
+    tag: scheduling.userPlaceholder.image.tag
+
+  - nameWithRegistry: prePuller.hook.image.name
+    tag: prePuller.hook.image.tag
+
+  - nameWithRegistry: prePuller.pause.image.name
+    tag: prePuller.pause.image.tag

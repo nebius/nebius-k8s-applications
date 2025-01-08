@@ -1,0 +1,6 @@
+apiVersion: v2
+appVersion: 44.0.3
+description: H2O open source machine learning platform
+name: h2o-3
+type: application
+version: 44.0.3

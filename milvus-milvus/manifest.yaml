@@ -1,0 +1,78 @@
+slug: milvus
+publisherName: Nebius
+ownerName: Milvus
+name: Milvus
+categories:
+  - databases
+  - navigation-infrastructure-network
+  - vector-databases
+  - k3s-databases
+  - k3s-navigation-infrastructure-network
+  - k3s-vector-databases
+images:
+  - tag: image.all.tag
+    nameWithRegistry: image.all.repository
+  - tag: image.tools.tag
+    nameWithRegistry: image.tools.repository
+  - tag: heaptrack.image.tag
+    nameWithRegistry: heaptrack.image.repository
+  - tag: attu.image.tag
+    nameWithRegistry: attu.image.repository
+  - tag: etcd.image.tag
+    nameWithRegistry: etcd.image.repository
+  - tag: pulsar.images.broker.tag
+    nameWithRegistry: pulsar.images.broker.repository
+  - tag: pulsar.images.autorecovery.tag
+    nameWithRegistry: pulsar.images.autorecovery.repository
+  - tag: pulsar.images.zookeeper.tag
+    nameWithRegistry: pulsar.images.zookeeper.repository
+  - tag: pulsar.images.bookie.tag
+    nameWithRegistry: pulsar.images.bookie.repository
+  - tag: pulsar.images.proxy.tag
+    nameWithRegistry: pulsar.images.proxy.repository
+  - tag: pulsar.images.pulsar_manager.tag
+    nameWithRegistry: pulsar.images.pulsar_manager.repository
+  - tag: pulsar.pulsar_metadata.image.tag
+    nameWithRegistry: pulsar.pulsar_metadata.image.repository
+  - tag: kafka.image.tag
+    nameWithRegistry: kafka.image.repository
+  - tag: kafka.metrics.kafka.image.tag
+    nameWithRegistry: kafka.metrics.kafka.image.repository
+  - tag: kafka.metrics.jmx.image.tag
+    nameWithRegistry: kafka.metrics.jmx.image.repository
+  - tag: internal_images.bitnami-shell.tag
+    nameWithRegistry: internal_images.bitnami-shell.repository
+  - tag: internal_images.bitnami-shell-r372.tag
+    nameWithRegistry: internal_images.bitnami-shell-r372.repository
+  - tag: internal_images.jmx-exporter.tag
+    nameWithRegistry: internal_images.jmx-exporter.repository
+  - tag: internal_images.etcd.tag
+    nameWithRegistry: internal_images.etcd.repository
+  - tag: internal_images.etcd_r38.tag
+    nameWithRegistry: internal_images.etcd_r38.repository
+  - tag: internal_images.kafka_r52.tag
+    nameWithRegistry: internal_images.kafka_r52.repository
+  - tag: internal_images.kubectl_r1.tag
+    nameWithRegistry: internal_images.kubectl_r1.repository
+  - tag: internal_images.kafka-exporter_r182.tag
+    nameWithRegistry: internal_images.kafka-exporter_r182.repository
+  - tag: internal_images.jmx-exporter_r245.tag
+    nameWithRegistry: internal_images.jmx-exporter_r245.repository
+  - tag: internal_images.minio_33Z.tag
+    nameWithRegistry: internal_images.minio_33Z.repository
+  - tag: minio.image.tag
+    nameWithRegistry: minio.image.repository
+  - tag: internal_images.mc_06Z.tag
+    nameWithRegistry: internal_images.mc_06Z.repository
+  - tag: internal_images.helm-kubectl-jq_310.tag
+    nameWithRegistry: internal_images.helm-kubectl-jq_310.repository
+  - tag: internal_images.pulsar-all_274.tag
+    nameWithRegistry: internal_images.pulsar-all_274.repository
+  - tag: internal_images.pulsar-dashboard_latest.tag
+    nameWithRegistry: internal_images.pulsar-dashboard_latest.repository
+  - tag: internal_images.pulsar-manager_v010.tag
+    nameWithRegistry: internal_images.pulsar-manager_v010.repository
+  - tag: internal_images.prometheus_v2172.tag
+    nameWithRegistry: internal_images.prometheus_v2172.repository
+  - tag: internal_images.apache-pulsar-grafana-dashboard-k8s_0010.tag
+    nameWithRegistry: internal_images.apache-pulsar-grafana-dashboard-k8s_0010.repository

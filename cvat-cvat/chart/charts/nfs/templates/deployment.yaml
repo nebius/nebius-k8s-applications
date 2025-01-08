@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nfs-server-deployment
+spec:
+  selector:
+    matchLabels:
+      role: nfs-server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        role: nfs-server
+      annotations:
+        sidecar.istio.io/inject: "false"
+    spec:
+      containers:
+        - name: nfs-server
+          image: {{ .Values.image }}
+          ports:
+            - name: nfs
+              containerPort: 2049
+            - name: mountd
+              containerPort: 20048
+            - name: rpcbind
+              containerPort: 111
+          securityContext:
+            privileged: true
+          env:
+            - name: SHARED_DIRECTORY
+              value: /exports
+          volumeMounts:
+            - name: nfs-volume
+              mountPath: /exports
+      volumes:
+        - name: nfs-volume
+          persistentVolumeClaim:
+            claimName: nfs-pvc-volume

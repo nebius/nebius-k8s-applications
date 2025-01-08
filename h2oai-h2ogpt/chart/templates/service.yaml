@@ -1,0 +1,31 @@
+{{- if .Values.h2ogpt.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "h2ogpt.fullname" . }}-web
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    app: {{ include "h2ogpt.fullname" . }}
+  ports:
+    - protocol: TCP
+      port: {{ .Values.h2ogpt.service.webPort }}
+      targetPort: 7860
+  type: {{ .Values.h2ogpt.service.type }}
+{{- end }}
+---
+{{- if .Values.h2ogpt.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "h2ogpt.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    app: {{ include "h2ogpt.fullname" . }}
+  ports:
+    - protocol: TCP
+      port: {{ .Values.h2ogpt.service.gptPort }}
+      targetPort: 8888
+  type: {{ .Values.h2ogpt.service.type }}
+{{- end }}

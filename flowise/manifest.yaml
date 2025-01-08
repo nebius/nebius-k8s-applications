@@ -1,0 +1,35 @@
+slug: flowise
+ownerName: FlowiseAI
+publisherName: Nebius
+name: Flowise
+categories:
+  - llm-apps-framework
+  - k3s-llm-apps-framework
+images:
+  - registry: image.registry
+    tag: image.tag
+    nameWithoutRegistry: image.repository
+  - registry: mariadb.image.registry
+    tag: mariadb.image.tag
+    nameWithoutRegistry: mariadb.image.repository
+  - registry: mariadb.volumePermissions.image.registry
+    tag: mariadb.volumePermissions.image.tag
+    nameWithoutRegistry: mariadb.volumePermissions.image.repository
+  - registry: mariadb.metrics.image.registry
+    tag: mariadb.metrics.image.tag
+    nameWithoutRegistry: mariadb.metrics.image.repository
+  - registry: postgresql.image.registry
+    tag: postgresql.image.tag
+    nameWithoutRegistry: postgresql.image.repository
+  - registry: postgresql.volumePermissions.image.registry
+    tag: postgresql.volumePermissions.image.tag
+    nameWithoutRegistry: postgresql.volumePermissions.image.repository
+  - registry: postgresql.metrics.image.registry
+    tag: postgresql.metrics.image.tag
+    nameWithoutRegistry: postgresql.metrics.image.repository
+  - registry: wait.image.registry
+    tag: wait.image.tag
+    nameWithoutRegistry: wait.image.repository
+  - registry: tests.image.registry
+    tag: tests.image.tag
+    nameWithoutRegistry: tests.image.repository

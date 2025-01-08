@@ -1,0 +1,54 @@
+nameOverride: ""
+fullnameOverride: h2ogpt
+
+h2ogpt:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/h2ogpt/h2ogpt-runtime
+    tag: 0.1.0-109
+    pullPolicy: IfNotPresent
+
+  storage:
+    size: 128Gi
+
+  overrideConfig:
+    base_model: h2oai/h2ogpt-4096-llama2-7b-chat
+    use_safetensors: True
+    prompt_type: llama2
+    save_dir: /workspace/save/
+    use_gpu_id: False
+    score_model: None
+    max_max_new_tokens: 2048
+    max_new_tokens: 1024
+
+  service:
+    type: NodePort
+    webPort: 80
+    gptPort: 8888
+
+  updateStrategy:
+    type: RollingUpdate
+
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+
+  securityContext:
+    runAsNonRoot: true
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
+  
+  resources:
+  nodeSelector:
+  tolerations:
+
+  podAnnotations: {}
+  podLabels: {}
+  autoscaling: {}

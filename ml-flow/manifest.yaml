@@ -1,0 +1,40 @@
+slug: ml-flow
+ownerName: MLflow
+publisherName: Nebius
+name: MLflow for Kubernetes
+categories:
+  - new-products
+  - ml-ai
+  - training
+  - inference
+images:
+  - registry: image.registry
+    tag: image.tag
+    nameWithoutRegistry: image.repository
+  - registry: gitImage.registry
+    tag: gitImage.tag
+    nameWithoutRegistry: gitImage.repository
+  - registry: volumePermissions.image.registry
+    tag: volumePermissions.image.tag
+    nameWithoutRegistry: volumePermissions.image.repository
+  - registry: waitContainer.image.registry
+    tag: waitContainer.image.tag
+    nameWithoutRegistry: waitContainer.image.repository
+  - registry: postgresql.image.registry
+    tag: postgresql.image.tag
+    nameWithoutRegistry: postgresql.image.repository
+  - registry: postgresql.volumePermissions.image.registry
+    tag: postgresql.volumePermissions.image.tag
+    nameWithoutRegistry: postgresql.volumePermissions.image.repository
+  - registry: postgresql.metrics.image.registry
+    tag: postgresql.metrics.image.tag
+    nameWithoutRegistry: postgresql.metrics.image.repository
+  - registry: minio.image.registry
+    tag: minio.image.tag
+    nameWithoutRegistry: minio.image.repository
+  - registry: minio.clientImage.registry
+    tag: minio.clientImage.tag
+    nameWithoutRegistry: minio.clientImage.repository
+  - registry: minio.volumePermissions.image.registry
+    tag: minio.volumePermissions.image.tag
+    nameWithoutRegistry: minio.volumePermissions.image.repository

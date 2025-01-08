@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-pv-volume
+spec:
+  storageClassName: default
+  capacity:
+    storage: {{ .Values.nfs_pv_size }}
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  hostPath:
+    path: "/mnt/nfs-server"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-pvc-volume
+spec:
+  storageClassName: default
+  accessModes:
+    - ReadWriteOnce
+  volumeName: nfs-pv-volume
+  resources:
+    requests:
+      storage: {{ .Values.nfs_pv_size }}

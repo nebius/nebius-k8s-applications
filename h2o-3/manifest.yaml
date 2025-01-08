@@ -1,0 +1,13 @@
+slug: h2o-3
+publisherName: Nebius
+ownerName: H2O.ai
+name: H2O-3 for Kubernetes clusters
+categories:
+  - new-products
+  - training
+  - dataset-preparation
+  - k3s-training
+  - k3s-dataset-preparation
+images:
+  - tag: image.tag
+    nameWithRegistry: image.name

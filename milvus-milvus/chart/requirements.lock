@@ -1,0 +1,18 @@
+dependencies:
+- name: etcd
+  repository: file://charts/etcd
+  version: 6.3.3
+- name: minio
+  repository: file://charts/minio
+  version: 8.0.17
+- name: pulsar
+  repository: file://charts/pulsar
+  version: 2.7.8
+- name: kafka
+  repository: file://charts/kafka
+  version: 15.5.1
+- name: gpu-operator
+  repository: oci://cr.nemax.nebius.cloud/yc-marketplace/nebius/nvidia-gpu-operator/chart
+  version: v23.9.0
+digest: sha256:476e6e02f9717a46714220211828487cd3f0fec9e190b12338a1545f8f7f0f64
+generated: "2024-06-25T16:05:20.800126741+02:00"

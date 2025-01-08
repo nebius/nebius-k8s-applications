@@ -1,0 +1,97 @@
+slug: cvat
+publisherName: Nebius
+ownerName: Cvat
+name: CVAT
+categories:
+  - dataset-preparation
+  - k3s-dataset-preparation
+images:
+  - tag: cvat.backend.tag
+    nameWithRegistry: cvat.backend.image
+  - tag: cvat.frontend.tag
+    nameWithRegistry: cvat.frontend.image
+  - tag: cvat.opa.tag
+    nameWithRegistry: cvat.opa.image
+  - tag: cvat.kvrocks.tag
+    nameWithRegistry: cvat.kvrocks.image
+  - registry: postgresql.image.registry
+    tag: postgresql.image.tag
+    nameWithoutRegistry: postgresql.image.repository
+  - registry: postgresql.volumePermissions.image.registry
+    tag: postgresql.volumePermissions.image.tag
+    nameWithoutRegistry: postgresql.volumePermissions.image.repository
+  - registry: postgresql.metrics.image.registry
+    tag: postgresql.metrics.image.tag
+    nameWithoutRegistry: postgresql.metrics.image.repository
+  - registry: redis.image.registry
+    tag: redis.image.tag
+    nameWithoutRegistry: redis.image.repository
+  - registry: redis.sentinel.image.registry
+    tag: redis.sentinel.image.tag
+    nameWithoutRegistry: redis.sentinel.image.repository
+  - registry: redis.metrics.image.registry
+    tag: redis.metrics.image.tag
+    nameWithoutRegistry: redis.metrics.image.repository
+  - registry: redis.volumePermissions.image.registry
+    tag: redis.volumePermissions.image.tag
+    nameWithoutRegistry: redis.volumePermissions.image.repository
+  - registry: redis.sysctl.image.registry
+    tag: redis.sysctl.image.tag
+    nameWithoutRegistry: redis.sysctl.image.repository
+  - tag: nuclio.controller.image.tag
+    nameWithRegistry: nuclio.controller.image.repository
+  - tag: nuclio.controller.cronTriggerCronJobImage.tag
+    nameWithRegistry: nuclio.controller.cronTriggerCronJobImage.repository
+  - tag: nuclio.dashboard.image.tag
+    nameWithRegistry: nuclio.dashboard.image.repository
+  - tag: nuclio.dashboard.kaniko.image.tag
+    nameWithRegistry: nuclio.dashboard.kaniko.image.repository
+  - tag: nuclio.dashboard.kaniko.initContainerImage.tag
+    nameWithRegistry: nuclio.dashboard.kaniko.initContainerImage.repository
+  - tag: nuclio.dashboard.opa.image.tag
+    nameWithRegistry: nuclio.dashboard.opa.image.repository
+  - tag: nuclio.dashboard.autoscaler.image.tag
+    nameWithRegistry: nuclio.dashboard.autoscaler.image.repository
+  - tag: nuclio.dashboard.dlx.image.tag
+    nameWithRegistry: nuclio.dashboard.dlx.image.repository
+  - tag: vector.image.tag
+    nameWithRegistry: vector.image.repository
+  - tag: vector.haproxy.image.tag
+    nameWithRegistry: vector.haproxy.image.repository
+  - registry: clickhouse.volumePermissions.image.registry
+    tag: clickhouse.volumePermissions.image.tag
+    nameWithoutRegistry: clickhouse.volumePermissions.image.repository
+  - registry: clickhouse.image.registry
+    tag: clickhouse.image.tag
+    nameWithoutRegistry: clickhouse.image.repository
+  - registry: clickhouse.zookeeper.image.registry
+    tag: clickhouse.zookeeper.image.tag
+    nameWithoutRegistry: clickhouse.zookeeper.image.repository
+  - tag: grafana.image.tag
+    nameWithRegistry: grafana.image.repository
+  - tag: grafana.testFramework.tag
+    nameWithRegistry: grafana.testFramework.image
+  - tag: grafana.downloadDashboardsImage.tag
+    nameWithRegistry: grafana.downloadDashboardsImage.repository
+  - tag: grafana.initChownData.image.tag
+    nameWithRegistry: grafana.initChownData.image.repository
+  - tag: grafana.sidecar.image.tag
+    nameWithRegistry: grafana.sidecar.image.repository
+  - tag: grafana.imageRenderer.image.tag
+    nameWithRegistry: grafana.imageRenderer.image.repository
+  - registry: traefik.image.registry
+    tag: traefik.image.tag
+    nameWithoutRegistry: traefik.image.repository
+  - full: nfs.image
+  - tag: csi-driver-nfs.image.nfs.tag
+    nameWithRegistry: csi-driver-nfs.image.nfs.repository
+  - tag: csi-driver-nfs.image.csiProvisioner.tag
+    nameWithRegistry: csi-driver-nfs.image.csiProvisioner.repository
+  - tag: csi-driver-nfs.image.csiSnapshotter.tag
+    nameWithRegistry: csi-driver-nfs.image.csiSnapshotter.repository
+  - tag: csi-driver-nfs.image.livenessProbe.tag
+    nameWithRegistry: csi-driver-nfs.image.livenessProbe.repository
+  - tag: csi-driver-nfs.image.nodeDriverRegistrar.tag
+    nameWithRegistry: csi-driver-nfs.image.nodeDriverRegistrar.repository
+  - tag: csi-driver-nfs.image.externalSnapshotter.tag
+    nameWithRegistry: csi-driver-nfs.image.externalSnapshotter.repository

@@ -1,0 +1,93 @@
+{
+  "type": "object",
+  "viewSpec": {
+    "type": "base",
+    "order": ["gpu_number", "cluster", "pulsar", "minio"],
+    "layout": ""
+  },
+  "defaultValue": {
+    "cluster": { "enabled": false },
+    "etcd": { "replicaCount": "1" },
+    "gpu_number": 0,
+    "minio": { "mode": "standalone" },
+    "pulsar": { "enabled": false }
+  },
+  "properties": {
+    "cluster": {
+      "type": "object",
+      "viewSpec": { "type": "base", "order": ["enabled"], "layout": "" },
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "viewSpec": {
+            "disabled": false,
+            "layout": "row",
+            "layoutTitle": "Enable Cluster mode",
+            "type": "switch"
+          }
+        }
+      }
+    },
+    "etcd": {
+      "type": "object",
+      "viewSpec": { "type": "base", "order": ["replicaCount"], "layout": "" },
+      "properties": {
+        "replicaCount": {
+          "type": "string",
+          "viewSpec": {
+            "disabled": true,
+            "inputProps": { "max": 4, "min": 1, "suffix": "" },
+            "layout": "row",
+            "layoutTitle": "Number of etcd replicas",
+            "type": "rangeinputpicker"
+          }
+        }
+      }
+    },
+    "gpu_number": {
+      "type": "number",
+      "viewSpec": {
+        "disabled": false,
+        "type": "base",
+        "layout": "row",
+        "layoutTitle": "GPU number",
+        "layoutDescription": "Enter the number of GPUs for GPU acceleration. If the number is positive, the node group in the cluster must contain at least this number of VMs with GPUs. If the value is 0 or empty, Milvus will run on vCPUs only."
+      },
+      "maximum": 8,
+      "minimum": 0,
+      "format": "int64",
+      "validator": "base"
+    },
+    "minio": {
+      "type": "object",
+      "viewSpec": { "type": "base", "order": ["mode"], "layout": "" },
+      "properties": {
+        "mode": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "select",
+            "layout": "row",
+            "layoutTitle": "Minio mode"
+          },
+          "enum": ["standalone", "distributed"]
+        }
+      }
+    },
+    "pulsar": {
+      "type": "object",
+      "viewSpec": { "type": "base", "order": ["enabled"], "layout": "" },
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "viewSpec": {
+            "disabled": false,
+            "layout": "row",
+            "layoutTitle": "Enable pulsar",
+            "type": "switch"
+          }
+        }
+      }
+    }
+  }
+}

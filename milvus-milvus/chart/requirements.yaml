@@ -1,0 +1,33 @@
+dependencies:
+  - name: etcd
+    version: 6.3.3
+    #  repository: https://raw.githubusercontent.com/bitnami/charts/pre-2022/bitnami
+    repository: file://charts/etcd
+    condition: etcd.enabled
+    tags:
+      - etcd
+  - name: minio
+    version: 8.0.17
+    #  repository: https://zilliztech.github.io/milvus-helm
+    repository: file://charts/minio
+    condition: minio.enabled
+    tags:
+      - minio
+  - name: pulsar
+    version: 2.7.8
+    #  repository: https://pulsar.apache.org/charts
+    repository: file://charts/pulsar
+    condition: pulsar.enabled
+    tags:
+      - pulsar
+  - name: kafka
+    version: 15.5.1
+    #  repository: https://raw.githubusercontent.com/bitnami/charts/pre-2022/bitnami
+    repository: file://charts/kafka
+    condition: kafka.enabled
+    tags:
+      - kafka
+  - condition: gpu-operator.enabled
+    name: gpu-operator
+    repository: oci://cr.nemax.nebius.cloud/yc-marketplace/nebius/nvidia-gpu-operator/chart
+    version: v23.9.0

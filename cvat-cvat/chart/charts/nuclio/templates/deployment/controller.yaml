@@ -1,0 +1,105 @@
+# Copyright 2017 The Nuclio Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+{{- if .Values.controller.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "nuclio.controllerName" . }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ template "nuclio.name" . }}
+      release: {{ .Release.Name }}
+      nuclio.io/app: controller
+      nuclio.io/class: service
+      nuclio.io/name: {{ template "nuclio.controllerName" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "nuclio.name" . }}
+        release: {{ .Release.Name }}
+        nuclio.io/app: controller
+        nuclio.io/class: service
+        nuclio.io/name: {{ template "nuclio.controllerName" . }}
+      annotations:
+        nuclio.io/version: {{ .Values.controller.image.tag }}
+        checksum/configmap-platform: {{ include (print $.Template.BasePath "/configmap/platform.yaml") . | sha256sum }}
+    spec:
+      serviceAccountName: {{ template "nuclio.serviceAccountName" . }}
+      containers:
+      - name: {{ template "nuclio.controllerName" . }}
+        image: {{ .Values.controller.image.repository }}:{{ .Values.controller.image.tag }}
+        imagePullPolicy: {{ .Values.controller.image.pullPolicy }}
+        {{- if .Values.controller.resources }}
+        resources:
+          {{ toYaml .Values.controller.resources | nindent 11 }}
+        {{- end }}
+        env:
+        - name: NUCLIO_CONTROLLER_EXTERNAL_IP_ADDRESSES
+          value: {{ template "nuclio.externalIPAddresses" . }}
+        - name: NUCLIO_CONTROLLER_IMAGE_PULL_SECRETS
+          value: {{ template "nuclio.registry.credentialsSecretName" . }}
+        - name: NUCLIO_CONTROLLER_CRON_TRIGGER_CRON_JOB_IMAGE_NAME
+          value: {{ .Values.controller.cronTriggerCronJobImage.repository }}:{{ .Values.controller.cronTriggerCronJobImage.tag }}
+        - name: NUCLIO_CONTROLLER_CRON_TRIGGER_CRON_JOB_IMAGE_PULL_POLICY
+          value: {{ .Values.controller.cronTriggerCronJobImage.pullPolicy }}
+        {{- if .Values.platform }}
+        - name: NUCLIO_CONTROLLER_PLATFORM_CONFIGURATION_NAME
+          value: {{ template "nuclio.platformConfigName" . }}
+        {{- end}}
+        {{- if .Values.controller.namespace }}
+        - name: NUCLIO_CONTROLLER_NAMESPACE
+          value: {{ .Values.controller.namespace | quote }}
+        {{- end }}
+        - name: NUCLIO_CONTROLLER_FUNCTION_MONITOR_INTERVAL
+          value: {{ .Values.controller.monitoring.function.interval | quote }}
+        - name: NUCLIO_CONTROLLER_FUNCTION_OPERATOR_NUM_WORKERS
+          value: {{ .Values.controller.operator.function.numWorkers | quote }}
+        - name: NUCLIO_CONTROLLER_FUNCTION_EVENT_OPERATOR_NUM_WORKERS
+          value: {{ .Values.controller.operator.functionEvent.numWorkers | quote }}
+        - name: NUCLIO_CONTROLLER_PROJECT_OPERATOR_NUM_WORKERS
+          value: {{ .Values.controller.operator.project.numWorkers | quote }}
+        - name: NUCLIO_CONTROLLER_API_GATEWAY_OPERATOR_NUM_WORKERS
+          value: {{ .Values.controller.operator.apiGateway.numWorkers | quote }}
+        - name: NUCLIO_CONTROLLER_RESYNC_INTERVAL
+          value: {{ .Values.controller.resyncInterval | quote }}
+        {{- if .Values.platform }}
+        volumeMounts:
+        - name: platform-config
+          mountPath: /etc/nuclio/config/platform
+        {{- end }}
+      {{- if .Values.platform }}
+      volumes:
+      - name: platform-config
+        configMap:
+          name: {{ template "nuclio.platformConfigName" . }}
+      {{- end }}
+      {{- with .Values.controller.nodeSelector }}
+      nodeSelector:
+      {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.controller.tolerations }}
+      tolerations:
+      {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.controller.affinity }}
+      affinity:
+      {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.controller.priorityClassName }}
+      priorityClassName: {{ .Values.controller.priorityClassName | quote }}
+      {{- end }}
+{{- end }}

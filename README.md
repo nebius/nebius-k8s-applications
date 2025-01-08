@@ -23,8 +23,17 @@ This repository serves as a central hub for managing and deploying applications 
 
 ## Applications
 
+- [Argo CD](argo-project-argo-cd/README.md)
+- [CVAT](cvat-cvat/README.md)
+- [Flowise](flowise/README.md)
+- [H2O](h2o-3/README.md)
+- [h2oGPT](h2oai-h2ogpt/README.md)
+- [JupyterHub](jupyterhub/README.md)
+- [Milvus](milvus-milvus/README.md)
+- [MLflow](ml-flow/README.md)
 - [NVIDIA® GPU Operator](nvidia-gpu-operator/README.md)
 - [NVIDIA® Network Operator](nvidia-network-operator/README.md)
+- [Qdrant](qdrant-qdrant/README.md)
 - [Ray Cluster](ray-cluster/README.md)
 
 ---
@@ -67,5 +76,3 @@ For support or to report issues, please create an issue in this repository.
 
 ---
 _Kubernetes® is a registered trademark of The Linux Foundation®_
-
-

@@ -1,0 +1,112 @@
+{{- if .Values.h2ogpt.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "h2ogpt.fullname" . }}
+  labels:
+    app: {{ include "h2ogpt.fullname" . }}
+spec:
+  {{- if not .Values.h2ogpt.autoscaling.enabled }}
+  replicas: {{ .Values.h2ogpt.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: {{ include "h2ogpt.fullname" . }}
+  {{- if .Values.h2ogpt.updateStrategy }}
+  strategy: {{- toYaml .Values.h2ogpt.updateStrategy | nindent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      {{- with .Values.h2ogpt.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: {{ include "h2ogpt.fullname" . }}
+    spec:
+      {{- with .Values.h2ogpt.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.h2ogpt.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.h2ogpt.podSecurityContext | nindent 8 }}
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              preference:
+                matchExpressions:
+                  - key: "nvidia.com/gpu.present"
+                    operator: "In"
+                    values:
+                      - "true"
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - {{ include "h2ogpt.fullname" . }}
+                topologyKey: failure-domain.beta.kubernetes.io/zone
+      containers:
+        - name: {{ include "h2ogpt.fullname" . }}
+          securityContext:
+            {{- toYaml .Values.h2ogpt.securityContext | nindent 12 }}
+          image: "{{ .Values.h2ogpt.image.repository }}:{{ .Values.h2ogpt.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.h2ogpt.image.pullPolicy }}
+          command: []
+          args:
+            - /workspace/generate.py
+          ports:
+            - name: http
+              containerPort: 7860
+              protocol: TCP
+            - name: gpt
+              containerPort: 8888
+              protocol: TCP
+          {{- if .Values.h2ogpt.livenessProbe }}
+          livenessProbe:
+            httpGet:
+              path:  /
+              scheme: HTTP
+              port: http
+            {{- toYaml .Values.h2ogpt.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.h2ogpt.readinessProbe }}
+          readinessProbe:
+            httpGet:
+              path:  /
+              scheme: HTTP
+              port: http
+            {{- toYaml .Values.h2ogpt.readinessProbe | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.h2ogpt.resources | nindent 12 }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "h2ogpt.fullname" . }}-config
+          volumeMounts:
+            - name: h2ogpt-volume
+              mountPath: /workspace/.cache
+              subPath: cache
+            - name: h2ogpt-volume
+              mountPath: /workspace/save
+              subPath: save
+      volumes:
+        - name: h2ogpt-volume
+          ephemeral:
+            volumeClaimTemplate:
+              spec:
+                accessModes:
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: {{ .Values.h2ogpt.storage.size }}
+{{- end }}

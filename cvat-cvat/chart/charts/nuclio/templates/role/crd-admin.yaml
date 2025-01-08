@@ -1,0 +1,52 @@
+# Copyright 2017 The Nuclio Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+{{- if .Values.rbac.create }}
+# All access to the custom resource definitions
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ template "nuclio.crdAdminName" . }}-clusterrole
+  labels:
+    app: {{ template "nuclio.name" . }}
+    release: {{ .Release.Name }}
+rules:
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list"]
+
+{{- if eq .Values.rbac.crdAccessMode "cluster" }}
+  - apiGroups: ["nuclio.io"]
+    resources: ["nucliofunctions", "nuclioprojects", "nucliofunctionevents", "nuclioapigateways"]
+    verbs: ["*"]
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["list"]
+
+{{- else if eq .Values.rbac.crdAccessMode "namespaced" }}
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ template "nuclio.crdAdminName" . }}-role
+  labels:
+    app: {{ template "nuclio.name" . }}
+    release: {{ .Release.Name }}
+rules:
+  - apiGroups: ["nuclio.io"]
+    resources: ["nucliofunctions", "nuclioprojects", "nucliofunctionevents", "nuclioapigateways"]
+    verbs: ["*"]
+{{- end }}
+{{- end }}
