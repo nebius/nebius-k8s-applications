@@ -1,0 +1,11 @@
+slug: stable-diffusion-webui
+ownerName: AUTOMATIC1111
+publisherName: Nebius
+name: Stable Diffusion web UI
+categories:
+  - inference
+images:
+  - tag: image.tag
+    nameWithRegistry: image.repository
+  - tag: models_image.tag
+    nameWithRegistry: models_image.repository

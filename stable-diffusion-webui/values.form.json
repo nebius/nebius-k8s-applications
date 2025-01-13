@@ -1,0 +1,13 @@
+{
+  "defaultValue": {
+  },
+  "type": "object",
+  "properties": {
+  },
+  "viewSpec": {
+    "type": "base",
+    "layout": "",
+    "order": [
+    ]
+  }
+}

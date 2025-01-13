@@ -1,0 +1,7 @@
+apiVersion: v2
+appVersion: 1.7.0
+description: A Helm chart for a browser interface based on Gradio library for Stable
+  Diffusion.
+name: stable-diffusion
+type: application
+version: 0.3.0

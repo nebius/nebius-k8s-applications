@@ -1,0 +1,344 @@
+{
+  "type": "object",
+  "required": true,
+  "viewSpec": {
+    "type": "base",
+    "order": [
+      "airflowVersion",
+      "webserverSecretKey",
+      "webserver",
+      "dags",
+      "workers",
+      "customAirflowRepository"
+    ],
+    "layout": ""
+  },
+  "defaultValue": {
+    "airflowVersion": "2.9.1",
+    "dags": {
+      "gitSync": {
+        "gitPassword": null,
+        "gitUserName": null,
+        "ref": "main",
+        "repo": "https://github.com/apache/airflow.git",
+        "subPath": "/"
+      }
+    },
+    "webserver": {
+      "defaultUser": {
+        "password": "admin"
+      }
+    },
+    "workers": {
+      "persistence": {
+        "size": "100Gi"
+      },
+      "replicas": "1",
+      "resources": {
+        "requests": {
+          "cpu": "1",
+          "memory": "4Gi"
+        }
+      }
+    }
+  },
+  "properties": {
+    "airflowVersion": {
+      "type": "string",
+      "required": true,
+      "viewSpec": {
+        "type": "base",
+        "layout": "row",
+        "layoutTitle": "Airflow version"
+      }
+    },
+    "customAirflowRepository": {
+      "type": "string",
+      "viewSpec": {
+        "type": "base",
+        "layout": "row",
+        "layoutTitle": "Custom Airflow Image",
+        "layoutDescription": "Enter the URL of a custom Airflow image. If specified, the image must carry the version that you specified in the **Airflow version** setting."
+      }
+    },
+    "dags": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "order": [
+          "gitSync"
+        ],
+        "layout": ""
+      },
+      "defaultValue": {
+        "gitSync": {
+          "gitPassword": null,
+          "gitUserName": null,
+          "ref": "main",
+          "repo": "https://github.com/apache/airflow.git",
+          "subPath": "/"
+        }
+      },
+      "properties": {
+        "gitSync": {
+          "type": "object",
+          "viewSpec": {
+            "type": "base",
+            "order": [
+              "repo",
+              "ref",
+              "subPath",
+              "gitUserName",
+              "gitPassword"
+            ],
+            "layout": ""
+          },
+          "defaultValue": {
+            "gitPassword": null,
+            "gitUserName": null,
+            "ref": "main",
+            "repo": "https://github.com/apache/airflow.git",
+            "subPath": "/"
+          },
+          "properties": {
+            "gitPassword": {
+              "type": "string",
+              "viewSpec": {
+                "disabled": false,
+                "layout": "row",
+                "layoutTitle": "DAGs git password",
+                "type": "password"
+              }
+            },
+            "gitUserName": {
+              "type": "string",
+              "viewSpec": {
+                "type": "base",
+                "layout": "row",
+                "layoutTitle": "DAGs git username"
+              }
+            },
+            "ref": {
+              "type": "string",
+              "required": true,
+              "viewSpec": {
+                "type": "base",
+                "layout": "row",
+                "layoutTitle": "DAGs git ref",
+                "layoutDescription": "The git revision (branch, tag, or hash) to check out"
+              }
+            },
+            "repo": {
+              "type": "string",
+              "required": true,
+              "viewSpec": {
+                "type": "base",
+                "layout": "row",
+                "layoutTitle": "DAGs git repo",
+                "layoutDescription": "Paste the URL of the repository with your DAGs on GitHub or other platform.\n"
+              }
+            },
+            "subPath": {
+              "type": "string",
+              "viewSpec": {
+                "type": "base",
+                "layout": "row",
+                "layoutTitle": "DAGs git sub path",
+                "layoutDescription": "Enter the path under which DAGs are stored in your repository. \n"
+              }
+            }
+          }
+        }
+      }
+    },
+    "webserver": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "order": [
+          "defaultUser"
+        ],
+        "layout": ""
+      },
+      "defaultValue": {
+        "defaultUser": {
+          "password": "admin"
+        }
+      },
+      "properties": {
+        "defaultUser": {
+          "type": "object",
+          "viewSpec": {
+            "type": "base",
+            "order": [
+              "password"
+            ],
+            "layout": ""
+          },
+          "defaultValue": {
+            "password": "admin"
+          },
+          "properties": {
+            "password": {
+              "type": "string",
+              "required": true,
+              "viewSpec": {
+                "disabled": false,
+                "generateRandomValueButton": true,
+                "layout": "row",
+                "layoutDescription": "Create a password for the Airflow admin.\n",
+                "layoutTitle": "Admin user password",
+                "type": "password"
+              }
+            }
+          }
+        }
+      }
+    },
+    "webserverSecretKey": {
+      "type": "string",
+      "required": true,
+      "viewSpec": {
+        "disabled": false,
+        "generateRandomValueButton": true,
+        "layout": "row",
+        "layoutDescription": "Paste the webserver secret key you generated earlier.\n",
+        "layoutTitle": "Webserver Secret Key",
+        "type": "password"
+      }
+    },
+    "workers": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "order": [
+          "replicas",
+          "resources",
+          "persistence"
+        ],
+        "layout": ""
+      },
+      "defaultValue": {
+        "persistence": {
+          "size": "100Gi"
+        },
+        "replicas": "1",
+        "resources": {
+          "requests": {
+            "cpu": "1",
+            "memory": "4Gi"
+          }
+        }
+      },
+      "properties": {
+        "persistence": {
+          "type": "object",
+          "viewSpec": {
+            "type": "base",
+            "order": [
+              "size"
+            ],
+            "layout": ""
+          },
+          "defaultValue": {
+            "size": "100Gi"
+          },
+          "properties": {
+            "size": {
+              "type": "string",
+              "viewSpec": {
+                "disabled": false,
+                "inputProps": {
+                  "max": 4096,
+                  "min": 1,
+                  "suffix": "Gi"
+                },
+                "layout": "row",
+                "layoutTitle": "Workers persistent storage",
+                "type": "rangeinputpicker"
+              }
+            }
+          }
+        },
+        "replicas": {
+          "type": "string",
+          "viewSpec": {
+            "disabled": false,
+            "inputProps": {
+              "max": 32,
+              "min": 1
+            },
+            "layout": "row",
+            "layoutDescription": "Enter the number of workers.",
+            "layoutTitle": "Number of worker replicas",
+            "type": "rangeinputpicker"
+          }
+        },
+        "resources": {
+          "type": "object",
+          "viewSpec": {
+            "type": "base",
+            "order": [
+              "requests"
+            ],
+            "layout": ""
+          },
+          "defaultValue": {
+            "requests": {
+              "cpu": "1",
+              "memory": "4Gi"
+            }
+          },
+          "properties": {
+            "requests": {
+              "type": "object",
+              "viewSpec": {
+                "type": "base",
+                "order": [
+                  "cpu",
+                  "memory"
+                ],
+                "layout": ""
+              },
+              "defaultValue": {
+                "cpu": "1",
+                "memory": "4Gi"
+              },
+              "properties": {
+                "cpu": {
+                  "type": "string",
+                  "viewSpec": {
+                    "disabled": false,
+                    "inputProps": {
+                      "max": 160,
+                      "min": 1
+                    },
+                    "layout": "row",
+                    "layoutDescription": "Enter the number of vCPUs that each worker pod will use on its node.",
+                    "layoutTitle": "Workers CPU",
+                    "type": "rangeinputpicker"
+                  }
+                },
+                "memory": {
+                  "type": "string",
+                  "viewSpec": {
+                    "disabled": false,
+                    "inputProps": {
+                      "max": 1600,
+                      "min": 1,
+                      "suffix": "Gi"
+                    },
+                    "layout": "row",
+                    "layoutDescription": "Enter the size of the persistent volume for worker pods.",
+                    "layoutTitle": "Workers Memory",
+                    "type": "rangeinputpicker"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

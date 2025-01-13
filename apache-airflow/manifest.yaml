@@ -1,0 +1,20 @@
+slug: airflow
+ownerName: Apache
+publisherName: Nebius
+name: Apache Airflow™
+categories:
+  - new-products
+  - dev-tools
+  - training
+images:
+  - tag: defaultAirflowTag
+    nameWithRegistry: defaultAirflowRepository
+  - tag: images.statsd.tag
+    nameWithRegistry: images.statsd.repository
+  - tag: images.redis.tag
+    nameWithRegistry: images.redis.repository
+  - tag: images.gitSync.tag
+    nameWithRegistry: images.gitSync.repository
+  - registry: postgresql.image.registry
+    tag: postgresql.image.tag
+    nameWithoutRegistry: postgresql.image.repository

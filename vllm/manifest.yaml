@@ -1,0 +1,14 @@
+slug: vllm
+ownerName: Vllm project
+publisherName: Nebius
+name: vLLM
+categories:
+  - inference
+  - llm-apps-framework
+  - k3s-inference
+  - k3s-llm-apps-framework
+images:
+  - tag: image.tag
+    nameWithRegistry: image.repository
+  - tag: gradio-ui.image.tag
+    nameWithRegistry: gradio-ui.image.repository

@@ -23,6 +23,7 @@ This repository serves as a central hub for managing and deploying applications 
 
 ## Applications
 
+- [Airflow](apache-airflow/README.md)
 - [Argo CD](argo-project-argo-cd/README.md)
 - [CVAT](cvat-cvat/README.md)
 - [Flowise](flowise/README.md)
@@ -35,6 +36,8 @@ This repository serves as a central hub for managing and deploying applications 
 - [NVIDIA® Network Operator](nvidia-network-operator/README.md)
 - [Qdrant](qdrant-qdrant/README.md)
 - [Ray Cluster](ray-cluster/README.md)
+- [Stable Diffusion WebUI](stable-diffusion-webui/README.md)
+- [vLLM](vllm/README.md)
 
 ---
 

@@ -1,0 +1,68 @@
+---
+image:
+  repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/vllm/vllm-openai
+  tag: v0.5.3.post1
+
+replicas: 1
+
+global:
+  model: h2oai/h2o-danube2-1.8b-chat
+
+gpuPlatform: NVIDIA® H100 NVLink with Intel Sapphire Rapids
+gpuToResourceHelperValues:
+  NVIDIA® H100 NVLink with Intel Sapphire Rapids:
+    cpu: 15
+    memory: 195
+
+vllm:
+  args:
+    trust-remote-code:
+    download-dir: /var/cache/huggingface
+    dtype: '{{ index .Values.gpuToResourceHelperValues .Values.gpuPlatform "dtype" | default "auto" }}'
+  env:
+    HF_TOKEN:
+  hfCache:
+    enabled: true
+    size: 80Gi
+    retentionPolicy:
+      whenDeleted: Delete
+      whenScaled: Retain
+
+gradio-ui:
+  enabled: false
+  image:
+    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/vllm/gradio-ui
+    tag: v0.0.2
+  secret:
+    env:
+      AUTH_USER:
+      AUTH_PASSWORD:
+      BASE_URL: http://vllm-service:8000/v1/
+
+gpu-operator:
+  enabled: false
+
+resources:
+  limits:
+    cpu: '{{ (get .Values.gpuToResourceHelperValues .Values.gpuPlatform).cpu }}'
+    memory: '{{ (get .Values.gpuToResourceHelperValues .Values.gpuPlatform).memory }}Gi'
+    nvidia.com/gpu: "1"
+  requests:
+    cpu: "{{ tpl .Values.resources.limits.cpu . }}"
+    memory: "{{ tpl .Values.resources.limits.memory . }}"
+    nvidia.com/gpu: "1"
+
+tolerations:
+  - key: nvidia.com/gpu
+    operator: Exists
+    effect: NoSchedule
+
+livenessProbe:
+  initialDelaySeconds: 60
+  periodSeconds: 5
+  failureThreshold: 5
+
+readinessProbe:
+  initialDelaySeconds: 60
+  periodSeconds: 5
+  failureThreshold: 5

@@ -1,0 +1,261 @@
+{
+  "type": "object",
+  "required": true,
+  "viewSpec": {
+    "type": "base",
+    "order": [
+      "gpuPlatform",
+      "replicas",
+      "global",
+      "vllm",
+      "gradio-ui"
+    ],
+    "layout": ""
+  },
+  "defaultValue": {
+    "global": {
+      "model": "h2oai/h2o-danube2-1.8b-chat"
+    },
+    "gpuPlatform": "NVIDIA® H100 NVLink with Intel Sapphire Rapids",
+    "gradio-ui": {
+      "enabled": false,
+      "secret": {
+        "env": {
+          "AUTH_PASSWORD": null,
+          "AUTH_USER": null
+        }
+      }
+    },
+    "replicas": 1,
+    "vllm": {
+      "env": {
+        "HF_TOKEN": null
+      },
+      "hfCache": {
+        "enabled": true,
+        "size": "80Gi"
+      }
+    }
+  },
+  "properties": {
+    "global": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "order": [
+          "model"
+        ],
+        "layout": ""
+      },
+      "defaultValue": {
+        "model": "h2oai/h2o-danube2-1.8b-chat"
+      },
+      "properties": {
+        "model": {
+          "type": "string",
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Model for vLLM engine",
+            "layoutDescription": "Model id from Hugging Face like meta-llama/Meta-Llama-3-8B-Instruct\nMake sure you have access to that model.\n"
+          }
+        }
+      }
+    },
+    "gpuPlatform": {
+      "type": "string",
+      "required": true,
+      "viewSpec": {
+        "type": "select",
+        "layout": "row",
+        "layoutTitle": "GPU Platform",
+        "layoutDescription": "Please select GPU platform that is present in K8s cluster.",
+        "disabled": true
+      },
+      "enum": [
+        "NVIDIA® H100 NVLink with Intel Sapphire Rapids"
+      ]
+    },
+    "gradio-ui": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "order": [
+          "enabled",
+          "secret"
+        ],
+        "layout": ""
+      },
+      "defaultValue": {
+        "enabled": false,
+        "secret": {
+          "env": {
+            "AUTH_PASSWORD": null,
+            "AUTH_USER": null
+          }
+        }
+      },
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "viewSpec": {
+            "disabled": false,
+            "layout": "row",
+            "layoutTitle": "Enable Gradio UI",
+            "type": "switch"
+          }
+        },
+        "secret": {
+          "type": "object",
+          "viewSpec": {
+            "type": "base",
+            "order": [
+              "env"
+            ],
+            "layout": ""
+          },
+          "defaultValue": {
+            "env": {
+              "AUTH_PASSWORD": null,
+              "AUTH_USER": null
+            }
+          },
+          "properties": {
+            "env": {
+              "type": "object",
+              "viewSpec": {
+                "type": "base",
+                "order": [
+                  "AUTH_USER",
+                  "AUTH_PASSWORD"
+                ],
+                "layout": ""
+              },
+              "defaultValue": {
+                "AUTH_PASSWORD": null,
+                "AUTH_USER": null
+              },
+              "properties": {
+                "AUTH_PASSWORD": {
+                  "type": "string",
+                  "viewSpec": {
+                    "disabled": false,
+                    "generateRandomValueButton": true,
+                    "layout": "row",
+                    "layoutTitle": "Gradio password",
+                    "type": "password"
+                  }
+                },
+                "AUTH_USER": {
+                  "type": "string",
+                  "viewSpec": {
+                    "type": "base",
+                    "layout": "row",
+                    "layoutTitle": "Gradio username"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "replicas": {
+      "type": "number",
+      "viewSpec": {
+        "type": "base",
+        "layout": "row",
+        "layoutTitle": "Number of vLLM replicas",
+        "layoutDescription": "Each replica consumes 1 GPU."
+      }
+    },
+    "vllm": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "order": [
+          "env",
+          "hfCache"
+        ],
+        "layout": ""
+      },
+      "defaultValue": {
+        "env": {
+          "HF_TOKEN": null
+        },
+        "hfCache": {
+          "enabled": true,
+          "size": "80Gi"
+        }
+      },
+      "properties": {
+        "env": {
+          "type": "object",
+          "viewSpec": {
+            "type": "base",
+            "order": [
+              "HF_TOKEN"
+            ],
+            "layout": ""
+          },
+          "defaultValue": {
+            "HF_TOKEN": null
+          },
+          "properties": {
+            "HF_TOKEN": {
+              "type": "string",
+              "viewSpec": {
+                "disabled": false,
+                "layout": "row",
+                "layoutDescription": "Could be generated here https://huggingface.co/settings/tokens",
+                "layoutTitle": "Hugging Face access token",
+                "type": "password"
+              }
+            }
+          }
+        },
+        "hfCache": {
+          "type": "object",
+          "viewSpec": {
+            "type": "base",
+            "order": [
+              "enabled",
+              "size"
+            ],
+            "layout": ""
+          },
+          "defaultValue": {
+            "enabled": true,
+            "size": "80Gi"
+          },
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "viewSpec": {
+                "disabled": false,
+                "layout": "row",
+                "layoutDescription": "This could prevent re-download models from HF across restarts",
+                "layoutTitle": "Enable Hugging Face cache",
+                "type": "switch"
+              }
+            },
+            "size": {
+              "type": "string",
+              "required": true,
+              "viewSpec": {
+                "inputProps": {
+                  "max": 1000,
+                  "min": 80,
+                  "suffix": "Gi"
+                },
+                "layout": "row",
+                "layoutTitle": "Size",
+                "type": "rangeinputpicker"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

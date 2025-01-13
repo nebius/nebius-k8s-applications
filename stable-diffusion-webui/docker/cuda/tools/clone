@@ -1,0 +1,10 @@
+#!/bin/bash
+
+repo_path=${4:-repositories}
+
+mkdir -p ${repo_path}/"$1"
+cd ${repo_path}/"$1"
+git init
+git remote add origin "$2"
+git fetch origin "$3" --depth=1
+git reset --hard "$3"

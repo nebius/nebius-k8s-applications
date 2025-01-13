@@ -1,0 +1,41 @@
+---
+image:
+  repository: cr.nemax.nebius.cloud/crng6buqs6ev01fc6sff/nebius/vllm/gradio-ui
+  tag: v0.0.1
+
+replicas: 1
+
+env:
+  - name: MODEL
+    value: "{{ tpl .Values.global.model . }}"
+
+resources:
+  limits:
+    cpu: "1"
+    memory: "512Mi"
+  requests:
+    cpu: "{{ tpl .Values.resources.limits.cpu . }}"
+    memory: "{{ tpl .Values.resources.limits.memory . }}"
+
+livenessProbe:
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  failureThreshold: 5
+
+readinessProbe:
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  failureThreshold: 5
+
+service:
+  type: ClusterIP
+  port: 7860
+
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 1
+        preference:
+          matchExpressions:
+          - key: nvidia.com/gpu.count
+            operator: DoesNotExist
