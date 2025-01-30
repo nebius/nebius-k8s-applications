@@ -15,5 +15,11 @@
     "**/nvidia-network-operator/**",
     "**/qdrant-qdrant/**",
     "**/ray-cluster/**"
-]
+],
+"packageRules": [
+    {
+      "matchFileNames": ["Chart.yaml"],
+      "labels": ["new-helm-chart"]
+    }
+  ]
 }
