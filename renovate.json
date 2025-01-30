@@ -9,6 +9,7 @@
     "**/docker/**",
     "**/Dockerfile",
     "**/requirements.yaml",
-    "**/values.yaml"
+    "**/values.yaml",
+    "**/Chart.yaml"
 ]
 }
