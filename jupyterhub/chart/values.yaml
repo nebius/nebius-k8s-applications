@@ -98,7 +98,7 @@ hub:
   extraVolumes: []
   extraVolumeMounts: []
   image:
-    name: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/k8s-hub
+    name: quay.io/jupyterhub/k8s-hub
     tag: "4.0.0"
     pullPolicy:
     pullSecrets: []
@@ -226,7 +226,7 @@ proxy:
       seccompProfile:
         type: "RuntimeDefault"
     image:
-      name: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/configurable-http-proxy
+      name: quay.io/jupyterhub/configurable-http-proxy
       # tag is automatically bumped to new patch versions by the
       # watch-dependencies.yaml workflow.
       #
@@ -286,7 +286,7 @@ proxy:
       seccompProfile:
         type: "RuntimeDefault"
     image:
-      name: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/traefik
+      name: traefik
       # tag is automatically bumped to new patch versions by the
       # watch-dependencies.yaml workflow.
       #
@@ -341,7 +341,7 @@ proxy:
       seccompProfile:
         type: "RuntimeDefault"
     image:
-      name: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/k8s-secret-sync
+      name: quay.io/jupyterhub/k8s-secret-sync
       tag: "4.0.0"
       pullPolicy:
       pullSecrets: []
@@ -371,7 +371,7 @@ singleuser:
     - display_name: "Default Jupyterhub Image"
       description: "Default image, runs on any node."
       kubespawner_override:
-        image: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/base-notebook:notebook-7.2.2
+        image: quay.io/jupyter/base-notebook:notebook-7.2.2
         lifecycle_hooks:
           postStart:
             exec:
@@ -385,7 +385,7 @@ singleuser:
     - display_name: "Image with GPU support and PyTorch library (Jupyterhub)"
       description: "Only runs on nodes with GPUs, fails to start if there is no such node available."
       kubespawner_override:
-        image: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/pytorch-notebook:cuda12-notebook-7.2.2
+        image: quay.io/jupyter/pytorch-notebook:cuda12-notebook-7.2.2
         extra_resource_limits:
           nvidia.com/gpu: 1
         lifecycle_hooks:
@@ -407,7 +407,7 @@ singleuser:
     preferred: []
   networkTools:
     image:
-      name: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/k8s-network-tools
+      name: quay.io/jupyterhub/k8s-network-tools
       tag: "4.0.0"
       pullPolicy:
       pullSecrets: []
@@ -468,7 +468,7 @@ singleuser:
       storageAccessModes: [ReadWriteOnce]
       subPath:
   image:
-    name: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/k8s-singleuser-sample
+    name: quay.io/jupyterhub/k8s-singleuser-sample
     tag: "4.0.0"
     pullPolicy:
     pullSecrets: []
@@ -594,7 +594,7 @@ scheduling:
       #            - If "successfully acquired lease" can be seen in the logs, it
       #              is a good sign kube-scheduler is ready to schedule pods.
       #
-      name: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/kube-scheduler
+      name: registry.k8s.io/kube-scheduler
       # tag is automatically bumped to new patch versions by the
       # watch-dependencies.yaml workflow. The minor version is pinned in the
       # workflow, and should be updated there if a minor version bump is done
@@ -627,7 +627,7 @@ scheduling:
   userPlaceholder:
     enabled: true
     image:
-      name: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/pause
+      name: registry.k8s.io/pause
       # tag is automatically bumped to new patch versions by the
       # watch-dependencies.yaml workflow.
       #
@@ -697,7 +697,7 @@ prePuller:
     pullOnlyOnChanges: true
     # image and the configuration below relates to the hook-image-awaiter Job
     image:
-      name: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/k8s-image-awaiter
+      name: quay.io/jupyterhub/k8s-image-awaiter
       tag: "4.0.0"
       pullPolicy:
       pullSecrets: []
@@ -733,7 +733,7 @@ prePuller:
       seccompProfile:
         type: "RuntimeDefault"
     image:
-      name: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/pause
+      name: registry.k8s.io/pause
       # tag is automatically bumped to new patch versions by the
       # watch-dependencies.yaml workflow.
       #
