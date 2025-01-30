@@ -6,6 +6,24 @@ version: 0.1.0
 appVersion: "1.0"
 
 dependencies:
+- name: airflow
+  version: "1.13.1"
+  repository: "https://airflow.apache.org"
+- name: argo-cd
+  version: "7.7.5"
+  repository: "https://argoproj.github.io/"
+- name: cvat
+  version: "0.14.3"
+  # repository: "./cvat-cvat" https://github.com/cvat-ai/cvat/blob/develop/helm-chart/Chart.yaml
+- name: flowise
+  version: "0.1.0"
+  repository: "https://cowboysysop.github.io/charts/"
+- name: h2o-3
+  version: "44.0.3"
+  repository: "https://charts.h2o.ai"
+- name: h2ogtp
+  version: "0.1.0-109"
+  # repository: "./h2oai-h2ogpt"  https://github.com/h2oai/h2ogpt/blob/main/helm/h2ogpt-chart/Chart.yaml
 - name: jupyterhub
   version: "4.0.0"
   repository: "https://hub.jupyter.org/helm-chart"
