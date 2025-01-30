@@ -3,5 +3,9 @@
   "extends": [
     "config:recommended"
   ],
-  "ignorePaths": ["**/chart/charts/**"]
+  "ignorePaths": [
+    "**/chart/charts/**",
+    "**/requirements.txt",
+    "**/docker/**"
+]
 }
