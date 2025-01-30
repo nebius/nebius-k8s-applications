@@ -1,0 +1,53 @@
+apiVersion: v2
+name: nebius-k8s-applications
+description: A Helm chart for Kubernetes applications
+type: application
+version: 0.1.0
+appVersion: "1.0"
+
+dependencies:
+- name: airflow
+  version: "1.13.1"
+  repository: "https://airflow.apache.org"
+- name: argo-cd
+  version: "7.7.5"
+  repository: "https://argoproj.github.io/argo-helm"
+- name: cvat
+  version: "0.14.3"
+  # repository: "./cvat-cvat" https://github.com/cvat-ai/cvat/blob/develop/helm-chart/Chart.yaml
+- name: flowise
+  version: "0.1.0"
+  repository: "https://cowboysysop.github.io/charts/"
+- name: h2o-3
+  version: "44.0.3"
+  # repository: "https://charts.h2o.ai" https://github.com/h2oai/h2o-3/blob/master/h2o-helm/Chart.yaml
+- name: h2ogtp
+  version: "0.1.0-109"
+  # repository: "./h2oai-h2ogpt"  https://github.com/h2oai/h2ogpt/blob/main/helm/h2ogpt-chart/Chart.yaml
+- name: jupyterhub
+  version: "4.0.0"
+  repository: "https://hub.jupyter.org/helm-chart"
+- name: milvus
+  version: "4.1.11"
+  repository: "https://zilliztech.github.io/milvus-helm/"
+- name: mlflow
+  version: "1.0.4"
+  repository: "oci://registry-1.docker.io/bitnamicharts/mlflow"
+- name: gpu-operator
+  version: "v24.6.2"
+  repository: "https://helm.ngc.nvidia.com/nvidia"
+- name: network-operator
+  version: "24.4.0"
+  repository: "https://helm.ngc.nvidia.com/nvidia"
+- name: qdrant
+  version: "0.7.6"
+  repository: "https://qdrant.github.io/qdrant-helm"
+- name: ray-cluster
+  version: "1.2.1"
+  repository: "https://ray-project.github.io/kuberay-helm/"
+- name: stable-diffusion-webui
+  version: "0.3.0"
+  # need to find the repository
+- name: vllm-chart
+  version: "0.3.0"
+  # need to find the repository

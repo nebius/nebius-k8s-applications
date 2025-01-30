@@ -1,0 +1,25 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "ignorePaths": [
+    "**/apache-airflow/**",
+    "**/argo-project-argo-cd/**",
+    "**/example-nginx-product/**",
+    "**/flowise/**",
+    "**/jupyterhub/**",
+    "**/milvus-milvus/**",
+    "**/ml-flow/**",
+    "**/nvidia-gpu-operator/**",
+    "**/nvidia-network-operator/**",
+    "**/qdrant-qdrant/**",
+    "**/ray-cluster/**"
+],
+"packageRules": [
+    {
+      "matchFileNames": ["Chart.yaml"],
+      "labels": ["new-helm-chart"]
+    }
+  ]
+}
