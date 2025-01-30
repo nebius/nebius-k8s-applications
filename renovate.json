@@ -6,6 +6,8 @@
   "ignorePaths": [
     "**/chart/charts/**",
     "**/requirements.txt",
-    "**/docker/**"
+    "**/docker/**",
+    "**/Dockerfile",
+    "**/requirements.yaml"
 ]
 }
