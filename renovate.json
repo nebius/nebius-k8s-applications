@@ -4,12 +4,16 @@
     "config:recommended"
   ],
   "ignorePaths": [
-    "**/chart/charts/**",
-    "**/requirements.txt",
-    "**/docker/**",
-    "**/Dockerfile",
-    "**/requirements.yaml",
-    "**/values.yaml",
-    "**/chart/Chart.yaml"
+    "**/apache-airflow/**",
+    "**/argo-project-argo-cd/**",
+    "**/example-nginx-product/**",
+    "**/flowise/**",
+    "**/jupyterhub/**",
+    "**/milvus-milvus/**",
+    "**/ml-flow/**",
+    "**/nvidia-gpu-operator/**",
+    "**/nvidia-network-operator/**",
+    "**/qdrant-qdrant/**",
+    "**/ray-cluster/**"
 ]
 }
