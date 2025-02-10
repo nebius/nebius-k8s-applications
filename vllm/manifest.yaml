@@ -12,3 +12,5 @@ images:
     nameWithRegistry: image.repository
   - tag: gradio-ui.image.tag
     nameWithRegistry: gradio-ui.image.repository
+  - tag: kuberay-operator.image.tag
+    nameWithRegistry: kuberay-operator.image.repository

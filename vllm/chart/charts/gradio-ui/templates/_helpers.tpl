@@ -35,7 +35,7 @@ Create chart name and version as used by the chart label.
 Common labels
 */}}
 {{- define "gradio-ui.labels" -}}
-app.kubernetes.io/name: {{ include "vllm.name" . }}
+app.kubernetes.io/name: {{ .Release.Name }}
 helm.sh/chart: {{ include "gradio-ui.chart" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- if .Chart.AppVersion }}
