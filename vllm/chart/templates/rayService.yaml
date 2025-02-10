@@ -1,0 +1,120 @@
+---
+apiVersion: ray.io/v1
+kind: RayService
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  serveConfigV2: |
+    applications:
+      - name: VLLMApplication
+        route_prefix: /
+        import_path: serve:model
+        deployments:
+          - name: VLLMDeployment
+            num_replicas: {{ .Values.vllm.replicas }}
+        runtime_env:
+          working_dir: file:///vllm-workspace/serve.py.zip
+          env_vars:
+            VLLM_CONFIG_SHA: {{ tpl (.Values.vllm.config | toYaml) . | sha256sum }}
+            VLLM_APP_SHA: {{ .Files.Get "files/serve.py.zip" | b64enc | sha256sum }}
+            VLLM_CONFIG: /vllm-workspace/vllm_config.yaml
+            VLLM_RAY_NUM_CPUS: '{{ div (get .Values.gpuToResourceHelperValues .Values.gpuPlatform).cpu 1000 }}'
+            VLLM_RAY_MEMORY: '{{ mul (get .Values.gpuToResourceHelperValues .Values.gpuPlatform).memory 1000 1000 1000 }}'
+            # NCCL_DEBUG: INFO
+  rayClusterConfig:
+    enableInTreeAutoscaling: false
+    headGroupSpec:
+      rayStartParams:
+        dashboard-host: '0.0.0.0'
+      template:
+        spec:
+          containers:
+          - name: ray-head
+            image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+            resources:
+              limits:
+                cpu: "2"
+                memory: "8Gi"
+              requests:
+                cpu: "2"
+                memory: "8Gi"
+            ports:
+            - containerPort: 8265
+              name: dashboard
+            - containerPort: 6379
+              name: gcs-server
+            - containerPort: 10001
+              name: client
+            - containerPort: 8000
+              name: serve
+            env:
+              - name: NVIDIA_VISIBLE_DEVICES
+                value: "void"
+            envFrom:
+              - secretRef:
+                  name: {{ .Release.Name }}-env
+            volumeMounts:
+              - mountPath: /vllm-workspace
+                name: config
+              - mountPath: /tmp
+                name: tmp
+          volumes:
+            - name: config
+              configMap:
+                name: {{ .Release.Name }}
+            - name: tmp
+              emptyDir:
+                medium: Memory
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: nvidia.com/gpu.count
+                    operator: DoesNotExist
+    workerGroupSpecs:
+    - groupName: vllm
+      replicas: {{ tpl .Values.worker.replicas . }}
+      minReplicas: {{ tpl .Values.worker.replicas . }}
+      maxReplicas: {{ tpl .Values.worker.replicas . }}
+      rayStartParams: {}
+      template:
+        spec:
+          containers:
+          - name: vllm
+            image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+            envFrom:
+              - secretRef:
+                  name: {{ .Release.Name }}-env
+            resources: {{- tpl (toYaml .Values.worker.resources) . | nindent 14 }}
+            securityContext:
+              privileged: true
+            volumeMounts:
+              - mountPath: /vllm-workspace
+                name: config
+              - mountPath: /tmp
+                name: tmp
+              {{- if .Values.vllm.hfCache }}
+              - mountPath: /var/cache/huggingface
+                name: hf-cache
+              {{- end }}
+          tolerations:
+            - key: "nvidia.com/gpu"
+              operator: "Exists"
+              effect: "NoSchedule"
+          volumes:
+            - name: config
+              configMap:
+                name: {{ .Release.Name }}
+            - name: tmp
+              emptyDir:
+                medium: Memory
+            {{- if .Values.vllm.hfCache }}
+            - name: hf-cache
+              hostPath:
+                path: /mnt/hf-cache
+                type: DirectoryOrCreate
+            {{- end }}
+          affinity:
+            nodeAffinity:
+              {{- (get .Values.gpuToResourceHelperValues .Values.gpuPlatform).nodeAffinity | toYaml | nindent 14 }}

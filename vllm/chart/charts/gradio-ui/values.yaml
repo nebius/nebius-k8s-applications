@@ -1,13 +1,21 @@
 ---
 image:
-  repository: cr.nemax.nebius.cloud/crng6buqs6ev01fc6sff/nebius/vllm/gradio-ui
-  tag: v0.0.1
+  repository: cr.eu-north1.nebius.cloud/marketplace/nebius/ikargapolov-vllm/image/gradio-ui
+  tag: v0.0.2
 
 replicas: 1
 
+enablePublicIP: false
+
 env:
   - name: MODEL
-    value: "{{ tpl .Values.global.model . }}"
+    value: deepseek-ai/DeepSeek-R1
+
+secret:
+  env:
+    AUTH_USER:
+    AUTH_PASSWORD:
+    BASE_URL: 'http://ikargapolov-vllm-serve-svc:8000/v1/'
 
 resources:
   limits:
@@ -28,7 +36,7 @@ readinessProbe:
   failureThreshold: 5
 
 service:
-  type: ClusterIP
+  type: '{{ .Values.enablePublicIP | ternary "LoadBalancer" "ClusterIP" }}'
   port: 7860
 
 affinity:

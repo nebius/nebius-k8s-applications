@@ -1,68 +1,82 @@
----
 image:
   repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/vllm/vllm-openai
-  tag: v0.5.3.post1
-
-replicas: 1
+  tag: v0.7.1
 
 global:
-  model: h2oai/h2o-danube2-1.8b-chat
+  model: deepseek-ai/DeepSeek-R1
 
-gpuPlatform: NVIDIA® H100 NVLink with Intel Sapphire Rapids
-gpuToResourceHelperValues:
-  NVIDIA® H100 NVLink with Intel Sapphire Rapids:
-    cpu: 15
-    memory: 195
-
-vllm:
-  args:
-    trust-remote-code:
-    download-dir: /var/cache/huggingface
-    dtype: '{{ index .Values.gpuToResourceHelperValues .Values.gpuPlatform "dtype" | default "auto" }}'
-  env:
-    HF_TOKEN:
-  hfCache:
-    enabled: true
-    size: 80Gi
-    retentionPolicy:
-      whenDeleted: Delete
-      whenScaled: Retain
+kuberay-operator:
+  image:
+    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/vllm/kuberay-operator
+    tag: v1.2.2
+  singleNamespaceInstall: true
 
 gradio-ui:
   enabled: false
+  enablePublicIP: false
   image:
     repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/vllm/gradio-ui
-    tag: v0.0.2
+    tag: v0.0.3
   secret:
     env:
       AUTH_USER:
       AUTH_PASSWORD:
-      BASE_URL: http://vllm-service:8000/v1/
+      BASE_URL: 'http://{{ .Release.Name }}-serve-svc:8000/v1/'
 
-gpu-operator:
-  enabled: false
+gpuPerWorker: 8
+gpuPlatform: NVIDIA® H200 NVLink with Intel Sapphire Rapids
+gpuToResourceHelperValues:
+  NVIDIA® H100 NVLink with Intel Sapphire Rapids:
+    cpu: 14500
+    memory: 194
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: nvidia.com/gpu.product
+            operator: In
+            values:
+              - NVIDIA-H100-80GB-HBM3
+  NVIDIA® H200 NVLink with Intel Sapphire Rapids:
+    cpu: 14500
+    memory: 194
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: nvidia.com/gpu.product
+            operator: In
+            values:
+              - NVIDIA-H200
 
-resources:
-  limits:
-    cpu: '{{ (get .Values.gpuToResourceHelperValues .Values.gpuPlatform).cpu }}'
-    memory: '{{ (get .Values.gpuToResourceHelperValues .Values.gpuPlatform).memory }}Gi'
-    nvidia.com/gpu: "1"
-  requests:
-    cpu: "{{ tpl .Values.resources.limits.cpu . }}"
-    memory: "{{ tpl .Values.resources.limits.memory . }}"
-    nvidia.com/gpu: "1"
+vllm:
+  replicas: 1
+  config:
+    model: '{{ .Values.global.model }}'
+    tensor-parallel-size: '{{ .Values.gpuPerWorker }}'
+    pipeline-parallel-size: 1
+    download-dir: /var/cache/huggingface
+    dtype: auto
+    trust-remote-code:
+    distributed-executor-backend: ray
+    # enforce-eager:
+    # gpu-memory-utilization: 1
+    enable-chunked-prefill: true
+    # max-num-batched-tokens: 1024
+    # max-num-seqs: 1024
+  hfCache:
+    enabled: true
+  env:
+    HF_TOKEN:
 
-tolerations:
-  - key: nvidia.com/gpu
-    operator: Exists
-    effect: NoSchedule
-
-livenessProbe:
-  initialDelaySeconds: 60
-  periodSeconds: 5
-  failureThreshold: 5
-
-readinessProbe:
-  initialDelaySeconds: 60
-  periodSeconds: 5
-  failureThreshold: 5
+worker:
+  replicas: '{{ mul .Values.vllm.replicas (index .Values.vllm.config "pipeline-parallel-size") }}'
+  resources:
+    limits:
+      cpu: '{{ mul (get .Values.gpuToResourceHelperValues .Values.gpuPlatform).cpu .Values.gpuPerWorker }}m'
+      memory: '{{ mul (get .Values.gpuToResourceHelperValues .Values.gpuPlatform).memory .Values.gpuPerWorker }}Gi'
+      nvidia.com/gpu: '{{ .Values.gpuPerWorker }}'
+    requests:
+      cpu: "{{ tpl .Values.worker.resources.limits.cpu . }}"
+      memory: "{{ tpl .Values.worker.resources.limits.memory . }}"
+      nvidia.com/gpu: '{{ tpl (get .Values.worker.resources.limits "nvidia.com/gpu") . }}'

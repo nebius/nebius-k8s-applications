@@ -16,4 +16,4 @@ spec:
     - protocol: TCP
       port: {{ .Values.service.port | default "7860" }}
       targetPort: 7860
-  type: {{ .Values.service.type }}
+  type: {{ tpl .Values.service.type . }}

@@ -4,9 +4,9 @@
   "viewSpec": {
     "type": "base",
     "order": [
-      "gpuPlatform",
-      "replicas",
       "global",
+      "gpuPlatform",
+      "gpuPerWorker",
       "vllm",
       "gradio-ui"
     ],
@@ -14,11 +14,12 @@
   },
   "defaultValue": {
     "global": {
-      "model": "h2oai/h2o-danube2-1.8b-chat"
+      "model": "deepseek-ai/DeepSeek-R1"
     },
-    "gpuPlatform": "NVIDIA® H100 NVLink with Intel Sapphire Rapids",
+    "gpuPlatform": "NVIDIA® H200 NVLink with Intel Sapphire Rapids",
     "gradio-ui": {
       "enabled": false,
+      "enablePublicIP": false,
       "secret": {
         "env": {
           "AUTH_PASSWORD": null,
@@ -26,15 +27,15 @@
         }
       }
     },
-    "replicas": 1,
+    "gpuPerWorker": "8",
     "vllm": {
       "env": {
         "HF_TOKEN": null
       },
       "hfCache": {
-        "enabled": true,
-        "size": "80Gi"
-      }
+        "enabled": true
+      },
+      "replicas": 1
     }
   },
   "properties": {
@@ -46,9 +47,6 @@
           "model"
         ],
         "layout": ""
-      },
-      "defaultValue": {
-        "model": "h2oai/h2o-danube2-1.8b-chat"
       },
       "properties": {
         "model": {
@@ -69,11 +67,11 @@
         "type": "select",
         "layout": "row",
         "layoutTitle": "GPU Platform",
-        "layoutDescription": "Please select GPU platform that is present in K8s cluster.",
-        "disabled": true
+        "layoutDescription": "Please select GPU platform that is present in K8s cluster."
       },
       "enum": [
-        "NVIDIA® H100 NVLink with Intel Sapphire Rapids"
+        "NVIDIA® H100 NVLink with Intel Sapphire Rapids",
+        "NVIDIA® H200 NVLink with Intel Sapphire Rapids"
       ]
     },
     "gradio-ui": {
@@ -82,18 +80,10 @@
         "type": "base",
         "order": [
           "enabled",
+          "enablePublicIP",
           "secret"
         ],
         "layout": ""
-      },
-      "defaultValue": {
-        "enabled": false,
-        "secret": {
-          "env": {
-            "AUTH_PASSWORD": null,
-            "AUTH_USER": null
-          }
-        }
       },
       "properties": {
         "enabled": {
@@ -102,6 +92,15 @@
             "disabled": false,
             "layout": "row",
             "layoutTitle": "Enable Gradio UI",
+            "type": "switch"
+          }
+        },
+        "enablePublicIP": {
+          "type": "boolean",
+          "viewSpec": {
+            "disabled": false,
+            "layout": "row",
+            "layoutTitle": "Enable Public IP for Gradio UI",
             "type": "switch"
           }
         },
@@ -160,35 +159,38 @@
         }
       }
     },
-    "replicas": {
-      "type": "number",
+    "gpuPerWorker": {
+      "type": "string",
       "viewSpec": {
-        "type": "base",
+        "type": "select",
         "layout": "row",
-        "layoutTitle": "Number of vLLM replicas",
-        "layoutDescription": "Each replica consumes 1 GPU."
-      }
+        "layoutTitle": "Number of GPU per single vLLM replica"
+      },
+      "enum": [
+        "1","2","3","4","5","6","7","8"
+      ]
     },
     "vllm": {
       "type": "object",
       "viewSpec": {
         "type": "base",
         "order": [
+          "replicas",
           "env",
+          "config",
           "hfCache"
         ],
         "layout": ""
       },
-      "defaultValue": {
-        "env": {
-          "HF_TOKEN": null
-        },
-        "hfCache": {
-          "enabled": true,
-          "size": "80Gi"
-        }
-      },
       "properties": {
+        "replicas": {
+          "type": "number",
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Number of vLLM replicas"
+          }
+        },
         "env": {
           "type": "object",
           "viewSpec": {
@@ -219,14 +221,9 @@
           "viewSpec": {
             "type": "base",
             "order": [
-              "enabled",
-              "size"
+              "enabled"
             ],
             "layout": ""
-          },
-          "defaultValue": {
-            "enabled": true,
-            "size": "80Gi"
           },
           "properties": {
             "enabled": {
@@ -238,19 +235,39 @@
                 "layoutTitle": "Enable Hugging Face cache",
                 "type": "switch"
               }
-            },
-            "size": {
-              "type": "string",
-              "required": true,
+            }
+          }
+        },
+        "config": {
+          "type": "object",
+          "viewSpec": {
+            "type": "base",
+            "order": [
+              "pipeline-parallel-size",
+              "max-model-len"
+            ],
+            "layout": ""
+          },
+          "defaultValue": {
+            "pipeline-parallel-size": 1
+          },
+          "properties": {
+            "pipeline-parallel-size": {
+              "type": "number",
               "viewSpec": {
-                "inputProps": {
-                  "max": 1000,
-                  "min": 80,
-                  "suffix": "Gi"
-                },
+                "disabled": false,
                 "layout": "row",
-                "layoutTitle": "Size",
-                "type": "rangeinputpicker"
+                "layoutTitle": "Number of workers required to run single vLLM replicas",
+                "type": "base"
+              }
+            },
+            "max-model-len": {
+              "type": "number",
+              "viewSpec": {
+                "disabled": false,
+                "layout": "row",
+                "layoutTitle": "Model context length",
+                "type": "base"
               }
             }
           }

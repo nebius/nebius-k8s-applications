@@ -1,14 +1,13 @@
+name: vllm
 apiVersion: v2
+description: A Helm chart for Kubernetes
+type: application
+version: 1.0.0
 dependencies:
+- name: kuberay-operator
+  repository: file://./charts/kuberay-operator
+  version: 1.2.2
 - condition: gradio-ui.enabled
   name: gradio-ui
   repository: file://charts/gradio-ui
   version: 1.0.0
-- condition: gpu-operator.enabled
-  name: gpu-operator
-  repository: oci://cr.nemax.nebius.cloud/yc-marketplace/nebius/nvidia-gpu-operator/chart
-  version: v23.9.0
-description: A Helm chart for Kubernetes
-name: vllm
-type: application
-version: 1.0.0
