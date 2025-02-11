@@ -1,0 +1,47 @@
+slug: grafana-and-prometheus
+publisherName: Nebius
+ownerName: Grafana Labs
+name: Grafana and Prometheus
+categories:
+  - dev-tools
+images:
+  - registry: grafana.image.registry
+    tag: grafana.image.tag
+    nameWithoutRegistry: grafana.image.repository
+  - registry: grafana.testFramework.image.registry
+    tag: grafana.testFramework.image.tag
+    nameWithoutRegistry: grafana.testFramework.image.repository
+  - registry: grafana.downloadDashboardsImage.registry
+    tag: grafana.downloadDashboardsImage.tag
+    nameWithoutRegistry: grafana.downloadDashboardsImage.repository
+  - registry: grafana.initChownData.image.registry
+    tag: grafana.initChownData.image.tag
+    nameWithoutRegistry: grafana.initChownData.image.repository
+  - registry: grafana.sidecar.image.registry
+    tag: grafana.sidecar.image.tag
+    nameWithoutRegistry: grafana.sidecar.image.repository
+  - registry: grafana.imageRenderer.image.registry
+    tag: grafana.imageRenderer.image.tag
+    nameWithoutRegistry: grafana.imageRenderer.image.repository
+  - tag: prometheus.alertmanager.image.tag
+    nameWithRegistry: prometheus.alertmanager.image.repository
+  - tag: prometheus.alertmanager.configmapReload.image.tag
+    nameWithRegistry: prometheus.alertmanager.configmapReload.image.repository
+  - registry: prometheus.kube-state-metrics.image.registry
+    tag: prometheus.kube-state-metrics.image.tag
+    nameWithoutRegistry: prometheus.kube-state-metrics.image.repository
+  - registry: prometheus.kube-state-metrics.kubeRBACProxy.image.registry
+    tag: prometheus.kube-state-metrics.kubeRBACProxy.image.tag
+    nameWithoutRegistry: prometheus.kube-state-metrics.kubeRBACProxy.image.repository
+  - registry: prometheus.prometheus-node-exporter.image.registry
+    tag: prometheus.prometheus-node-exporter.image.tag
+    nameWithoutRegistry: prometheus.prometheus-node-exporter.image.repository
+  - registry: prometheus.prometheus-node-exporter.kubeRBACProxy.image.registry
+    tag: prometheus.prometheus-node-exporter.kubeRBACProxy.image.tag
+    nameWithoutRegistry: prometheus.prometheus-node-exporter.kubeRBACProxy.image.repository
+  - tag: prometheus.prometheus-pushgateway.image.tag
+    nameWithRegistry: prometheus.prometheus-pushgateway.image.repository
+  - tag: prometheus.configmapReload.prometheus.image.tag
+    nameWithRegistry: prometheus.configmapReload.prometheus.image.repository
+  - tag: prometheus.server.image.tag
+    nameWithRegistry: prometheus.server.image.repository

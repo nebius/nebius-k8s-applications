@@ -1,0 +1,25 @@
+apiVersion: v2
+appVersion: 3.3.2
+dependencies:
+- name: o11y-configs
+  repository: file://charts/o11y-configs
+  version: 1.0.0
+  condition: o11y-configs.enabled
+- name: promtail
+  repository: file://charts/promtail
+  version: 6.16.6
+  condition: promtail.enabled
+description: Helm chart for Grafana Loki and Grafana Enterprise Logs supporting both
+  simple, scalable and distributed modes.
+home: https://grafana.github.io/helm-charts
+icon: https://grafana.com/docs/loki/latest/logo_and_name.png
+maintainers:
+- name: trevorwhitney
+- name: jeschkies
+name: loki
+sources:
+- https://github.com/grafana/loki
+- https://grafana.com/oss/loki/
+- https://grafana.com/docs/loki/latest/
+type: application
+version: 6.25.1

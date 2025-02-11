@@ -1,0 +1,128 @@
+{
+  "viewSpec": {
+    "type": "base",
+    "layout": "base",
+    "order": ["grafana", "prometheus"]
+  },
+  "defaultValue": {
+    "grafana": {
+      "adminPassword": ""
+    },
+    "prometheus": {
+      "server": {
+        "global": {
+          "scrape_interval": "1m"
+        },
+        "retention": "15d",
+        "persistentVolume": {
+          "size": "50Gi"
+        }
+      }
+    }
+  },
+  "type": "object",
+  "properties": {
+    "grafana": {
+      "type": "object",
+      "required": true,
+      "viewSpec": {
+        "type": "base",
+        "order": ["adminPassword"],
+        "layout": ""
+      },
+      "properties": {
+        "adminPassword": {
+          "type": "string",
+          "required": true,
+          "pattern": "^[a-zA-Z0-9-!@#$%^&*]{12,}$",
+          "viewSpec": {
+            "type": "password",
+            "layout": "row",
+            "layoutTitle": "Grafana admin password",
+            "layoutDescription": "Set administrator password for Grafana UI access. Minimum 12 characters with allowed special symbols: !@#$%^&*-",
+            "generateRandomValueButton": true
+          }
+        }
+      }
+    },
+    "prometheus": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "order": ["server"],
+        "layout": ""
+      },
+      "properties": {
+        "server": {
+          "type": "object",
+          "viewSpec": {
+            "type": "base",
+            "order": ["global", "retention", "persistentVolume"],
+            "layout": ""
+          },
+          "properties": {
+            "global": {
+              "type": "object",
+              "required": true,
+              "viewSpec": {
+                "type": "base",
+                "order": ["scrape_interval"],
+                "layout": ""
+              },
+              "properties": {
+                "scrape_interval": {
+                  "type": "string",
+                  "required": true,
+                  "pattern": "^\\d+(y|w|d|h|m|s|ms)$",
+                  "viewSpec": {
+                    "type": "base",
+                    "layout": "row",
+                    "layoutTitle": "Prometheus scrape interval",
+                    "layoutDescription": "Specify how frequently targets should be scraped for metrics. Supported units: ms, s, m, h, d, w, y."
+                  }
+                }
+              }
+            },
+            "retention": {
+              "required": true,
+              "type": "string",
+              "pattern": "^\\d+(y|w|d|h|m|s|ms)$",
+              "viewSpec": {
+                "type": "base",
+                "layout": "row",
+                "layoutTitle": "Prometheus retention",
+                "layoutDescription": "Specify retention duration for collected metrics. Supported units: ms, s, m, h, d, w, y."
+              }
+            },
+            "persistentVolume": {
+              "type": "object",
+              "required": true,
+              "viewSpec": {
+                "type": "base",
+                "order": ["size"],
+                "layout": ""
+              },
+              "properties": {
+                "size": {
+                  "type": "string",
+                  "viewSpec": {
+                    "disabled": false,
+                    "inputProps": {
+                      "max": 100,
+                      "min": 8,
+                      "suffix": "Gi"
+                    },
+                    "layout": "row",
+                    "layoutTitle": "Prometheus storage size",
+                    "layoutDescription": "Specify storage size for Prometheus metrics.",
+                    "type": "rangeinputpicker"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
