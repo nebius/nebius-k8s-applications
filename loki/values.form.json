@@ -1,0 +1,144 @@
+{
+  "type": "object",
+  "viewSpec": {
+    "type": "base",
+    "order": [
+      "loki",
+      "replicaFactor",
+      "promtail"
+    ],
+    "layout": ""
+  },
+  "defaultValue": {
+    "loki": {
+      "storage": {
+        "bucketPrefix": "loki-storage",
+        "s3": {
+          "accessKeyId": null,
+          "region": "eu-north1",
+          "secretAccessKey": null
+        }
+      }
+    },
+    "promtail": {
+      "enabled": true
+    },
+    "replicaFactor": "2"
+  },
+  "properties": {
+    "loki": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "order": [
+          "storage"
+        ],
+        "layout": ""
+      },
+      "properties": {
+        "storage": {
+          "type": "object",
+          "viewSpec": {
+            "type": "base",
+            "order": [
+              "bucketPrefix",
+              "s3"
+            ],
+            "layout": ""
+          },
+          "properties": {
+            "bucketPrefix": {
+              "type": "string",
+              "required": true,
+              "viewSpec": {
+                "type": "base",
+                "layout": "row",
+                "layoutTitle": "Buckets prefix",
+                "layoutDescription": "The prefix for storage buckets, corresponding buckets must extist for \u003cbucketPrefix\u003e-chunks and \u003cbucketPrefix\u003e-ruler"
+              }
+            },
+            "s3": {
+              "type": "object",
+              "viewSpec": {
+                "type": "base",
+                "order": [
+                  "region",
+                  "accessKeyId",
+                  "secretAccessKey"
+                ],
+                "layout": ""
+              },
+              "properties": {
+                "accessKeyId": {
+                  "type": "string",
+                  "required": true,
+                  "viewSpec": {
+                    "type": "base",
+                    "layout": "row",
+                    "layoutTitle": "Buckets Access key"
+                  }
+                },
+                "region": {
+                  "type": "string",
+                  "required": true,
+                  "viewSpec": {
+                    "type": "select",
+                    "layout": "row",
+                    "layoutTitle": "Buckets region",
+                    "layoutDescription": "The region where storage buckets are located"
+                  },
+                  "enum": [
+                    "eu-north1",
+                    "eu-west1"
+                  ]
+                },
+                "secretAccessKey": {
+                  "type": "string",
+                  "required": true,
+                  "viewSpec": {
+                    "disabled": false,
+                    "layout": "row",
+                    "layoutTitle": "Buckets Secret key",
+                    "type": "password"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "promtail": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "order": [
+          "enabled"
+        ],
+        "layout": ""
+      },
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "viewSpec": {
+            "disabled": false,
+            "layout": "row",
+            "layoutDescription": "Promtail is an agent which ships the contents of local logs to a private Grafana Loki.",
+            "layoutTitle": "Install Promtail",
+            "type": "switch"
+          }
+        }
+      }
+    },
+    "replicaFactor": {
+      "type": "string",
+      "required": true,
+      "viewSpec": {
+        "type": "base",
+        "layout": "row",
+        "layoutTitle": "Number of loki replicas",
+        "layoutDescription": "Minimum number of replicas are 2"
+      }
+    }
+  }
+}

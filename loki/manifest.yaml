@@ -1,0 +1,20 @@
+slug: loki
+ownerName: Grafana Labs
+publisherName: Nebius
+name: Grafana Loki
+categories:
+  - dev-tools
+images:
+  - registry: promtail.image.registry
+    nameWithoutRegistry: promtail.image.repository
+    tag: promtail.image.tag
+  - registry: loki.image.registry
+    nameWithoutRegistry: loki.image.repository
+    tag: loki.image.tag
+  - registry: gateway.image.registry
+    nameWithoutRegistry: gateway.image.repository
+    tag: gateway.image.tag
+  - nameWithRegistry: memcached.image.repository
+    tag: memcached.image.tag
+  - nameWithRegistry: sidecar.image.repository
+    tag: sidecar.image.tag

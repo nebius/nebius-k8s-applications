@@ -1,0 +1,239 @@
+grafana:
+  sidecar:
+    image:
+      registry: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex
+      repository: nebius/o11y/k8s-sidecar
+      tag: "1.28.0"
+    datasources:
+      labelValue: ""
+      enabled: true
+      maxLines: 1000
+      searchNamespace: ALL
+    dashboards:
+      enabled: true
+      label: "grafana_dashboard"
+      labelValue: 1
+      searchNamespace: ALL
+
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: node-exporter
+          orgId: 1
+          folder: "Node Exporter"
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/node-exporter
+        - name: gpu
+          orgId: 1
+          folder: "GPU"
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/gpu
+        - name: loki
+          orgId: 1
+          folder: 'Loki'
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/loki
+
+  dashboards:
+    node-exporter:
+      node-exporter:
+        gnetId: 1860
+        revision: 37
+        datasource: Prometheus
+      kubernetes-node-exporter:
+        gnetId: 8171
+        datasource: Prometheus
+    gpu:
+      dcgm-exporter:
+        url: https://raw.githubusercontent.com/NVIDIA/dcgm-exporter/main/grafana/dcgm-exporter-dashboard.json
+        datasource: Prometheus
+    loki:
+      loki-logs:
+        gnetId: 15141
+        datasource: Loki
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          uid: prometheus
+          url: http://prometheus-server
+          access: proxy
+          isDefault: false
+          version: 1
+
+  image:
+    registry: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex
+    repository: nebius/o11y/grafana
+    tag: "11.4.0"
+
+  testFramework:
+    image:
+      registry: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex
+      repository: nebius/o11y/bats
+      tag: "v1.4.1"
+
+  downloadDashboardsImage:
+    registry: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex
+    repository: nebius/o11y/curl
+    tag: "7.85.0"
+
+  initChownData:
+    image:
+      registry: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex
+      repository: nebius/o11y/busybox
+      tag: "1.31.1"
+
+  imageRenderer:
+    image:
+      registry: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex
+      repository: nebius/o11y/grafana-image-renderer
+      tag: latest_pinned
+
+prometheus:
+  extraScrapeConfigs: |
+    - job_name: cilium-agent
+      kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names:
+          - kube-system
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        regex: true
+        action: keep
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_port]
+        regex: 9962
+        action: keep
+      - source_labels: [__meta_kubernetes_pod_container_port_number]
+        regex: .*
+        action: keep
+      - source_labels: [__meta_kubernetes_pod_container_port_number]
+        regex: ""
+        action: drop
+      - target_label: k8s_app
+        replacement: cilium
+      - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+        regex: (.+):\d+;(\d+)
+        replacement: ${1}:${2}
+        target_label: __address__
+      - source_labels: [__meta_kubernetes_namespace]
+        target_label: namespace
+      - source_labels: [__meta_kubernetes_pod_name]
+        target_label: pod
+      - source_labels: [__meta_kubernetes_pod_node_name]
+        target_label: node
+      metrics_path: /metrics
+      scheme: http
+      honor_labels: true
+      scrape_interval: 10s
+    - job_name: 'hubble'
+      kubernetes_sd_configs:
+      - role: endpoints
+        namespaces:
+          names:
+          - kube-system
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_service_label_k8s_app]
+        regex: hubble
+        action: keep
+      - source_labels: [__meta_kubernetes_endpoint_port_name]
+        regex: hubble-metrics
+        action: keep
+      - source_labels: [__meta_kubernetes_pod_node_name]
+        regex: (.+)
+        replacement: ${1}
+        target_label: node
+      - source_labels: [__meta_kubernetes_service_name]
+        target_label: service
+      - source_labels: [__meta_kubernetes_namespace]
+        target_label: namespace
+      metrics_path: /metrics
+      scheme: http
+      honor_labels: true
+      scrape_interval: 10s
+    - job_name: 'servicemonitors'
+      kubernetes_sd_configs:
+        - role: endpoints
+      relabel_configs:
+        # Relabel for all ServiceMonitor-compatible services
+        - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]
+          action: keep
+          regex: true
+        # Exclude specific services in kube-system namespace
+        - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name]
+          action: drop
+          regex: kube-system;(cilium-agent|hubble-metrics|hubble-peer|hubble-relay|hubble-ui)
+        # Add namespace metadata to metrics
+        - source_labels: [__meta_kubernetes_namespace]
+          target_label: namespace
+        # Add service metadata to metrics
+        - source_labels: [__meta_kubernetes_service_name]
+          target_label: service
+
+  alertmanager:
+    enabled: false
+    image:
+      repository: 'cr.eu-north1.nebius.cloud/marketplace/nebius/elijah-k-o11y/image/alertmanager'
+      tag: v0.27.0
+    configmapReload:
+      image:
+        repository: 'cr.eu-north1.nebius.cloud/marketplace/nebius/elijah-k-o11y/image/prometheus-config-reloader'
+        tag: v0.66.0
+
+  kube-state-metrics:
+    metricLabelsAllowlist:
+      - nodes=[nebius.com/group-name]
+    image:
+      registry: 'cr.eu-north1.nebius.cloud/marketplace'
+      repository: nebius/elijah-k-o11y/image/kube-state-metrics
+      tag: v2.14.0
+    kubeRBACProxy:
+      image:
+        registry: 'cr.eu-north1.nebius.cloud/marketplace'
+        repository: nebius/elijah-k-o11y/image/kube-rbac-proxy
+        tag: v0.18.2
+
+  prometheus-node-exporter:
+    enabled: true
+    image:
+      registry: 'cr.eu-north1.nebius.cloud/marketplace'
+      repository: nebius/elijah-k-o11y/image/node-exporter
+      tag: v1.8.2
+    kubeRBACProxy:
+      image:
+        registry: 'cr.eu-north1.nebius.cloud/marketplace'
+        repository: nebius/elijah-k-o11y/image/kube-rbac-proxy
+        tag: v0.18.2
+
+  prometheus-pushgateway:
+    enabled: false
+    image:
+      repository: 'cr.eu-north1.nebius.cloud/marketplace/nebius/elijah-k-o11y/image/pushgateway'
+      tag: v1.10.0
+  configmapReload:
+    prometheus:
+      image:
+        repository: 'cr.eu-north1.nebius.cloud/marketplace/nebius/elijah-k-o11y/image/prometheus-config-reloader'
+        tag: v0.78.2
+  server:
+    fullnameOverride: prometheus-server
+    securityContext:
+      fsGroup: 65534
+      runAsGroup: 0
+      runAsNonRoot: false
+      runAsUser: 0
+    image:
+      repository: 'cr.eu-north1.nebius.cloud/marketplace/nebius/elijah-k-o11y/image/prometheus'
+      tag: v3.1.0
