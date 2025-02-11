@@ -38,6 +38,8 @@ This repository serves as a central hub for managing and deploying applications 
 - [Ray Cluster](ray-cluster/README.md)
 - [Stable Diffusion WebUI](stable-diffusion-webui/README.md)
 - [vLLM](vllm/README.md)
+- [Grafana Loki](loki/README.md)
+- [Grafana and Prometheus](grafana-and-prometheus/README.md)
 
 ---
 
