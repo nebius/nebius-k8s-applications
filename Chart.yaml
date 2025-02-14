@@ -25,7 +25,7 @@ dependencies:
   version: "0.1.0-109"
   # repository: "./h2oai-h2ogpt"  https://github.com/h2oai/h2ogpt/blob/main/helm/h2ogpt-chart/Chart.yaml
 - name: jupyterhub
-  version: "4.0.0"
+  version: "4.1.0"
   repository: "https://hub.jupyter.org/helm-chart"
 - name: milvus
   version: "4.1.11"
@@ -51,3 +51,9 @@ dependencies:
 - name: vllm-chart
   version: "0.3.0"
   # need to find the repository
+- name: volcano
+  version: "1.11.0"
+  repository: "https://volcano-sh.github.io/helm-charts"
+- name: ollama
+  version: "1.5.0"
+  repository: "https://otwld.github.io/ollama-helm/"

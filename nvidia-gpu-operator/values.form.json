@@ -1,7 +1,7 @@
 {
   "defaultValue": {
     "driver.rdma.enabled": true,
-    "driver.version": "535.161.08"
+    "driver.version": "550.54.15"
   },
   "type": "object",
   "properties": {
@@ -31,9 +31,9 @@
         "type": "select",
         "layout": "row",
         "layoutTitle": "Driver version",
-        "placeholder": "535.161.08",
+        "placeholder": "550.54.15",
         "selectParams": {
-          "filterPlaceholder": "535.161.08",
+          "filterPlaceholder": "550.54.15",
           "meta": {
             "535.161.08": "",
             "550.54.15": "",

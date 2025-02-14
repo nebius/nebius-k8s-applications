@@ -1,24 +1,24 @@
 annotations:
   artifacthub.io/images: |
-    - image: quay.io/jupyterhub/configurable-http-proxy:4.6.2
+    - image: quay.io/jupyterhub/configurable-http-proxy:4.6.3
       name: configurable-http-proxy
-    - image: quay.io/jupyterhub/k8s-hub:4.0.0
+    - image: quay.io/jupyterhub/k8s-hub:4.1.0
       name: k8s-hub
-    - image: quay.io/jupyterhub/k8s-image-awaiter:4.0.0
+    - image: quay.io/jupyterhub/k8s-image-awaiter:4.1.0
       name: k8s-image-awaiter
-    - image: quay.io/jupyterhub/k8s-network-tools:4.0.0
+    - image: quay.io/jupyterhub/k8s-network-tools:4.1.0
       name: k8s-network-tools
-    - image: quay.io/jupyterhub/k8s-secret-sync:4.0.0
+    - image: quay.io/jupyterhub/k8s-secret-sync:4.1.0
       name: k8s-secret-sync
-    - image: quay.io/jupyterhub/k8s-singleuser-sample:4.0.0
+    - image: quay.io/jupyterhub/k8s-singleuser-sample:4.1.0
       name: k8s-singleuser-sample
-    - image: registry.k8s.io/kube-scheduler:v1.30.6
+    - image: registry.k8s.io/kube-scheduler:v1.30.8
       name: kube-scheduler
     - image: registry.k8s.io/pause:3.10
       name: pause
     - image: registry.k8s.io/pause:3.10
       name: pause
-    - image: traefik:v3.2.0
+    - image: traefik:v3.3.1
       name: traefik
 apiVersion: v2
 appVersion: 5.2.1
@@ -38,4 +38,4 @@ maintainers:
 name: jupyterhub
 sources:
 - https://github.com/jupyterhub/zero-to-jupyterhub-k8s
-version: "4.0.0"
+version: 4.1.0

@@ -62,6 +62,12 @@ To use GPU create GPU node group and install [NVIDIA® GPU Operator](https://con
 1. Click **Install**.
 1. Wait for the application to change its status to `Deployed`.
 
+{% note warning %}
+
+If you want to use JupyterHub with GPUs and have them in your node group, install the [NVIDIA® GPU Operator](https://console.eu.nebius.com/applications/overview/nebius/nvidia-gpu-operator) on the cluster.
+
+{% endnote %}
+
 ## Usage
 
 Depending on the way to access the cluster you have chosen while configuring the application, get the IP or use port-forwarding to access the JupyterHub UI:

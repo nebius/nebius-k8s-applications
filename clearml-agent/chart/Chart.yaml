@@ -1,0 +1,24 @@
+apiVersion: v2
+name: clearml-agent
+description: MLOps platform Task running agent
+type: application
+version: "5.2.2"
+appVersion: "1.24"
+kubeVersion: ">= 1.21.0-0 < 1.31.0-0"
+home: https://clear.ml
+icon: https://raw.githubusercontent.com/allegroai/clearml/master/docs/clearml-logo.svg
+sources:
+  - https://github.com/allegroai/clearml-helm-charts
+  - https://github.com/allegroai/clearml
+maintainers:
+  - name: filippo-clearml
+    url: https://github.com/filippo-clearml
+keywords:
+  - clearml
+  - "machine learning"
+  - mlops
+  - "task agent"
+annotations:
+  artifacthub.io/changes: |
+    - kind: changed
+      description: Updated README

@@ -40,6 +40,9 @@ This repository serves as a central hub for managing and deploying applications 
 - [vLLM](vllm/README.md)
 - [Grafana Loki](loki/README.md)
 - [Grafana and Prometheus](grafana-and-prometheus/README.md)
+- [Ollama](ollama/README.md)
+- [Volcano](volcano-volcano/README.md)
+- [Clear ML agent](clearml-agent/README.md)
 
 ---
 

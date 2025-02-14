@@ -99,7 +99,7 @@ hub:
   extraVolumeMounts: []
   image:
     name: quay.io/jupyterhub/k8s-hub
-    tag: "4.0.0"
+    tag: "4.1.0"
     pullPolicy:
     pullSecrets: []
   resources: {}
@@ -230,7 +230,7 @@ proxy:
       # tag is automatically bumped to new patch versions by the
       # watch-dependencies.yaml workflow.
       #
-      tag: "4.6.2" # https://github.com/jupyterhub/configurable-http-proxy/tags
+      tag: "4.6.3" # https://github.com/jupyterhub/configurable-http-proxy/tags
       pullPolicy:
       pullSecrets: []
     extraCommandLineFlags: []
@@ -290,7 +290,7 @@ proxy:
       # tag is automatically bumped to new patch versions by the
       # watch-dependencies.yaml workflow.
       #
-      tag: "v3.2.0" # ref: https://hub.docker.com/_/traefik?tab=tags
+      tag: "v3.3.1" # ref: https://hub.docker.com/_/traefik?tab=tags
       pullPolicy:
       pullSecrets: []
     hsts:
@@ -342,7 +342,7 @@ proxy:
         type: "RuntimeDefault"
     image:
       name: quay.io/jupyterhub/k8s-secret-sync
-      tag: "4.0.0"
+      tag: "4.1.0"
       pullPolicy:
       pullSecrets: []
     resources: {}
@@ -371,21 +371,16 @@ singleuser:
     - display_name: "Default Jupyterhub Image"
       description: "Default image, runs on any node."
       kubespawner_override:
-        image: quay.io/jupyter/base-notebook:notebook-7.2.2
+        image: quay.io/jupyter/base-notebook:notebook-7.3.2
         lifecycle_hooks:
           postStart:
             exec:
-              command:
-                - "/bin/sh"
-                - "-c"
-                - >
-                  sudo apt update && sudo apt install -y git curl wget &
-                  cat /home/jovyan/default.ipynb || cp /tmp/jupyterhub/notebooks/default.ipynb /home/jovyan
+              command: ["/bin/sh", "-c", "sudo apt update && sudo apt install -y git curl wget;cat /home/jovyan/default.ipynb || cp /tmp/jupyterhub/notebooks/default.ipynb /home/jovyan"]
 
     - display_name: "Image with GPU support and PyTorch library (Jupyterhub)"
       description: "Only runs on nodes with GPUs, fails to start if there is no such node available."
       kubespawner_override:
-        image: quay.io/jupyter/pytorch-notebook:cuda12-notebook-7.2.2
+        image: quay.io/jupyter/pytorch-notebook:cuda12-notebook-7.3.2
         extra_resource_limits:
           nvidia.com/gpu: 1
         lifecycle_hooks:
@@ -408,7 +403,7 @@ singleuser:
   networkTools:
     image:
       name: quay.io/jupyterhub/k8s-network-tools
-      tag: "4.0.0"
+      tag: "4.1.0"
       pullPolicy:
       pullSecrets: []
     resources: {}
@@ -420,14 +415,16 @@ singleuser:
   networkPolicy:
     enabled: true
     ingress: []
-    egress: []
+    egress: 
+      - to:
+          - namespaceSelector: {}
     egressAllowRules:
       cloudMetadataServer: false
       dnsPortsCloudMetadataServer: true
       dnsPortsKubeSystemNamespace: true
       dnsPortsPrivateIPs: true
       nonPrivateIPs: true
-      privateIPs: false
+      privateIPs: true
     interNamespaceAccessLabels: ignore
     allowedIngressPorts: []
   events: true
@@ -469,7 +466,7 @@ singleuser:
       subPath:
   image:
     name: quay.io/jupyterhub/k8s-singleuser-sample
-    tag: "4.0.0"
+    tag: "4.1.0"
     pullPolicy:
     pullSecrets: []
   startTimeout: 300
@@ -480,9 +477,9 @@ singleuser:
     limit:
     guarantee: 1G
   extraResource:
-    limits: { }
-    guarantees: { }
-  cmd: "start-notebook.sh"
+    limits: {}
+    guarantees: {}
+  cmd: jupyterhub-singleuser
   defaultUrl:
   extraPodConfig: {}
 
@@ -601,7 +598,7 @@ scheduling:
       # here. We aim to stay around 1 minor version behind the latest k8s
       # version.
       #
-      tag: "v1.30.6" # ref: https://github.com/kubernetes/kubernetes/tree/master/CHANGELOG
+      tag: "v1.30.8" # ref: https://github.com/kubernetes/kubernetes/tree/master/CHANGELOG
       pullPolicy:
       pullSecrets: []
     nodeSelector: {}
@@ -650,6 +647,7 @@ scheduling:
       seccompProfile:
         type: "RuntimeDefault"
     resources: {}
+    extraPodSpec: {}
   corePods:
     tolerations:
       - key: hub.jupyter.org/dedicated
@@ -693,12 +691,12 @@ prePuller:
   extraTolerations: []
   # hook relates to the hook-image-awaiter Job and hook-image-puller DaemonSet
   hook:
-    enabled: false
+    enabled: true
     pullOnlyOnChanges: true
     # image and the configuration below relates to the hook-image-awaiter Job
     image:
       name: quay.io/jupyterhub/k8s-image-awaiter
-      tag: "4.0.0"
+      tag: "4.1.0"
       pullPolicy:
       pullSecrets: []
     containerSecurityContext:
@@ -714,13 +712,23 @@ prePuller:
     nodeSelector: {}
     tolerations: []
     resources: {}
+    # Service Account for the hook-image-awaiter Job
     serviceAccount:
       create: true
       name:
       annotations: {}
+    # Service Account for the hook-image-puller DaemonSet
+    serviceAccountImagePuller:
+      create: true
+      name:
+      annotations: {}
   continuous:
-    enabled: false
-  pullProfileListImages: y
+    enabled: true
+    serviceAccount:
+      create: true
+      name:
+      annotations: {}
+  pullProfileListImages: true
   extraImages: {}
   pause:
     containerSecurityContext:
@@ -744,8 +752,8 @@ prePuller:
       pullSecrets: []
 
 ingress:
-  enabled: true
-  annotations: { }
+  enabled: false
+  annotations: {}
   ingressClassName:
   hosts: []
   pathSuffix:

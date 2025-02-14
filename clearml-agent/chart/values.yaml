@@ -1,0 +1,236 @@
+# -- Global parameters section
+global:
+  # -- Images registry
+  imageRegistry: "docker.io"
+
+# -- Private image registry configuration
+imageCredentials:
+  # -- Use private authentication mode
+  enabled: false
+  # -- If this is set, chart will not generate a secret but will use what is defined here
+  existingSecret: ""
+  # -- Registry name
+  registry: docker.io
+  # -- Registry username
+  username: someone
+  # -- Registry password
+  password: pwd
+  # -- Email
+  email: someone@host.com
+
+# -- ClearMl generic configurations
+clearml:
+  # -- If this is set, chart will not generate a secret but will use what is defined here
+  existingAgentk8sglueSecret: ""
+  # -- Agent k8s Glue basic auth key
+  agentk8sglueKey: "ACCESSKEY"
+  # -- Agent k8s Glue basic auth secret
+  agentk8sglueSecret: "SECRETKEY"
+
+  # -- If this is set, chart will not generate a secret but will use what is defined here
+  existingClearmlConfigSecret: ""
+  # The secret should be defined as the following example
+  #
+  # apiVersion: v1
+  # kind: Secret
+  # metadata:
+  #   name: secret-name
+  # stringData:
+  #   clearml.conf: |-
+  #     sdk {
+  #     }
+  # -- ClearML configuration file
+  clearmlConfig: |-
+    sdk {
+    }
+
+# -- This agent will spawn queued experiments in new pods, a good use case is to combine this with
+# GPU autoscaling nodes.
+# https://github.com/allegroai/clearml-agent/tree/master/docker/k8s-glue
+agentk8sglue:
+  # -- Glue Agent image configuration
+  image:
+    registry: ""
+    repository: "allegroai/clearml-agent-k8s-base"
+    tag: "1.24-21"
+
+  # -- Glue Agent number of pods
+  replicaCount: 1
+
+  # -- Glue Agent pod resources
+  resources: {}
+
+  # -- Glue Agent pod initContainers configs
+  initContainers:
+    # -- Glue Agent initcontainers pod resources
+    resources: {}
+
+  # -- if set, don't create a serviceAccountName but use defined existing one
+  serviceExistingAccountName: ""
+
+  # -- Check certificates validity for evefry UrlReference below.
+  clearmlcheckCertificate: true
+
+  # -- Reference to Api server url
+  apiServerUrlReference: "https://api.clear.ml"
+  # -- Reference to File server url
+  fileServerUrlReference: "https://files.clear.ml"
+  # -- Reference to Web server url
+  webServerUrlReference: "https://app.clear.ml"
+
+  # -- default container image for ClearML Task pod
+  defaultContainerImage: ubuntu:18.04
+  # -- ClearML queue this agent will consume. Multiple queues can be specified with the following format: queue1,queue2,queue3
+  queue: default
+  # -- if ClearML queue does not exist, it will be create it if the value is set to true
+  createQueueIfNotExists: false
+  # -- labels setup for Agent pod (example in values.yaml comments)
+  labels: {} # schedulerName: scheduler
+  # -- annotations setup for Agent pod (example in values.yaml comments)
+  annotations: {} # key1: value1
+  # -- Extra Environment variables for Glue Agent
+  extraEnvs: []
+    # - name: PYTHONPATH
+    #   value: "somepath"
+  # -- container securityContext setup for Agent pod (example in values.yaml comments)
+  podSecurityContext: {}
+    #  runAsUser: 1001
+    #  fsGroup: 1001
+  # -- container securityContext setup for Agent pod (example in values.yaml comments)
+  containerSecurityContext: {}
+    #  runAsUser: 1001
+    #  fsGroup: 1001
+  # -- additional existing ClusterRoleBindings
+  additionalClusterRoleBindings: [] # - privileged
+  # -- additional existing RoleBindings
+  additionalRoleBindings: [] # - privileged
+  # -- nodeSelector setup for Agent pod (example in values.yaml comments)
+  nodeSelector: {} # fleet: agent-nodes
+  # -- tolerations setup for Agent pod (example in values.yaml comments)
+  tolerations: []
+  # -- affinity setup for Agent pod (example in values.yaml comments)
+  affinity: {}
+  # -- volumes definition for Glue Agent (example in values.yaml comments)
+  volumes: []
+    # - name: "yourvolume"
+    #   nfs:
+    #    server: 192.168.0.1
+    #    path: /var/nfs/mount
+  # -- volume mounts definition for Glue Agent (example in values.yaml comments)
+  volumeMounts: []
+    # - name: yourvolume
+    #   mountPath: /yourpath
+    #   subPath: userfolder
+
+  # -- file definition for Glue Agent (example in values.yaml comments)
+  fileMounts: []
+    # - name: "integration.py"
+    #   folderPath: "/mnt/python"
+    #   fileContent: |-
+    #     def get_template(*args, **kwargs):
+    #       print("args: {}".format(args))
+    #       print("kwargs: {}".format(kwargs))
+    #       return {
+    #           "template": {
+    #           }
+    #       }
+
+  # -- base template for pods spawned to consume ClearML Task
+  basePodTemplate:
+    # Workaround for nvidia.gpus key
+    gpus: "1"
+    # -- labels setup for pods spawned to consume ClearML Task (example in values.yaml comments)
+    labels: {} # schedulerName: scheduler
+    # -- annotations setup for pods spawned to consume ClearML Task (example in values.yaml comments)
+    annotations: {} # key1: value1
+    # -- initContainers definition for pods spawned to consume ClearML Task (example in values.yaml comments)
+    initContainers: []
+      # - name: volume-dirs-init-cntr
+      #   image: busybox:1.35
+      #  command:
+      #    - /bin/bash
+      #    - -c
+      #    - >
+      #      /bin/echo "this is an init";
+    # -- schedulerName setup for pods spawned to consume ClearML Task
+    schedulerName: ""
+    # -- volumes definition for pods spawned to consume ClearML Task (example in values.yaml comments)
+    volumes: []
+      # - name: "yourvolume"
+      #   nfs:
+      #    server: 192.168.0.1
+      #    path: /var/nfs/mount
+    # -- volume mounts definition for pods spawned to consume ClearML Task (example in values.yaml comments)
+    volumeMounts: []
+      # - name: yourvolume
+      #   mountPath: /yourpath
+      #   subPath: userfolder
+    # -- file definition for pods spawned to consume ClearML Task (example in values.yaml comments)
+    fileMounts: []
+      # - name: "mounted-file.txt"
+      #   folderPath: "/mnt/"
+      #   fileContent: |-
+      #     this is a test file
+      #     with test content
+    # -- environment variables for pods spawned to consume ClearML Task (example in values.yaml comments)
+    env: []
+      # # to setup access to private repo, setup secret with git credentials:
+      # - name: CLEARML_AGENT_GIT_USER
+      #   value: mygitusername
+      # - name: CLEARML_AGENT_GIT_PASS
+      #   valueFrom:
+      #     secretKeyRef:
+      #       name: git-password
+      #       key: git-password
+      # - name: CURL_CA_BUNDLE
+      #   value: ""
+      # - name: PYTHONWARNINGS
+      #   value: "ignore:Unverified HTTPS request"
+    # -- resources declaration for pods spawned to consume ClearML Task (example in values.yaml comments)
+    resources:
+      limits:
+        nvidia.com/gpu: '{{ .Values.agentk8sglue.basePodTemplate.gpus }}'
+      requests:
+        nvidia.com/gpu: '{{ .Values.agentk8sglue.basePodTemplate.gpus }}'
+    # -- priorityClassName setup for pods spawned to consume ClearML Task
+    priorityClassName: ""
+    # -- nodeSelector setup for pods spawned to consume ClearML Task (example in values.yaml comments)
+    nodeSelector: {} # fleet: gpu-nodes
+
+    # -- tolerations setup for pods spawned to consume ClearML Task (example in values.yaml comments)
+    tolerations: []
+      # - key: "nvidia.com/gpu"
+      #   operator: Exists
+      #   effect: "NoSchedule"
+    # -- affinity setup for pods spawned to consume ClearML Task
+    affinity: {}
+    # -- securityContext setup for pods spawned to consume ClearML Task (example in values.yaml comments)
+    podSecurityContext: {}
+      #  runAsUser: 1001
+      #  fsGroup: 1001
+    # -- securityContext setup for containers spawned to consume ClearML Task (example in values.yaml comments)
+    containerSecurityContext: {}
+      #  runAsUser: 1001
+      #  fsGroup: 1001
+    # -- hostAliases setup for pods spawned to consume ClearML Task (example in values.yaml comments)
+    hostAliases: []
+    # - ip: "127.0.0.1"
+    #   hostnames:
+    #   - "foo.local"
+    #   - "bar.local"
+
+    # -- Sessions internal service configuration
+
+sessions:
+  # -- Enable/Disable sessions portmode WARNING: only one Agent deployment can have this set to true
+  portModeEnabled: false
+  # -- specific annotations for session services
+  svcAnnotations: {}
+  # -- service type ("NodePort" or "ClusterIP" or "LoadBalancer")
+  svcType: "ClusterIP"
+  # -- External IP sessions clients can connect to
+  externalIP: 0.0.0.0
+  # -- starting range of exposed NodePorts
+  startingPort: 30000
+  # -- maximum number of NodePorts exposed
+  maxServices: 20

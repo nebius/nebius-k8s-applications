@@ -1,5 +1,4 @@
 slug: jupyterhub
-# TODO: Swap publisher and owner values
 publisherName: Nebius
 ownerName: Jupyter
 name: JupyterHub with PyTorch and CUDA
@@ -42,26 +41,26 @@ images:
   - nameWithRegistry: prePuller.pause.image.name
     tag: prePuller.pause.image.tag
 imagesMapping:
-  quay.io/jupyterhub/k8s-hub:4.0.0:
-    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/k8s-hub:4.0.0
-  quay.io/jupyterhub/configurable-http-proxy:4.6.2:
-    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/configurable-http-proxy:4.6.2
-  traefik:v3.2.0:
-    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/traefik:v3.2.0
-  quay.io/jupyterhub/k8s-secret-sync:4.0.0:
-    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/k8s-secret-sync:4.0.0
-  quay.io/jupyterhub/k8s-network-tools:4.0.0:
-    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/k8s-network-tools:4.0.0
-  quay.io/jupyterhub/k8s-singleuser-sample:4.0.0:
-    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/k8s-singleuser-sample:4.0.0
-  registry.k8s.io/kube-scheduler:v1.30.6:
-    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/kube-scheduler:v1.30.6
+  quay.io/jupyterhub/k8s-hub:4.1.0:
+    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/k8s-hub:4.1.0
+  quay.io/jupyterhub/configurable-http-proxy:4.6.3:
+    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/configurable-http-proxy:4.6.3
+  traefik:v3.3.1:
+    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/traefik:v3.3.1
+  quay.io/jupyterhub/k8s-secret-sync:4.1.0:
+    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/k8s-secret-sync:4.1.0
+  quay.io/jupyterhub/k8s-network-tools:4.1.0:
+    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/k8s-network-tools:4.1.0
+  quay.io/jupyterhub/k8s-singleuser-sample:4.1.0:
+    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/k8s-singleuser-sample:4.1.0
+  registry.k8s.io/kube-scheduler:v1.30.8:
+    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/kube-scheduler:v1.30.8
   registry.k8s.io/pause:3.10:
     dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/pause:3.10
-  quay.io/jupyterhub/k8s-image-awaiter:4.0.0:
-    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/k8s-image-awaiter:4.0.0
-  quay.io/jupyter/pytorch-notebook:cuda12-notebook-7.2.2:
-    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/pytorch-notebook:cuda12-notebook-7.2.2
-  quay.io/jupyter/base-notebook:notebook-7.2.2:
-    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/base-notebook:notebook-7.2.2
+  quay.io/jupyterhub/k8s-image-awaiter:4.1.0:
+    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/k8s-image-awaiter:4.1.0
+  quay.io/jupyter/pytorch-notebook:cuda12-notebook-7.3.2:
+    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/pytorch-notebook:cuda12-notebook-7.3.2
+  quay.io/jupyter/base-notebook:notebook-7.3.2:
+    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/base-notebook:notebook-7.3.2
 
