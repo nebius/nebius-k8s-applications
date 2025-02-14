@@ -1,0 +1,13 @@
+slug: ollama
+publisherName: Nebius
+ownerName: Ollama
+name: Ollama
+categories:
+- inference
+- llm-apps-framework
+images:
+- nameWithRegistry: image.repository
+  tag: image.tag
+imagesMapping:
+  ollama/ollama:0.5.7:
+    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/ollama/ollama:0.5.7

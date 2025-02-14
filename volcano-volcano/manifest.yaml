@@ -1,0 +1,30 @@
+slug: volcano
+ownerName: Volcano
+publisherName: Nebius
+name: Volcano
+categories:
+- training
+- inference
+- navigation-infrastructure-network
+images:
+- tag: basic.image_tag_version
+  registry: basic.image_registry
+  nameWithoutRegistry: basic.controller_image_name
+- tag: basic.image_tag_version
+  registry: basic.image_registry
+  nameWithoutRegistry: basic.scheduler_image_name
+- tag: basic.image_tag_version
+  registry: basic.image_registry
+  nameWithoutRegistry: basic.admission_image_name
+- tag: basic.image_tag_version
+  registry: basic.image_registry
+  nameWithoutRegistry: basic.agent_image_name
+imagesMapping:
+  olcanosh/vc-controller-manager:
+    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/volcanosh/vc-controller-manager:latest
+  volcanosh/vc-scheduler:
+    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/volcanosh/vc-scheduler:latest
+  volcanosh/vc-webhook-manager:
+    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/volcanosh/vc-webhook-manager:latest
+  volcanosh/vc-agent:
+    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/volcanosh/vc-agent:latest

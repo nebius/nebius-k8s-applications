@@ -1,0 +1,25 @@
+{
+  "defaultValue": {
+    "model": "llama3.2"
+  },
+  "type": "object",
+  "viewSpec": {
+    "type": "base",
+    "layout": "",
+    "order": [
+      "model"
+    ]
+  },
+  "properties": {
+    "model": {
+      "type": "string",
+      "viewSpec": {
+        "type": "base",
+        "layout": "row",
+        "layoutTitle": "Model to pull",
+        "layoutDescription": "List of models to pull at container startup from https://ollama.com/search"
+      },
+      "required": true
+    }
+  }
+}

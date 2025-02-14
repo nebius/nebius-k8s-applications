@@ -1,0 +1,113 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "clearmlAgent.fullname" . }}-pt
+data:
+  template.yaml: |
+    apiVersion: v1
+    metadata:
+      namespace: {{ .Release.Namespace }}
+      labels:
+      {{- toYaml $.Values.agentk8sglue.basePodTemplate.labels | nindent 8 }}
+      annotations:
+      {{- toYaml $.Values.agentk8sglue.basePodTemplate.annotations | nindent 8 }}
+    spec:
+      {{- if .Values.imageCredentials.enabled }}
+      imagePullSecrets:
+      {{- if .Values.imageCredentials.existingSecret }}
+      - name: {{ .Values.imageCredentials.existingSecret }}
+      {{- else }}
+      - name: {{ include "clearmlAgent.fullname" $ }}-ark
+      {{- end }}
+      {{- end }}
+      {{- with .Values.agentk8sglue.basePodTemplate.volumes }}
+      volumes:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "clearmlAgent.serviceAccountName" $ }}
+      securityContext:
+        {{ toYaml .Values.agentk8sglue.basePodTemplate.podSecurityContext | nindent 8 }}
+      priorityClassName: {{ .Values.agentk8sglue.basePodTemplate.priorityClassName }}
+      initContainers:
+        {{- toYaml .Values.agentk8sglue.basePodTemplate.initContainers | nindent 8 }}
+      containers:
+      - resources:
+          {{- tpl (.Values.agentk8sglue.basePodTemplate.resources | toYaml) . | nindent 10 }}
+        securityContext:
+          {{ toYaml .Values.agentk8sglue.basePodTemplate.containerSecurityContext | nindent 10 }}
+        ports:
+        - containerPort: 10022
+        {{- with .Values.agentk8sglue.basePodTemplate.volumeMounts }}
+        volumeMounts:
+        {{- toYaml . | nindent 10 }}
+        {{- end }}
+        env:
+        - name: CLEARML_API_HOST
+          value: {{.Values.agentk8sglue.apiServerUrlReference}}
+        - name: CLEARML_WEB_HOST
+          value: {{.Values.agentk8sglue.webServerUrlReference}}
+        - name: CLEARML_FILES_HOST
+          value: {{.Values.agentk8sglue.fileServerUrlReference}}
+        - name: CLEARML_API_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              {{- if .Values.clearml.existingAgentk8sglueSecret }}
+              name: {{ .Values.clearml.existingAgentk8sglueSecret }}
+              {{- else }}
+              name: {{ include "clearmlAgent.fullname" . }}-ac
+              {{- end }}
+              key: agentk8sglue_key
+        - name: CLEARML_API_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              {{- if .Values.clearml.existingAgentk8sglueSecret }}
+              name: {{ .Values.clearml.existingAgentk8sglueSecret }}
+              {{- else }}
+              name: {{ include "clearmlAgent.fullname" . }}-ac
+              {{- end }}
+              key: agentk8sglue_secret
+        {{- if .Values.agentk8sglue.basePodTemplate.env }}
+        {{ toYaml .Values.agentk8sglue.basePodTemplate.env | nindent 8 }}
+        {{- end }}
+        {{- with .Values.agentk8sglue.basePodTemplate.nodeSelector}}
+      nodeSelector:
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with .Values.agentk8sglue.basePodTemplate.tolerations }}
+      tolerations:
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with .Values.agentk8sglue.basePodTemplate.affinity }}
+      affinity:
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+{{- if .Values.sessions.portModeEnabled }}
+{{- range untilStep 1 ( ( add .Values.sessions.maxServices 1 ) | int ) 1 }}
+  services-{{ . }}.yaml: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: clearml-session-{{ . }}
+      labels:
+        {{- include "clearmlAgent.labels" $ | nindent 8 }}
+      {{- with $.Values.sessions.svcAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      type: {{ $.Values.sessions.svcType }}
+      ports:
+        - targetPort: 10022
+          {{- if eq $.Values.sessions.svcType "NodePort" }}
+          port: 10022
+          {{- else }}
+          port: {{ add $.Values.sessions.startingPort . }}
+          {{- end }}
+          protocol: TCP
+          {{- if eq $.Values.sessions.svcType "NodePort" }}
+          nodePort: {{ add $.Values.sessions.startingPort . }}
+          {{- end }}
+      selector:
+        ai.allegro.agent.serial: pod-{{ . }}
+{{- end }}
+{{- end }}

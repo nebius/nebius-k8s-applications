@@ -1,0 +1,14 @@
+slug: clearml-agent
+ownerName: ClearML
+publisherName: Nebius
+name: ClearML Agent
+categories:
+- dataset-preparation
+- training
+images:
+- tag: agentk8sglue.image.tag
+  registry: agentk8sglue.image.registry
+  nameWithoutRegistry: agentk8sglue.image.repository
+imagesMapping:
+  allegroai/clearml-agent-k8s-base:1.24-21:
+    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/clearml-agent/clearml-agent-k8s-base:1.24-21

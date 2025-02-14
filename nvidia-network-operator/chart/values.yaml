@@ -39,6 +39,15 @@ node-feature-discovery:
       name: node-feature-discovery
       # disable creation to avoid duplicate serviceaccount creation by master spec below
       create: false
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: nebius.com/driverful
+                  operator: NotIn
+                  values:
+                    - "true"
     tolerations:
     - key: "node-role.kubernetes.io/master"
       operator: "Exists"

@@ -1,0 +1,128 @@
+{
+  "type": "object",
+  "viewSpec": {
+    "type": "base",
+    "layout": "",
+    "order": [
+      "namespace",
+      "applicationName",
+      "newBackend",
+      "clearml.agentk8sglueKey",
+      "clearml.agentk8sglueSecret",
+      "agentk8sglue.queue",
+      "agentk8sglue.basePodTemplate.gpus",
+      "agentk8sglue.apiServerUrlReference",
+      "agentk8sglue.fileServerUrlReference",
+      "agentk8sglue.webServerUrlReference",
+      "clearml.clearmlConfig"
+    ]
+  },
+  "defaultValue": {
+    "applicationName": "clearml-agent",
+    "newBackend": true,
+    "agentk8sglue.basePodTemplate.gpus": "1",
+    "agentk8sglue.apiServerUrlReference":"https://api.clear.ml",
+    "agentk8sglue.fileServerUrlReference":"https://files.clear.ml",
+    "agentk8sglue.webServerUrlReference":"https://app.clear.ml/"
+  },
+  "properties": {
+    "newBackend": {
+      "type": "boolean",
+      "viewSpec": {
+        "type": "base",
+        "layout": "row",
+        "hidden": "true"
+      },
+      "required": true
+    },
+    "clearml.agentk8sglueKey": {
+      "type": "string",
+      "viewSpec": {
+        "type": "base",
+        "layout": "row",
+        "layoutTitle": "Glue basic auth key",
+        "layoutDescription": "Agent k8s Glue basic auth key"
+      },
+      "required": true
+    },
+    "clearml.agentk8sglueSecret": {
+      "type": "string",
+      "viewSpec": {
+        "type": "password",
+        "layout": "row",
+        "layoutTitle": "Glue basic auth secret",
+        "layoutDescription": "Agent k8s Glue basic auth secret"
+      },
+      "required": true
+    },
+    "agentk8sglue.queue": {
+      "type": "string",
+      "viewSpec": {
+        "type": "base",
+        "layout": "row",
+        "placeholder": "default",
+        "layoutTitle": "ClearML queue",
+        "layoutDescription": "ClearML queue this agent will consume. Multiple queues can be specified with the following format: queue1,queue2,queue3"
+      },
+      "required": false
+    },
+    "agentk8sglue.basePodTemplate.gpus": {
+      "type": "string",
+      "validator": "number",
+      "viewSpec": {
+        "type": "rangeinputpicker",
+        "inputProps": {
+          "min": 0,
+          "max": 8
+        },
+        "layout": "row",
+        "layoutTitle": "Worker GPU",
+        "layoutDescription": "Number of requested GPUs by worker consumer, could be 0 for cpu-only tasks"
+      },
+      "required": true
+    },
+    "agentk8sglue.apiServerUrlReference": {
+      "type": "string",
+      "viewSpec": {
+        "type": "base",
+        "layout": "row",
+        "layoutTitle": "API Server",
+        "placeholder": "https://api.clear.ml",
+        "layoutDescription": "Reference to Api server url."
+      },
+      "required": false
+    },
+    "agentk8sglue.fileServerUrlReference": {
+      "type": "string",
+      "viewSpec": {
+        "type": "base",
+        "layout": "row",
+        "layoutTitle": "File Server",
+        "placeholder": "https://files.clear.ml",
+        "layoutDescription": "Reference to File server url."
+      },
+      "required": false
+    },
+    "agentk8sglue.webServerUrlReference": {
+      "type": "string",
+      "viewSpec": {
+        "type": "base",
+        "layout": "row",
+        "layoutTitle": "Web Server",
+        "placeholder": "https://app.clear.ml",
+        "layoutDescription": "Reference to Web server url."
+      },
+      "required": false
+    },
+    "clearml.clearmlConfig": {
+      "type": "string",
+      "viewSpec": {
+        "type": "textarea",
+        "layout": "row",
+        "layoutTitle": "ClearML configuration",
+        "placeholder": "sdk {\n}"
+      },
+      "required": false
+    }
+  }
+}
