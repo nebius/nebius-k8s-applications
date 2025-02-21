@@ -9,7 +9,7 @@ enablePublicIP: false
 
 env:
   - name: MODEL
-    value: deepseek-ai/DeepSeek-R1
+    value: "{{ tpl .Values.global.model . }}"
 
 secret:
   env:
