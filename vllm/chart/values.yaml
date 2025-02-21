@@ -37,6 +37,11 @@ gpuToResourceHelperValues:
             operator: In
             values:
               - NVIDIA-H100-80GB-HBM3
+        - matchExpressions:
+          - key: node.kubernetes.io/instance-type
+            operator: In
+            values:
+              - gpu-h100-sxm
   NVIDIA® H200 NVLink with Intel Sapphire Rapids:
     cpu: 14500
     memory: 194
@@ -48,6 +53,11 @@ gpuToResourceHelperValues:
             operator: In
             values:
               - NVIDIA-H200
+        - matchExpressions:
+          - key: node.kubernetes.io/instance-type
+            operator: In
+            values:
+              - gpu-h200-sxm
 
 vllm:
   replicas: 1
