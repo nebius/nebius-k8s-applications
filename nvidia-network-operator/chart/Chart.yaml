@@ -19,4 +19,4 @@ name: network-operator
 sources:
 - https://github.com/Mellanox/network-operator
 type: application
-version: 24.4.1
+version: 24.4.0
