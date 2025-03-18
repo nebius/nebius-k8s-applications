@@ -7,7 +7,7 @@
 
 image:
   repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/ray-cluster/image/ray-ml
-  tag: 2.37.0.1b620f-cpu
+  tag: 2.44.0.36bed8-cpu
   pullPolicy: IfNotPresent
 
 nameOverride: "kuberay"
@@ -18,10 +18,11 @@ imagePullSecrets: []
 
 common:
   containerEnv:
-    - name: RAY_REDIS_ADDRESS
-      value: "redis://{{ .Release.Name }}-redis-master:6379"
     - name: AWS_EC2_METADATA_DISABLED
       value: "TRUE"
+
+gcsFaultToleranceOptions:
+  redisAddress: "redis://{{ .Release.Name }}-redis-master:6379"
 
 head:
   # rayVersion determines the autoscaler's image version.
@@ -192,7 +193,7 @@ worker:
   args: []
   image:
     repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/ray-cluster/image/ray-ml
-    tag: 2.37.0.1b620f-gpu
+    tag: 2.44.0.36bed8-gpu
     pullPolicy: IfNotPresent
 # The map's key is used as the groupName.
 # For example, key:small-group in the map below
@@ -277,7 +278,7 @@ gpuToResourceHelperValues:
 kuberay-operator:
   image:
     repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/ray-cluster/image/operator
-    tag: v1.2.1
+    tag: v1.3.1
     pullPolicy: IfNotPresent
   singleNamespaceInstall: true
 
