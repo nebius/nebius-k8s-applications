@@ -1,0 +1,80 @@
+grafana:
+  nebius:
+    projectId: REPLACE WITH PROJECT ID
+    accessToken: REPLACE WITH ACCESS TOKEN
+  sidecar:
+    image:
+      registry: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex
+      repository: nebius/o11y/k8s-sidecar
+      tag: "1.28.0"
+    datasources:
+      labelValue: ""
+      enabled: true
+      maxLines: 1000
+      searchNamespace: ALL
+    dashboards:
+      enabled: true
+      label: "grafana_dashboard"
+      labelValue: 1
+      searchNamespace: ALL
+
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Nebius Logging
+          type: loki
+          uid: nebius_logging
+          # For prod
+          # url: 'https://read.logging.api.eu.nebius.cloud/projects/{{ .Values.nebius.projectId }}'
+          # For testing
+          url: 'https://read.logging.api.testing.nebius.cloud/projects/{{ .Values.nebius.projectId }}'
+          jsonData:
+            httpHeaderName1: 'Authorization'
+          secureJsonData:
+            httpHeaderValue1: 'Bearer {{ .Values.nebius.accessToken }}'
+          access: proxy
+          isDefault: false
+          version: 1
+        - name: Nebius Service Providers Metrics
+          type: prometheus
+          uid: nebius_monitoring_service_providers_metrics
+          # For prod
+          # url: 'https://read.monitoring.api.eu.nebius.cloud/{{ .Values.nebius.projectId }}/service-provider/prometheus'
+          # For testing:
+          url: https://read.monitoring.api.testing.nebius.cloud/projects/{{ .Values.nebius.projectId }}/service-provider/prometheus
+          jsonData:
+            httpHeaderName1: 'Authorization'
+          secureJsonData:
+            httpHeaderValue1: 'Bearer {{ .Values.nebius.accessToken }}'
+          access: proxy
+          isDefault: false
+          version: 1
+
+  image:
+    registry: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex
+    repository: nebius/o11y/grafana
+    tag: "11.4.0"
+
+  testFramework:
+    image:
+      registry: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex
+      repository: nebius/o11y/bats
+      tag: "v1.4.1"
+
+  downloadDashboardsImage:
+    registry: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex
+    repository: nebius/o11y/curl
+    tag: "7.85.0"
+
+  initChownData:
+    image:
+      registry: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex
+      repository: nebius/o11y/busybox
+      tag: "1.31.1"
+
+  imageRenderer:
+    image:
+      registry: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex
+      repository: nebius/o11y/grafana-image-renderer
+      tag: latest_pinned
