@@ -51,9 +51,12 @@ Ray simplifies scalable AI workload deployment with Kubernetes orchestration.
       ```bash
       kubectl -n <namespace> port-forward \
         services/<application_name>-kuberay-head-svc 8265:8265
+      kubectl -n <namespace> port-forward \
+        services/<application_name>-kuberay-head-svc 8000:8000
       ```
 
-   1. Go to [http://localhost:8265/](http://localhost:8265/) in your web browser.
+   1. Go to [http://localhost:8265/](http://localhost:8265/) in your web browser to access Ray Dashboard.
+   2. Go to [http://localhost:8265/](http://localhost:8000/imagine?prompt=a%20cute%20cat) to access a Ray Serve application.
 
 ## Use cases
 
