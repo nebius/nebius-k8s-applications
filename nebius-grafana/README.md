@@ -1,12 +1,10 @@
-# Nebius Grafana solution
+# Nebius Grafana solution 
 
 ## Description
 
 Grafana® is a data monitoring, analysis and visualization platform. It provides a tailored and customizable way to build context-rich visualization through charts and other methods of presenting data, which makes it suitable for the needs of a specific software development project. Dashboards in Grafana give insightful meaning to the data collected, helping to understand your data. With Grafana you can create, explore and share all of your data with team members through beautiful, flexible dashboards. 
-
 By default, Nebius Grafana solution comes with pre-installed dashboards and data sources to display data collected from Nebius services.
-
-With data sources it's possible to work with Nebius Monitoring and Nebius Logging services.
+With data sources it's possible to work with Nebius Monitoring and Nebius Logging services. 
 
 ## Short description
 
@@ -19,18 +17,18 @@ Context-rich data monitoring, alerting, analysing and visualizing with flexible 
 ## Links
 
 * [Grafana website](https://grafana.com/)
-
-* [Grafana documentation](https://grafana.com/docs/grafana/latest/)
 * [Nebius Monitoring documentation](TODO: links)
 * [Nebius Logging documentation](TODO: links)
-* [Nebius Service Provider Dashboards](TODO: links fromhttps://grafana.com/grafana/dashboards/)
+* [Nebius Service Provider Dashboards](TODO: links from https://grafana.com/grafana/dashboards/)
 
+* [Grafana documentation](https://grafana.com/docs/grafana/latest/)
+* [PromQL documentation](https://prometheus.io/docs/prometheus/latest/querying/basics/)
 * [LogQL documentation](https://grafana.com/docs/loki/latest/query/)
 * [Grafana Alerting documentation](https://grafana.com/docs/grafana/latest/alerting/)
 
 ## Legal
 
-By using the application, you agree to their terms and conditions: [the helm-chart](https://github.com/nebius/nebius-k8s-applications/blob/main/LICENSE), [Grafana](https://github.com/grafana/helm-charts/blob/main/LICENSE)
+By using the application, you agree to their terms and conditions: [the helm-chart](https://github.com/nebius/nebius-k8s-applications/blob/main/LICENSE), [Grafana](https://github.com/grafana/helm-charts/blob/main/LICENSE) and [Prometheus](https://github.com/prometheus-community/helm-charts/blob/main/LICENSE).
 
 ## Tutorial
 

@@ -2,22 +2,11 @@
   "viewSpec": {
     "type": "base",
     "layout": "base",
-    "order": ["grafana", "prometheus"]
+    "order": ["grafana"]
   },
   "defaultValue": {
     "grafana": {
       "adminPassword": ""
-    },
-    "prometheus": {
-      "server": {
-        "global": {
-          "scrape_interval": "1m"
-        },
-        "retention": "15d",
-        "persistentVolume": {
-          "size": "50Gi"
-        }
-      }
     }
   },
   "type": "object",
