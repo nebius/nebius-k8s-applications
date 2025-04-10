@@ -1,11 +1,7 @@
 apiVersion: v2
-name: o11y
-
+name: nebius-grafana
 type: application
-
 version: 1.0.0
-
-appVersion: "1.0.0"
 
 dependencies:
   - name: grafana
