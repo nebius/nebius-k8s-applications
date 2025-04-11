@@ -56,7 +56,3 @@ grafana:
         url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/refs/heads/master/dashboards/victorialogs.json
       vmauth:
         url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/refs/heads/master/dashboards/vmauth.json
-
-  # DEBUG: deleteme
-  adminUser: admin
-  adminPassword: admin
