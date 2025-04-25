@@ -37,6 +37,11 @@ Before installing this product:
 To install the product:
 
 1. Configure the application:
+   1. To get *Nebius Project ID* you can expand the top-left tenants list. Next to the Peoject's name, click ... → Copy project ID
+   1. To obtain *Nebius Access Token*:
+      1. Create [Service account](https://console.eu.nebius.com/iam/service-accounts)
+      1. Install [Nebius cli](https://docs.nebius.com/cli/quickstart)
+      1. Run `nebius iam static-key issue --account-service-account-id {SERVICE_ACCOUNT_ID} --service observability  --parent-id {PROJECT_ID}`
 1. Click **Install**.
 1. Wait for the application to change its status to `Deployed`.
 
