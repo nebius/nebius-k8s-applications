@@ -10,7 +10,7 @@ grafana:
         - name: Nebius Monitoring
           type: prometheus
           access: proxy
-          url: 'https://read.monitoring.api.eu.nebius.cloud/{{ .Values.nebius.projectId }}/service-provider/prometheus'
+          url: 'https://read.monitoring.api.eu.nebius.cloud/projects/{{ .Values.nebius.projectId }}/service-provider/prometheus'
           jsonData:
             httpHeaderName1: 'Authorization'
           secureJsonData:
@@ -43,9 +43,9 @@ grafana:
 
   dashboards:
     nebius:
-      prometheus-stats:
-        gnetId: 1860  # https://grafana.com/dashboards/1860
-        revision: 37
+      nebius-shared-filesystems:
+        gnetId: 23313  # https://grafana.com/dashboards/23313
+        revision: 3
       vmagent:
         url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/refs/heads/master/dashboards/vmagent.json
       clusterbytenant:
