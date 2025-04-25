@@ -58,7 +58,7 @@
                 "type": "password",
                 "layout": "row",
                 "layoutTitle": "Nebius Access Token",
-                "layoutDescription": "Have no idea how to obtain it",
+                "layoutDescription": "Authentication key for your account",
                 "generateRandomValueButton": true
               }
             }
