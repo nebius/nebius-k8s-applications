@@ -2,6 +2,9 @@ grafana:
   nebius:
     projectId: REPLACE WITH PROJECT ID
     accessToken: REPLACE WITH ACCESS TOKEN
+  service:
+    annotations: 
+      nebius.com/MarketplaceServiceAccess: title=Grafana,ssl=false,type=web,port=service
 
   datasources:
     datasources.yaml:
