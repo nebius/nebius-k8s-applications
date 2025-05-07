@@ -28,7 +28,7 @@
             "type": "password",
             "layout": "row",
             "layoutTitle": "Grafana admin password",
-            "layoutDescription": "Set administrator password for Grafana UI access. Minimum 12 characters with allowed special symbols: !@#$%^&*-",
+            "layoutDescription": "Set an administrator password to access the Grafana UI. It must be at least 12 characters long and include special characters such as !@#$%^&*-",
             "generateRandomValueButton": true
           }
         },
@@ -47,7 +47,7 @@
               "viewSpec": {
                 "type": "base",
                 "layout": "row",
-                "layoutTitle": "Nebius Project ID",
+                "layoutTitle": "Nebius project ID",
                 "generateRandomValueButton": true
               }
             },
@@ -57,7 +57,7 @@
               "viewSpec": {
                 "type": "password",
                 "layout": "row",
-                "layoutTitle": "Nebius Access Token",
+                "layoutTitle": "Nebius access token",
                 "layoutDescription": "Authentication key for your account",
                 "generateRandomValueButton": true
               }
