@@ -2,8 +2,9 @@ grafana:
   nebius:
     projectId: REPLACE WITH PROJECT ID
     accessToken: REPLACE WITH ACCESS TOKEN
+
   service:
-    annotations: 
+    annotations:
       nebius.com/MarketplaceServiceAccess: title=Grafana,ssl=false,type=web,port=service
 
   datasources:
@@ -48,7 +49,7 @@ grafana:
     nebius:
       nebius-shared-filesystems:
         gnetId: 23313  # https://grafana.com/dashboards/23313
-        revision: 3
+        revision: 4
       vmagent:
         url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/refs/heads/master/dashboards/vmagent.json
       clusterbytenant:
