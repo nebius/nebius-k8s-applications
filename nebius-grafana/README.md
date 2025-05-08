@@ -60,4 +60,4 @@ To verify that Grafana® solution by Nebius is working with Kubernetes, access i
     ```bash
     kubectl port-forward service/<application-name> 3000:80 -n <namespace>
     ```
-1. Log in http://localhost:3000 using the username admin and the Grafana admin password configured earlier.
+1. Log in [http://localhost:3000](http://localhost:3000) using the username **admin** and the Grafana admin password configured earlier.
