@@ -10,11 +10,21 @@ By default, the Nebius Grafana solution comes with pre-installed dashboards and 
 
 ## Short description
 
-The platform and the tool to collect, monitor and analyze cluster performance metrics and build context-rich visualizations.
+A ready-to-use solution to work with Nebius Monitoring and Logging services
 
 ## Use cases
 
 Context-rich data monitoring, alerting, analysis and visualization with flexible dashboards that support heatmaps, graphs, tables and free-text panel types.
+
+## Links
+
+* [Grafana website](https://grafana.com/)
+* [Nebius Monitoring](https://docs.nebius.com/observability/monitoring)
+* [Nebius Logging](https://docs.nebius.com/observability/logging)
+* [Nebius Dashboards for Grafana®](https://grafana.com/grafana/dashboards/?search=nebius)
+* [Grafana® Documentation](https://grafana.com/docs/grafana/latest/)
+* [PromQL Documentation](https://prometheus.io/docs/prometheus/latest/querying/basics/)
+* [LogQL documentation](https://grafana.com/docs/loki/latest/query/)
 
 ## Legal
 
@@ -33,10 +43,21 @@ To install the product:
       1. Copy its ID.
       1. [Install Nebius AI Cloud CLI](https://docs.nebius.com/cli/quickstart).
       1. Run the following command:
-      ```
-      nebius iam static-key issue \
-        --account-service-account-id <service_account_ID> \
-        --service observability --parent-id <project_ID>
-      ```
+          ```bash
+          nebius iam static-key issue \
+            --account-service-account-id <service_account_ID> \
+            --service observability --parent-id <project_ID>
+          ```
 1. Click **Deploy**.
 1. Wait for the application to change its status to `Deployed`.
+
+## Usage
+
+To verify that Grafana® solution by Nebius is working with Kubernetes, access its UI:
+
+1. [Install kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl) and [configure it to work with the created cluster](https://docs.nebius.com/kubernetes/connect).
+1. Set up port forwarding:
+    ```bash
+    kubectl port-forward service/<application-name> 3000:80 -n <namespace>
+    ```
+1. Log in http://localhost:3000 using the username admin and the Grafana admin password configured earlier.
