@@ -11,10 +11,20 @@ grafana:
     datasources.yaml:
       apiVersion: 1
       datasources:
+        - name: Nebius Services
+          type: prometheus
+          access: proxy
+          url: 'https://read.monitoring.api.nebius.cloud/projects/{{ .Values.nebius.projectId }}/service-provider/prometheus'
+          jsonData:
+            httpHeaderName1: 'Authorization'
+          secureJsonData:
+            httpHeaderValue1: 'Bearer {{ .Values.nebius.accessToken }}'
+          isDefault: true
+          version: 1
         - name: Nebius Monitoring
           type: prometheus
           access: proxy
-          url: 'https://read.monitoring.api.eu.nebius.cloud/projects/{{ .Values.nebius.projectId }}/service-provider/prometheus'
+          url: 'https://read.monitoring.api.nebius.cloud/projects/{{ .Values.nebius.projectId }}/prometheus'
           jsonData:
             httpHeaderName1: 'Authorization'
           secureJsonData:
@@ -24,7 +34,7 @@ grafana:
         - name: Nebius Logging
           type: loki
           access: proxy
-          url: 'https://read.logging.api.eu.nebius.cloud/projects/{{ .Values.nebius.projectId }}'
+          url: 'https://read.logging.api.nebius.cloud/projects/{{ .Values.nebius.projectId }}'
           jsonData:
             httpHeaderName1: 'Authorization'
           secureJsonData:
@@ -47,16 +57,9 @@ grafana:
 
   dashboards:
     nebius:
+      nebius-object-storage:
+        gnetId: 23392  # https://grafana.com/dashboards/23392
+        revision: 1
       nebius-shared-filesystems:
         gnetId: 23313  # https://grafana.com/dashboards/23313
         revision: 4
-      vmagent:
-        url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/refs/heads/master/dashboards/vmagent.json
-      clusterbytenant:
-        url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/refs/heads/master/dashboards/clusterbytenant.json
-      backupmanager:
-        url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/refs/heads/master/dashboards/backupmanager.json
-      victorialogs:
-        url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/refs/heads/master/dashboards/victorialogs.json
-      vmauth:
-        url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/refs/heads/master/dashboards/vmauth.json
