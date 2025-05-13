@@ -66,3 +66,6 @@ grafana:
       node-exporter-full:
         gnetId: 1860  # https://grafana.com/dashboards/1860
         revision: 40
+        datasource:
+        - name: DS_PROMETHEUS
+          value: '${datasource}'
