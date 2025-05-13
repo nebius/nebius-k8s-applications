@@ -48,28 +48,13 @@ grafana:
     dashboardproviders.yaml:
       apiVersion: 1
       providers:
-        - name: default
-          disableDeletion: false
-          editable: true
-          options:
-            path: /var/lib/grafana/dashboards/default
-
         - name: nebius
-          folder: 'Nebius'
           disableDeletion: false
           editable: true
           options:
             path: /var/lib/grafana/dashboards/nebius
 
   dashboards:
-    default:
-      node-exporter-full:
-        gnetId: 1860  # https://grafana.com/dashboards/1860
-        revision: 40
-        datasource:
-          - name: DS_PROMETHEUS
-            value: '${datasource}'
-
     nebius:
       nebius-object-storage:
         gnetId: 23392  # https://grafana.com/dashboards/23392
@@ -77,3 +62,9 @@ grafana:
       nebius-shared-filesystems:
         gnetId: 23313  # https://grafana.com/dashboards/23313
         revision: 4
+      node-exporter-full:
+        gnetId: 1860  # https://grafana.com/dashboards/1860
+        revision: 40
+        datasource:
+          - name: DS_PROMETHEUS
+            value: '${datasource}'
