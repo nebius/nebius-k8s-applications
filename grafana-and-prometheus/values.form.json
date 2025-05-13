@@ -34,7 +34,7 @@
         "adminPassword": {
           "type": "string",
           "required": true,
-          "pattern": "^[a-zA-Z0-9-!@#$%^&*]{12,}$",
+          "pattern": "[a-zA-Z0-9-!?@#&$%\\~_\\/=\\(\\);.\\,\":\\|\\'<>+^`\\{\\}\\[\\]&*]{12,}",
           "viewSpec": {
             "type": "password",
             "layout": "row",
