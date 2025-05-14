@@ -64,7 +64,7 @@ grafana:
         revision: 1
       nebius-object-storage:
         gnetId: 23392  # https://grafana.com/dashboards/23392
-        revision: 1
+        revision: 2
       nebius-shared-filesystems:
         gnetId: 23313  # https://grafana.com/dashboards/23313
         revision: 4
