@@ -56,6 +56,12 @@ grafana:
 
   dashboards:
     nebius:
+      nebius-disk:
+        gnetId: 23425  # https://grafana.com/dashboards/23425
+        revision: 1
+      nebius-gpu:
+        gnetId: 23423  # https://grafana.com/dashboards/23423
+        revision: 1
       nebius-object-storage:
         gnetId: 23392  # https://grafana.com/dashboards/23392
         revision: 1
