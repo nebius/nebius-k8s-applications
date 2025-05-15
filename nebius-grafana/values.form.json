@@ -1,0 +1,70 @@
+{
+  "viewSpec": {
+    "type": "base",
+    "layout": "base",
+    "order": ["grafana"]
+  },
+  "defaultValue": {
+    "grafana": {
+      "adminPassword": ""
+    }
+  },
+  "type": "object",
+  "properties": {
+    "grafana": {
+      "type": "object",
+      "required": true,
+      "viewSpec": {
+        "type": "base",
+        "order": ["adminPassword", "nebius"],
+        "layout": ""
+      },
+      "properties": {
+        "adminPassword": {
+          "type": "string",
+          "required": true,
+          "pattern": "[a-zA-Z0-9-!?@#&$%\\~_\\/=\\(\\);.\\,\":\\|\\'<>+^`\\{\\}\\[\\]&*]{12,}",
+          "viewSpec": {
+            "type": "password",
+            "layout": "row",
+            "layoutTitle": "Grafana admin password",
+            "layoutDescription": "Set an administrator password to access the Grafana UI. It must be at least 12 characters long and include special characters such as !@#$%^&*-",
+            "generateRandomValueButton": true
+          }
+        },
+        "nebius": {
+          "type": "object",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "order": ["projectId", "accessToken"],
+            "layout": ""
+          },
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "required": true,
+              "viewSpec": {
+                "type": "base",
+                "layout": "row",
+                "layoutTitle": "Nebius project ID",
+                "generateRandomValueButton": true
+              }
+            },
+            "accessToken": {
+              "type": "string",
+              "required": true,
+              "viewSpec": {
+                "type": "password",
+                "layout": "row",
+                "layoutTitle": "Nebius access token",
+                "layoutDescription": "Authentication key for your account",
+                "generateRandomValueButton": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+slug: grafana-solution-by-nebius
+publisherName: Nebius
+ownerName: Grafana Labs
+name: Grafana® solution by Nebius
+categories:
+  - dev-tools
+images:
+  - registry: grafana.image.registry
+    tag: grafana.image.tag
+    nameWithoutRegistry: grafana.image.repository
+  - registry: grafana.testFramework.image.registry
+    tag: grafana.testFramework.image.tag
+    nameWithoutRegistry: grafana.testFramework.image.repository
+  - registry: grafana.downloadDashboardsImage.registry
+    tag: grafana.downloadDashboardsImage.tag
+    nameWithoutRegistry: grafana.downloadDashboardsImage.repository
+  - registry: grafana.initChownData.image.registry
+    tag: grafana.initChownData.image.tag
+    nameWithoutRegistry: grafana.initChownData.image.repository
+  - registry: grafana.sidecar.image.registry
+    tag: grafana.sidecar.image.tag
+    nameWithoutRegistry: grafana.sidecar.image.repository
+  - registry: grafana.imageRenderer.image.registry
+    tag: grafana.imageRenderer.image.tag
+    nameWithoutRegistry: grafana.imageRenderer.image.repository
