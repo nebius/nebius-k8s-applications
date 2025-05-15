@@ -190,7 +190,7 @@ prometheus:
     configmapReload:
       image:
         repository: 'cr.eu-north1.nebius.cloud/marketplace/nebius/elijah-k-o11y/image/prometheus-config-reloader'
-        tag: v0.66.0
+        tag: v0.78.2
 
   kube-state-metrics:
     metricLabelsAllowlist:
