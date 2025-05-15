@@ -27,7 +27,7 @@
       "required": true,
       "viewSpec": {
         "type": "base",
-        "order": ["adminPassword", "nebius"],
+        "order": ["adminPassword"],
         "layout": ""
       },
       "properties": {
@@ -41,38 +41,6 @@
             "layoutTitle": "Grafana admin password",
             "layoutDescription": "Set administrator password for Grafana UI access. Minimum 12 characters with allowed special symbols: !@#$%^&*-",
             "generateRandomValueButton": true
-          }
-        },
-        "nebius": {
-          "type": "object",
-          "required": true,
-          "viewSpec": {
-            "type": "base",
-            "order": ["projectId", "accessToken"],
-            "layout": ""
-          },
-          "properties": {
-            "projectId": {
-              "type": "string",
-              "required": true,
-              "viewSpec": {
-                "type": "base",
-                "layout": "row",
-                "layoutTitle": "Nebius Project ID",
-                "generateRandomValueButton": true
-              }
-            },
-            "accessToken": {
-              "type": "string",
-              "required": true,
-              "viewSpec": {
-                "type": "password",
-                "layout": "row",
-                "layoutTitle": "Nebius Access Token",
-                "layoutDescription": "Have no idea how to obtain it",
-                "generateRandomValueButton": true
-              }
-            }
           }
         }
       }
