@@ -58,16 +58,16 @@ grafana:
     nebius:
       nebius-disk:
         gnetId: 23425  # https://grafana.com/dashboards/23425
-        revision: 1
+        revision: 2
       nebius-gpu:
         gnetId: 23423  # https://grafana.com/dashboards/23423
-        revision: 1
+        revision: 2
       nebius-object-storage:
         gnetId: 23392  # https://grafana.com/dashboards/23392
-        revision: 4
+        revision: 5
       nebius-shared-filesystems:
         gnetId: 23313  # https://grafana.com/dashboards/23313
-        revision: 4
+        revision: 5
       node-exporter-full:
         gnetId: 1860  # https://grafana.com/dashboards/1860
         revision: 40
