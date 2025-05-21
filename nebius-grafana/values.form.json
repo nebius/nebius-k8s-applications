@@ -42,24 +42,25 @@
           },
           "properties": {
             "projectId": {
+              "nebiusType": "ProjectID",
               "type": "string",
               "required": true,
               "viewSpec": {
                 "type": "base",
                 "layout": "row",
-                "layoutTitle": "Nebius project ID",
-                "generateRandomValueButton": true
+                "layoutTitle": "Nebius project ID"
               }
             },
             "accessToken": {
+              "nebiusType": "ServiceAccount",
+              "nebiusParams": "viewers",
               "type": "string",
               "required": true,
               "viewSpec": {
                 "type": "password",
                 "layout": "row",
                 "layoutTitle": "Nebius access token",
-                "layoutDescription": "Authentication key for your account",
-                "generateRandomValueButton": true
+                "layoutDescription": "Authentication key for your account"
               }
             }
           }
