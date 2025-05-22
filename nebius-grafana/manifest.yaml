@@ -23,3 +23,6 @@ images:
   - registry: grafana.imageRenderer.image.registry
     tag: grafana.imageRenderer.image.tag
     nameWithoutRegistry: grafana.imageRenderer.image.repository
+imagesMapping:
+  docker.io/grafana/grafana:latest:
+    dst: docker.io/grafana/grafana:11.6.1
