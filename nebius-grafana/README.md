@@ -32,25 +32,6 @@ By using the application, you agree to the terms and conditions of the [Helm cha
 
 ## Tutorial
 
-Before installing this product, select or create a Kubernetes cluster.
-
-To install the product:
-
-1. Configure the application:
-   1. To get your **Nebius project ID**, expand the tenant list in the top-left corner. Next to your project name, click ... → Copy project ID.
-   1. To get a **Nebius access token**:
-      1. [Create a service account](https://console.eu.nebius.com/iam/service-accounts) and ensure it is assigned to at least the [Viewer group](https://docs.nebius.com/iam/authorization/groups) to grant read access to the data.
-      1. Copy its ID.
-      1. [Install Nebius AI Cloud CLI](https://docs.nebius.com/cli/quickstart).
-      1. Run the following command:
-          ```bash
-          nebius iam static-key issue \
-            --account-service-account-id <service_account_ID> \
-            --service observability --parent-id <project_ID>
-          ```
-1. Click **Deploy**.
-1. Wait for the application to change its status to `Deployed`.
-
 ## Usage
 
 To verify that Grafana® solution by Nebius is working with Kubernetes, access its UI:
