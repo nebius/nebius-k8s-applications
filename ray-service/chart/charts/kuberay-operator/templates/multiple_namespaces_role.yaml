@@ -1,0 +1,15 @@
+# Install Role for namespaces listed in watchNamespace.
+# This should be consistent with `role.yaml`, except for the `kind` field.
+{{- if and .Values.rbacEnable .Values.singleNamespaceInstall .Values.crNamespacedRbacEnable }}
+{{- $watchNamespaces := default (list .Release.Namespace) .Values.watchNamespace }}
+{{- range $namespace := $watchNamespaces }}
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  labels: {{ include "kuberay-operator.labels" $ | nindent 4 }}
+  name: {{ include "kuberay-operator.fullname" $ }}
+  namespace: {{ $namespace }}
+{{ include "role.consistentRules" (dict "batchSchedulerEnabled" $.Values.batchScheduler.enabled) }}
+{{- end }}
+{{- end }}
