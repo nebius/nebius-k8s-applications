@@ -25,4 +25,4 @@ images:
     nameWithoutRegistry: grafana.imageRenderer.image.repository
 imagesMapping:
   docker.io/grafana/grafana:latest:
-    dst: docker.io/grafana/grafana:11.6.1-security-01
+    dst: docker.io/grafana/grafana:11.6.2
