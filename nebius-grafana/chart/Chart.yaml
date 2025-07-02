@@ -1,0 +1,9 @@
+apiVersion: v2
+name: nebius-grafana
+type: application
+version: 1.0.0
+
+dependencies:
+  - name: grafana
+    version: 8.15.0
+    repository: "file://./charts/grafana"
