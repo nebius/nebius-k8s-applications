@@ -16,6 +16,14 @@ fullnameOverride: ""
 imagePullSecrets: []
   # - name: an-existing-secret
 
+serveConfigV2: |
+  applications:
+  - name: stable_diffusion
+    import_path: stable_diffusion.stable_diffusion:entrypoint
+    runtime_env:
+      working_dir: "https://github.com/ray-project/serve_config_examples/archive/b8af221bc0e5d6cc7daa0dd071295fd9e456e671.zip"
+      pip: ["diffusers==0.32.2", "transformers==4.48.2"]
+
 common:
   containerEnv:
     - name: AWS_EC2_METADATA_DISABLED
@@ -273,7 +281,7 @@ gpuPlatform: NVIDIA® H100 NVLink with Intel Sapphire Rapids
 gpuPerWorker: "2"
 gpuToResourceHelperValues:
   NVIDIA® H100 NVLink with Intel Sapphire Rapids:
-    cpu: 1450
+    cpu: 1450m
     memory: 180
 
 kuberay-operator:
@@ -325,9 +333,9 @@ redis:
           weight: 1
   sentinel:
     image:
-      registry: docker.io/bitnami
-      repository: redis
-      tag: 7.2.4-debian-12-r9
+      registry: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex
+      repository: nebius/ray-cluster/image/redis-sentinel
+      tag: 7.2.4-debian-12-r7
     enabled: true
     persistence:
       size: 16Gi

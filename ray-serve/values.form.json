@@ -1,5 +1,6 @@
 {
   "defaultValue": {
+    "serveConfigV2": "applications:\r\n- name: stable_diffusion\r\n  import_path: stable_diffusion.stable_diffusion:entrypoint\r\n  runtime_env:\r\n    working_dir: \"https:\/\/github.com\/ray-project\/serve_config_examples\/archive\/b8af221bc0e5d6cc7daa0dd071295fd9e456e671.zip\"\r\n    pip: [\"diffusers==0.32.2\", \"transformers==4.48.2\"]",
     "head.resources.limits.cpu": "4",
     "head.resources.limits.memory": "8Gi",
     "head.enableInTreeAutoscaling": true,
@@ -16,6 +17,15 @@
   },
   "type": "object",
   "properties": {
+    "serveConfigV2": {
+      "type": "string",
+      "viewSpec": {
+        "layoutTitle": "Ray Serve configuration",
+        "layout": "row",
+        "type": "textarea"
+      },
+      "required": true
+    },
     "head.resources.limits.cpu": {
       "type": "string",
       "viewSpec": {
@@ -192,6 +202,7 @@
     "type": "base",
     "layout": "",
     "order": [
+      "serveConfigV2",
       "head.resources.limits.cpu",
       "head.resources.limits.memory",
       "head.enableInTreeAutoscaling",
