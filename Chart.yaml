@@ -43,7 +43,7 @@ dependencies:
   version: "0.7.6"
   repository: "https://qdrant.github.io/qdrant-helm"
 - name: ray-cluster
-  version: "1.2.1"
+  version: "1.4.2"
   repository: "https://ray-project.github.io/kuberay-helm/"
 - name: stable-diffusion-webui
   version: "0.3.0"
