@@ -3,6 +3,14 @@ grafana:
     projectId: REPLACE WITH PROJECT ID
     accessToken: REPLACE WITH ACCESS TOKEN
 
+  resources:
+    limits:
+      cpu: 2
+      memory: 4Gi
+    requests:
+      cpu: 2
+      memory: 4Gi
+
   service:
     annotations:
       nebius.com/MarketplaceServiceAccess: title=Grafana,ssl=false,type=web,port=service
