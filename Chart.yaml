@@ -37,7 +37,7 @@ dependencies:
   version: "v24.6.2"
   repository: "https://helm.ngc.nvidia.com/nvidia"
 - name: network-operator
-  version: "24.4.0"
+  version: "24.10.1"
   repository: "https://helm.ngc.nvidia.com/nvidia"
 - name: qdrant
   version: "0.7.6"
