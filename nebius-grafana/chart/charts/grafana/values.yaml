@@ -351,12 +351,12 @@ route:
     additionalRules: []
 
 resources: {}
-#  limits:
-#    cpu: 100m
-#    memory: 128Mi
-#  requests:
-#    cpu: 100m
-#    memory: 128Mi
+ limits:
+   cpu: "2"
+   memory: "4Gi"
+ requests:
+   cpu: "2"
+   memory: "4Gi"
 
 ## Node labels for pod assignment
 ## ref: https://kubernetes.io/docs/user-guide/node-selection/
@@ -467,7 +467,7 @@ initChownData:
   ## initChownData resource requests and limits
   ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
   ##
-  resources: {}
+  : {}
   #  limits:
   #    cpu: 100m
   #    memory: 128Mi
@@ -681,7 +681,7 @@ datasources: {}
 #    - name: Prometheus
 
 ## Configure grafana alerting (can be templated)
-## ref: https://docs.grafana.com/alerting/set-up/provision-alerting-resources/file-provisioning/
+## ref: https://docs.grafana.com/alerting/set-up/provision-alerting-/file-provisioning/
 ##
 alerting: {}
   # policies.yaml:
@@ -961,7 +961,7 @@ sidecar:
     tag: 1.30.0
     sha: ""
   imagePullPolicy: IfNotPresent
-  resources: {}
+  : {}
 #   limits:
 #     cpu: 100m
 #     memory: 100Mi
@@ -986,7 +986,7 @@ sidecar:
     enabled: false
     # Additional environment variables for the alerts sidecar
     env: {}
-    # Do not reprocess already processed unchanged resources on k8s API reconnect.
+    # Do not reprocess already processed unchanged  on k8s API reconnect.
     # ignoreAlreadyProcessed: true
     # label that the configmaps with alert are marked with (can be templated)
     label: grafana_alert
@@ -1004,8 +1004,8 @@ sidecar:
     resource: both
     #
     # resourceName: comma separated list of resource names to be fetched/checked by this sidecar.
-    # per default all resources of the type defined in {{ .Values.sidecar.alerts.resource }} will be checked.
-    # This e.g. allows stricter RBAC rules which are limited to the resources meant for the sidecars.
+    # per default all  of the type defined in {{ .Values.sidecar.alerts.resource }} will be checked.
+    # This e.g. allows stricter RBAC rules which are limited to the  meant for the sidecars.
     # resourceName: "secret/alerts-1,configmap/alerts-0"
     resourceName: ""
     #
@@ -1067,7 +1067,7 @@ sidecar:
     #    configMapKeyRef:
     #      name: configmap-name
     #      key: value_key
-    # Do not reprocess already processed unchanged resources on k8s API reconnect.
+    # Do not reprocess already processed unchanged  on k8s API reconnect.
     # ignoreAlreadyProcessed: true
     SCProvider: true
     # label that the configmaps with dashboards are marked with (can be templated)
@@ -1093,8 +1093,8 @@ sidecar:
     folderAnnotation: null
     #
     # resourceName: comma separated list of resource names to be fetched/checked by this sidecar.
-    # per default all resources of the type defined in {{ .Values.sidecar.dashboards.resource }} will be checked.
-    # This e.g. allows stricter RBAC rules which are limited to the resources meant for the sidecars.
+    # per default all  of the type defined in {{ .Values.sidecar.dashboards.resource }} will be checked.
+    # This e.g. allows stricter RBAC rules which are limited to the  meant for the sidecars.
     # resourceName: "secret/dashboards-0,configmap/dashboards-1"
     resourceName: ""
     #
@@ -1171,7 +1171,7 @@ sidecar:
     #    configMapKeyRef:
     #      name: configmap-name
     #      key: value_key
-    # Do not reprocess already processed unchanged resources on k8s API reconnect.
+    # Do not reprocess already processed unchanged  on k8s API reconnect.
     # ignoreAlreadyProcessed: true
     # label that the configmaps with datasources are marked with (can be templated)
     label: grafana_datasource
@@ -1189,8 +1189,8 @@ sidecar:
     resource: both
     #
     # resourceName: comma separated list of resource names to be fetched/checked by this sidecar.
-    # per default all resources of the type defined in {{ .Values.sidecar.datasources.resource }} will be checked.
-    # This e.g. allows stricter RBAC rules which are limited to the resources meant for the sidecars.
+    # per default all  of the type defined in {{ .Values.sidecar.datasources.resource }} will be checked.
+    # This e.g. allows stricter RBAC rules which are limited to the  meant for the sidecars.
     # resourceName: "secret/datasources-0,configmap/datasources-15"
     resourceName: ""
     #
@@ -1239,7 +1239,7 @@ sidecar:
     enabled: false
     # Additional environment variables for the plugins sidecar
     env: {}
-    # Do not reprocess already processed unchanged resources on k8s API reconnect.
+    # Do not reprocess already processed unchanged  on k8s API reconnect.
     # ignoreAlreadyProcessed: true
     # label that the configmaps with plugins are marked with (can be templated)
     label: grafana_plugin
@@ -1257,8 +1257,8 @@ sidecar:
     resource: both
     #
     # resourceName: comma separated list of resource names to be fetched/checked by this sidecar.
-    # per default all resources of the type defined in {{ .Values.sidecar.plugins.resource }} will be checked.
-    # This e.g. allows stricter RBAC rules which are limited to the resources meant for the sidecars.
+    # per default all  of the type defined in {{ .Values.sidecar.plugins.resource }} will be checked.
+    # This e.g. allows stricter RBAC rules which are limited to the  meant for the sidecars.
     # resourceName: "secret/plugins-0,configmap/plugins-1"
     resourceName: ""
     #
@@ -1307,7 +1307,7 @@ sidecar:
     enabled: false
     # Additional environment variables for the notifierssidecar
     env: {}
-    # Do not reprocess already processed unchanged resources on k8s API reconnect.
+    # Do not reprocess already processed unchanged  on k8s API reconnect.
     # ignoreAlreadyProcessed: true
     # label that the configmaps with notifiers are marked with (can be templated)
     label: grafana_notifier
@@ -1325,8 +1325,8 @@ sidecar:
     resource: both
     #
     # resourceName: comma separated list of resource names to be fetched/checked by this sidecar.
-    # per default all resources of the type defined in {{ .Values.sidecar.notifiers.resource }} will be checked.
-    # This e.g. allows stricter RBAC rules which are limited to the resources meant for the sidecars.
+    # per default all  of the type defined in {{ .Values.sidecar.notifiers.resource }} will be checked.
+    # This e.g. allows stricter RBAC rules which are limited to the  meant for the sidecars.
     # resourceName: "secret/notifiers-2,configmap/notifiers-1"
     resourceName: ""
     #
@@ -1495,7 +1495,7 @@ imageRenderer:
     limitEgress: false
     # Allow additional services to access image-renderer (eg. Prometheus operator when ServiceMonitor is enabled)
     extraIngressSelectors: []
-  resources: {}
+  : {}
 #   limits:
 #     cpu: 100m
 #     memory: 100Mi
