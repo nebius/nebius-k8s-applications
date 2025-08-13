@@ -4,12 +4,9 @@ grafana:
     accessToken: REPLACE WITH ACCESS TOKEN
 
   resources:
-    limits:
-      cpu: 2
-      memory: 4Gi
-    requests:
-      cpu: 2
-      memory: 4Gi
+    requests:  # https://grafana.com/docs/grafana/latest/setup-grafana/installation/kubernetes/#minimum-hardware-requirements
+      cpu: 250m
+      memory: 750Mi
 
   service:
     annotations:
