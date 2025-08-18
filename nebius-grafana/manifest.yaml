@@ -3,7 +3,7 @@ publisherName: Nebius
 ownerName: Grafana Labs
 name: Grafana® solution by Nebius
 categories:
-  - dev-tools
+  - monitoring
 images:
   - registry: grafana.image.registry
     tag: grafana.image.tag
