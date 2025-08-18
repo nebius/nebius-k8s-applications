@@ -3,6 +3,11 @@ grafana:
     projectId: REPLACE WITH PROJECT ID
     accessToken: REPLACE WITH ACCESS TOKEN
 
+  resources:
+    requests:  # https://grafana.com/docs/grafana/latest/setup-grafana/installation/kubernetes/#minimum-hardware-requirements
+      cpu: 250m
+      memory: 750Mi
+
   service:
     annotations:
       nebius.com/MarketplaceServiceAccess: title=Grafana,ssl=false,type=web,port=service
