@@ -1,0 +1,12 @@
+name: Nebius Observability Agent for Kubernetes
+slug: nebius-observability-agent
+ownerName: Nebius
+publisherName: Nebius
+tariff_type: free
+categories:
+  - dev-tools
+images:
+  - registry: cr.nebius.cloud
+    nameWithoutRegistry: observability/public/nebius-observability-agent
+    tag: image.tag
+
