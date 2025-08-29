@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "o11y-agent.configmapName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "o11y-agent.labels" . | nindent 4 }}
+data:
+  config: |
+    {{- include "o11y-agent.baseconfig" . | nindent 4 }}
+    {{- include "o11y-agent.main-pipeline-config" . | nindent 8 }}

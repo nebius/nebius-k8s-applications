@@ -19,7 +19,9 @@ mkdir -p "$CHART_DIR"
 
 # Get the latest version
 echo "Fetching latest version..."
-LATEST_VERSION=$(curl -s https://nebius-o11y-agent.storage.eu-north1.nebius.cloud/nebius-observability-agent-helm/latest-release)
+#LATEST_VERSION=$(curl -s https://nebius-observability-agent.storage.eu-north1.nebius.cloud/nebius-observability-agent-helm/latest-release)
+LATEST_VERSION=1.28.0-d80c24ec
+
 
 if [ -z "$LATEST_VERSION" ]; then
     echo "Error: Could not fetch latest version"
