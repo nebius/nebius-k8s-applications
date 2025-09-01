@@ -6,7 +6,6 @@ tariff_type: free
 categories:
   - dev-tools
 images:
-  - registry: cr.nebius.cloud
-    nameWithoutRegistry: observability/public/nebius-observability-agent
-    tag: image.tag
+  - nameWithoutRegistry: image.respository
+    tag: Chart.version
 
