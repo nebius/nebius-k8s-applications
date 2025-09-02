@@ -117,7 +117,7 @@ spec:
             - name: NODE_GROUP_ID_PATH
               value: {{ .Values.config.nodeGroupIdPath }}
             {{- end }}
-     {{- with .Values.nodeSelector }}
+      {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -158,6 +158,7 @@ spec:
         - name: host-token
           hostPath:
             path: "/mnt/cloud-metadata/token"
+            type: FileOrCreate
             {{- end }}
         {{- if  .Values.config.iam.enabled }}
         {{- if eq .Values.config.iam.auth_scheme "iam-key-file" }}

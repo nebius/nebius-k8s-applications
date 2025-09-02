@@ -3,7 +3,7 @@
     watch_observers: [k8s_observer]
     receivers:
       filelog:
-        rule: '{{.Values.config.podLogsDiscoveryRule }}{{ include "o11y-agent.config.logs-namespace-filter" . }}{{ include "o11y-agent.config.logs-namespace-filter" . }}'
+        rule: '{{.Values.config.podLogsDiscoveryRule }}{{ include "o11y-agent.config.logs-namespace-filter" . }}'
         config:
           include: [ '/var/log/pods/`namespace`_`name`_`"kubernetes.io/config.mirror" in annotations ? "*" : uid`/*/*']
           exclude:

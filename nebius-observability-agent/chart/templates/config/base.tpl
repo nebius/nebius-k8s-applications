@@ -120,6 +120,22 @@ service:
                     port: {{ .Values.config.ports.metrics }}
                     without_units: true
                     without_type_suffix: true
+                    with_resource_constant_labels:
+                      included:
+                        - "release.version"
+          views:
+            - selector:
+                instrument_name: otelcol_receiver_accepted_log_records
+              stream:
+                attribute_keys:
+                  excluded:
+                    - receiver
+            - selector:
+                instrument_name: otelcol_receiver_refused_log_records
+              stream:
+                attribute_keys:
+                  excluded:
+                    - receiver
 
         # remove redundant metric labels
         resource:
