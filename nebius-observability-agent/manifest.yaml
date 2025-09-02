@@ -7,5 +7,5 @@ categories:
   - dev-tools
 images:
   - nameWithoutRegistry: image.respository
-    tag: Chart.version
+    tag: image.tag
 
