@@ -1,141 +1,107 @@
 {
-  "viewSpec": {
-    "type": "base",
-    "layout": "base",
-    "order": ["config"]
-  },
-  "defaultValue": {
-    "config": {
-      "logs": {
-        "enabled": true,
-        "collectAgentLogs": false,
-        "excludedNamespaces": ["kube-system"]
-      },
-      "metrics": {
-        "enabled": true,
-        "collectAgentMetrics": false,
-        "collectK8sClusterMetrics": false,
-        "excludedNamespaces": [],
-        "additionalTargets": []
-      }
-    }
-  },
   "type": "object",
+  "defaultValue": {
+    "logs.enabled": true,
+    "logs.collectAgentLogs": false,
+    "logs.excludedNamespaces": ["kube-system"],
+    "metrics.enabled": true,
+    "metrics.collectAgentMetrics": false,
+    "metrics.collectK8sClusterMetrics": false,
+    "metrics.excludedNamespaces": []
+  },
   "properties": {
-    "config": {
-      "type": "object",
-      "required": true,
+    "logs.enabled": {
+      "type": "boolean",
       "viewSpec": {
-        "type": "base",
-        "order": ["logs", "metrics"],
-        "layout": "tabs",
-        "layoutTitle": "Agent Configuration"
+        "type": "switch",
+        "layout": "row",
+        "layoutTitle": "Enable Log Collection",
+        "layoutDescription": "Enable collection of logs from pods and containers"
+      }
+    },
+    "logs.collectAgentLogs": {
+      "type": "boolean",
+      "viewSpec": {
+        "type": "switch",
+        "layout": "row",
+        "layoutTitle": "Collect Agent Logs",
+        "layoutDescription": "Enable collection of observability agent's own logs"
+      }
+    },
+    "logs.excludedNamespaces": {
+      "type": "array",
+      "defaultValue": [
+        "kube-system"
+      ],
+      "viewSpec": {
+        "layout": "sshKeys",
+        "layoutTitle": "Excluded Namespaces for Logs",
+        "itemLabel": "Add namespace",
+        "layoutDescription": "Namespaces to exclude from log collection",
+        "type": "sshKeys"
       },
-      "properties": {
-        "logs": {
-          "type": "object",
-          "viewSpec": {
-            "type": "base",
-            "order": ["enabled", "collectAgentLogs", "excludedNamespaces"],
-            "layout": "section",
-            "layoutTitle": "Logs Collection"
-          },
-          "properties": {
-            "enabled": {
-              "type": "boolean",
-              "viewSpec": {
-                "type": "checkbox",
-                "layout": "row",
-                "layoutTitle": "Enable Log Collection",
-                "layoutDescription": "Enable collection of logs from pods and containers"
-              }
-            },
-            "collectAgentLogs": {
-              "type": "boolean",
-              "viewSpec": {
-                "type": "checkbox",
-                "layout": "row",
-                "layoutTitle": "Collect Agent Logs",
-                "layoutDescription": "Collect logs from the observability agent itself"
-              }
-            },
-            "excludedNamespaces": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "viewSpec": {
-                "type": "array",
-                "layout": "row",
-                "layoutTitle": "Excluded Namespaces",
-                "layoutDescription": "List of namespaces to exclude from log collection"
-              }
-            }
-          }
-        },
-        "metrics": {
-          "type": "object",
-          "viewSpec": {
-            "type": "base",
-            "order": ["enabled", "collectAgentMetrics", "collectK8sClusterMetrics", "excludedNamespaces", "additionalTargets"],
-            "layout": "section",
-            "layoutTitle": "Metrics Collection"
-          },
-          "properties": {
-            "enabled": {
-              "type": "boolean",
-              "viewSpec": {
-                "type": "checkbox",
-                "layout": "row",
-                "layoutTitle": "Enable Metrics Collection",
-                "layoutDescription": "Enable collection of metrics from pods and services"
-              }
-            },
-            "collectAgentMetrics": {
-              "type": "boolean",
-              "viewSpec": {
-                "type": "checkbox",
-                "layout": "row",
-                "layoutTitle": "Collect Agent Metrics",
-                "layoutDescription": "Collect metrics from the observability agent itself"
-              }
-            },
-            "collectK8sClusterMetrics": {
-              "type": "boolean",
-              "viewSpec": {
-                "type": "checkbox",
-                "layout": "row",
-                "layoutTitle": "Collect Kubernetes Cluster Metrics",
-                "layoutDescription": "Collect metrics from Kubernetes cluster components"
-              }
-            },
-            "excludedNamespaces": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "viewSpec": {
-                "type": "array",
-                "layout": "row",
-                "layoutTitle": "Excluded Namespaces",
-                "layoutDescription": "List of namespaces to exclude from metrics collection"
-              }
-            },
-            "additionalTargets": {
-              "type": "array",
-              "items": {
-                "type": "object"
-              },
-              "viewSpec": {
-                "type": "textarea",
-                "layout": "row",
-                "layoutTitle": "Additional Prometheus Targets",
-                "layoutDescription": "Additional Prometheus scrape configs in YAML format (optional)"
-              }
-            }
-          }
+      "items": {
+        "type": "string",
+        "viewSpec": {
+          "layout": "sshKeys",
+          "layoutTitle": "",
+          "placeholder": "Enter namespace name",
+          "type": "textarea"
+        }
+      }
+    },
+    "metrics.enabled": {
+      "type": "boolean",
+      "viewSpec": {
+        "type": "switch",
+        "layout": "row",
+        "layoutTitle": "Enable Metrics Collection",
+        "layoutDescription": "Enable collection of metrics from pods and containers"
+      }
+    },
+    "metrics.collectAgentMetrics": {
+      "type": "boolean",
+      "viewSpec": {
+        "type": "switch",
+        "layout": "row",
+        "layoutTitle": "Collect Agent Metrics",
+        "layoutDescription": "Enable collection of observability agent's own metrics"
+      }
+    },
+    "metrics.collectK8sClusterMetrics": {
+      "type": "boolean",
+      "viewSpec": {
+        "type": "switch",
+        "layout": "row",
+        "layoutTitle": "Collect Kubernetes Cluster Metrics",
+        "layoutDescription": "Enable collection of Kubernetes cluster-level metrics"
+      }
+    },
+    "metrics.excludedNamespaces": {
+      "type": "array",
+      "defaultValue": [
+        ""
+      ],
+      "viewSpec": {
+        "layout": "sshKeys",
+        "layoutTitle": "Excluded Namespaces for Metrics",
+        "itemLabel": "Add namespace",
+        "layoutDescription": "Namespaces to exclude from metrics collection",
+        "type": "sshKeys"
+      },
+      "items": {
+        "type": "string",
+        "required": true,
+        "viewSpec": {
+          "layout": "sshKeys",
+          "layoutTitle": "",
+          "placeholder": "Enter namespace name",
+          "type": "textarea"
         }
       }
     }
+  },
+  "viewSpec": {
+    "type": "base"
   }
 }
