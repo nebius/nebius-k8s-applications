@@ -34,7 +34,7 @@
         "kube-system"
       ],
       "viewSpec": {
-        "layout": "sshKeys",
+        "layout": "row",
         "layoutTitle": "Excluded Namespaces for Logs",
         "itemLabel": "Add namespace",
         "layoutDescription": "Namespaces to exclude from log collection",
@@ -43,7 +43,7 @@
       "items": {
         "type": "string",
         "viewSpec": {
-          "layout": "sshKeys",
+          "layout": "row",
           "layoutTitle": "",
           "placeholder": "Enter namespace name",
           "type": "textarea"
