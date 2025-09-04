@@ -34,19 +34,19 @@
         "kube-system"
       ],
       "viewSpec": {
-        "layout": "sshKeys",
+        "type": "base",
+        "layout": "group",
         "layoutTitle": "Excluded Namespaces for Logs",
         "itemLabel": "Add namespace",
-        "layoutDescription": "Namespaces to exclude from log collection",
-        "type": "sshKeys"
+        "layoutDescription": "Namespaces to exclude from log collection"
       },
       "items": {
         "type": "string",
         "viewSpec": {
-          "layout": "sshKeys",
+          "type": "base",
+          "layout": "transparent",
           "layoutTitle": "",
-          "placeholder": "Enter namespace name",
-          "type": "textarea"
+          "placeholder": "Enter namespace name"
         }
       }
     },
@@ -83,20 +83,20 @@
         ""
       ],
       "viewSpec": {
-        "layout": "sshKeys",
+        "type": "base",
+        "layout": "group",
         "layoutTitle": "Excluded Namespaces for Metrics",
         "itemLabel": "Add namespace",
-        "layoutDescription": "Namespaces to exclude from metrics collection",
-        "type": "sshKeys"
+        "layoutDescription": "Namespaces to exclude from metrics collection"
       },
       "items": {
         "type": "string",
         "required": true,
         "viewSpec": {
-          "layout": "sshKeys",
+          "type": "base",
+          "layout": "transparent",
           "layoutTitle": "",
-          "placeholder": "Enter namespace name",
-          "type": "textarea"
+          "placeholder": "Enter namespace name"
         }
       }
     }
