@@ -53,13 +53,13 @@ To check that Nebius Observability Agent is working:
 2. Check the agent pods status:
 
    ```bash
-   kubectl get pods --namespace observability
+   kubectl get pods --namespace nebius-observability-agent
    ```
 
 3. View agent logs to verify operation:
 
    ```bash
-   kubectl logs -l app=nebius-o11y-agent --namespace observability
+   kubectl logs -l app.kubernetes.io/name=nebius-observability-agent-helm  --namespace nebius-observability-agent
    ```
 
 ## Configuration

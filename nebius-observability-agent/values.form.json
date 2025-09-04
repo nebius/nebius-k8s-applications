@@ -1,16 +1,16 @@
 {
   "type": "object",
   "defaultValue": {
-    "logs.enabled": true,
-    "logs.collectAgentLogs": false,
-    "logs.excludedNamespaces": ["kube-system"],
-    "metrics.enabled": true,
-    "metrics.collectAgentMetrics": false,
-    "metrics.collectK8sClusterMetrics": false,
-    "metrics.excludedNamespaces": []
+    "config.logs.enabled": true,
+    "config.logs.collectAgentLogs": false,
+    "config.logs.excludedNamespaces": ["kube-system"],
+    "config.metrics.enabled": true,
+    "config.metrics.collectAgentMetrics": false,
+    "config.metrics.collectK8sClusterMetrics": false,
+    "config.metrics.excludedNamespaces": []
   },
   "properties": {
-    "logs.enabled": {
+    "config.logs.enabled": {
       "type": "boolean",
       "viewSpec": {
         "type": "switch",
@@ -19,7 +19,7 @@
         "layoutDescription": "Enable collection of logs from pods and containers"
       }
     },
-    "logs.collectAgentLogs": {
+    "config.logs.collectAgentLogs": {
       "type": "boolean",
       "viewSpec": {
         "type": "switch",
@@ -28,7 +28,7 @@
         "layoutDescription": "Enable collection of observability agent's own logs"
       }
     },
-    "logs.excludedNamespaces": {
+    "config.logs.excludedNamespaces": {
       "type": "array",
       "defaultValue": [
         "kube-system"
@@ -50,7 +50,7 @@
         }
       }
     },
-    "metrics.enabled": {
+    "config.metrics.enabled": {
       "type": "boolean",
       "viewSpec": {
         "type": "switch",
@@ -59,7 +59,7 @@
         "layoutDescription": "Enable collection of metrics from pods and containers"
       }
     },
-    "metrics.collectAgentMetrics": {
+    "config.metrics.collectAgentMetrics": {
       "type": "boolean",
       "viewSpec": {
         "type": "switch",
@@ -68,7 +68,7 @@
         "layoutDescription": "Enable collection of observability agent's own metrics"
       }
     },
-    "metrics.collectK8sClusterMetrics": {
+    "config.metrics.collectK8sClusterMetrics": {
       "type": "boolean",
       "viewSpec": {
         "type": "switch",
@@ -77,7 +77,7 @@
         "layoutDescription": "Enable collection of Kubernetes cluster-level metrics"
       }
     },
-    "metrics.excludedNamespaces": {
+    "config.metrics.excludedNamespaces": {
       "type": "array",
       "defaultValue": [
         ""
