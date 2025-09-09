@@ -33,22 +33,23 @@ By using the application, you agree to their terms and conditions: [the helm-cha
 
 ## Tutorial
 
+The Nebius Observability Agent is a comprehensive monitoring solution that automatically collects logs and metrics from your Kubernetes cluster and sends them to Nebius AI Cloud services. This enables centralized observability, alerting, and analysis of your cluster's health and performance without requiring complex manual configuration.
+
 Before installing this product:
 
 * Ensure you have access to a Managed Service for Kubernetes cluster
-* Verify kubectl is configured to connect to your cluster
 
 To install the product:
 
-1. Configure the application using the form or create a custom values.yaml file
-2. Click **Install**
+1. Configure the application using the form or create a custom values.yaml file. For detailed configuration options, see the [Nebius Observability Agent Configuration Documentation](https://docs.nebius.com/observability/agents/nebius-o11y-agent#configuration)
+2. Click **Deploy application**
 3. Wait for the application to change its status to `Deployed`
 
 ## Usage
 
 To check that Nebius Observability Agent is working:
 
-1. [Install kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl) and [configure it to work with the created cluster](https://nebius.ai/docs/managed-kubernetes/operations/connect/#kubectl-connect)
+1. [Connect to your Managed Service for Kubernetes cluster](https://docs.nebius.com/kubernetes/connect)
 
 2. Check the agent pods status:
 
