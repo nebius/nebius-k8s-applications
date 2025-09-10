@@ -1,0 +1,12 @@
+{
+  "imagePullSecret.secretKey": {
+    "type": "string",
+    "viewSpec": {
+      "layoutTitle": "NVIDIA NGC Registry Key",
+      "layout": "row",
+      "type": "secret",
+      "disabled": false
+    },
+    "required": true
+  }
+}

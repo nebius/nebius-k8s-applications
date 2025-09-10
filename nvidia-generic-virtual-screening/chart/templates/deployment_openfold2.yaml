@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openfold2-{{ .Release.Name | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "generative-virtual-screening-chart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: openfold2
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "generative-virtual-screening-chart.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: openfold2
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "generative-virtual-screening-chart.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: openfold2
+    spec:
+      {{- if .Values.imagePullSecret }}
+      imagePullSecrets:
+        - name: {{ .Values.imagePullSecret.name }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Values.openfold2.containerName }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.openfold2.repository }}:{{ .Values.openfold2.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.openfold2.pullPolicy }}
+          env:
+            - name: NGC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.imagePullSecret.secretName }}
+                  key: {{ .Values.imagePullSecret.secretKey }}
+            - name: NIM_CACHE_EXTERNAL
+              value: {{ .Values.openfold2.cacheFolder }}
+            - name: NIM_API_PORT
+              value: {{ .Values.openfold2.containerPort | quote }}
+          volumeMounts:
+          - mountPath : {{ .Values.openfold2.cacheFolder | quote }}
+            name: openfold2-pv1
+          ports:
+            - name: http
+              containerPort: {{ .Values.openfold2.containerPort }}
+              protocol: TCP
+          startupProbe:
+            httpGet:
+              path: /v1/health/ready
+              port: {{ .Values.openfold2.containerPort }}
+            initialDelaySeconds: 300
+            periodSeconds: 10
+            failureThreshold: 330 # 55 minutes
+          livenessProbe:
+            initialDelaySeconds: 0
+            httpGet:
+              path: /v1/health/live
+              port: {{ .Values.openfold2.containerPort }}
+          readinessProbe:
+            initialDelaySeconds: 0
+            httpGet:
+              path: /v1/health/ready
+              port: {{ .Values.openfold2.containerPort }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: openfold2-pv1
+          persistentVolumeClaim:
+            claimName: gvs-shared-vol
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

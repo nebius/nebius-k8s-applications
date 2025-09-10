@@ -1,0 +1,25 @@
+{{- $fullName := include "generative-virtual-screening-chart.fullname" . -}}
+{{- $labels := include "generative-virtual-screening-chart.labels" . -}}
+{{- $selectorLabels := include "generative-virtual-screening-chart.selectorLabels" . -}}
+
+{{- $services := list "msa" "openfold2" "genmol" "diffdock" -}}
+
+{{- range $serviceName := $services }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $fullName }}-{{ $serviceName }}
+  labels:
+    {{- $labels | nindent 4 }}
+spec:
+  type: {{ $.Values.service.type }}
+  ports:
+    - port: {{ index $.Values $serviceName "servicePort" }}
+      targetPort: {{ index $.Values $serviceName "containerPort" }}
+      protocol: TCP
+      name: "{{ $serviceName }}-port"
+  selector:
+    {{- $selectorLabels | nindent 4 }}
+    app.kubernetes.io/component: {{ $serviceName }}
+{{- end }}

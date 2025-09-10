@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: genmol-{{ .Release.Name | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "generative-virtual-screening-chart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: genmol
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "generative-virtual-screening-chart.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: genmol
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "generative-virtual-screening-chart.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: genmol
+    spec:
+      {{- if .Values.imagePullSecret }}
+      imagePullSecrets:
+        - name: {{ .Values.imagePullSecret.name }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Values.genmol.containerName }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.genmol.repository }}:{{ .Values.genmol.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.genmol.pullPolicy }}
+          env:
+            - name: NGC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.imagePullSecret.secretName }}
+                  key: {{ .Values.imagePullSecret.secretKey }}
+            - name: NIM_CACHE_PATH
+              value: {{ .Values.genmol.cacheFolder }}
+            - name: NIM_API_PORT
+              value: {{ .Values.genmol.containerPort | quote }}
+          volumeMounts:
+          - mountPath : {{ .Values.genmol.cacheFolder | quote }}
+            name: genmol-pv1
+          ports:
+            - name: http
+              containerPort: {{ .Values.genmol.containerPort }}
+              protocol: TCP
+          startupProbe:
+            httpGet:
+              path: /v1/health/ready
+              port: {{ .Values.genmol.containerPort }}
+            initialDelaySeconds: 300
+            periodSeconds: 10
+            failureThreshold: 150 # 25 minutes
+          livenessProbe:
+            initialDelaySeconds: 0
+            httpGet:
+              path: /v1/health/live
+              port: {{ .Values.genmol.containerPort }}
+          readinessProbe:
+            initialDelaySeconds: 0
+            httpGet:
+              path: /v1/health/ready
+              port: {{ .Values.genmol.containerPort }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: genmol-pv1
+          persistentVolumeClaim:
+            claimName: gvs-shared-vol
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
