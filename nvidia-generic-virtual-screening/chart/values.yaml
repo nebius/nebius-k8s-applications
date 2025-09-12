@@ -39,6 +39,8 @@ diffdock:
   cacheFolder: /opt/nim/.cache
   servicePort: 8084
 
+
+
 imagePullSecret:
   registry: "nvcr.io"
   name: "ngc-secret-docker-registry"
@@ -46,12 +48,11 @@ imagePullSecret:
   username: '$oauthtoken'
   secretName: ngc-registry-secret
   secretKey: ""
-#  secretKey: NGC_REGISTRY_KEY
 
-# apiSecret:
-#   name: "ngc-secret-gvs-api"
-#   secretName: ngc-api-secret
-#   secretKey: NGC_API_KEY
+#apiSecret:
+#  name: "ngc-secret-gvs-api"
+#  secretName: ngc-api-secret
+#  secretKey: NGC_API_KEY
 
 service:
   type: ClusterIP
