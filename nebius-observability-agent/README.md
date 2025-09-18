@@ -24,7 +24,7 @@ A unified observability agent for Kubernetes clusters that provides comprehensiv
 
 ## Links
 
-* [Nebius Observability Agent Documentation](https://docs.nebius.com/observability/agents/nebius-observability-agent-for-kubernetes)
+* [Nebius Observability Agent Documentation](https://docs.nebius.com/observability/agents/nebius-o11y-agent)
 * [Nebius Cloud Documentation](https://nebius.com/docs/)
 
 ## Legal
