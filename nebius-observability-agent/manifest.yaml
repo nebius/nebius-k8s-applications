@@ -6,6 +6,6 @@ tariff_type: free
 categories:
   - dev-tools
 images:
-  - nameWithoutRegistry: image.respository
+  - nameWithRegistry: image.respository
     tag: image.tag
 
