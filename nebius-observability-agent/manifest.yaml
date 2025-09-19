@@ -4,7 +4,7 @@ ownerName: Nebius
 publisherName: Nebius
 tariff_type: free
 categories:
-  - dev-tools
+  - monitoring
 images:
   - nameWithRegistry: image.respository
     tag: image.tag
