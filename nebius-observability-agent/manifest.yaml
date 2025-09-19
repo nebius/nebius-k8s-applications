@@ -1,0 +1,11 @@
+name: Nebius Observability Agent for Kubernetes
+slug: nebius-observability-agent
+ownerName: Nebius
+publisherName: Nebius
+tariff_type: free
+categories:
+  - monitoring
+images:
+  - nameWithRegistry: image.respository
+    tag: image.tag
+

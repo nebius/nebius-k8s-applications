@@ -1,0 +1,118 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+image:
+  repository: cr.nebius.cloud/observability/public/nebius-observability-agent
+  pullPolicy: IfNotPresent
+  tag: "1.0.4"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+hostNetwork: false
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+rbac:
+  create: true
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+#resources:
+#  limits:
+#    cpu: 2
+#    memory: 2048Mi
+#  requests:
+#    cpu: 1
+#    memory: 2048Mi
+env:
+  - name: K8S_NODE_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: spec.nodeName
+  - name: GOMAXPROCS
+    value: "2"
+  - name: NEBIUS_LOG_LEVEL
+    value: "info"
+  - name: OTEL_METRICS_EXEMPLAR_FILTER # https://github.com/open-telemetry/opentelemetry-go/blob/8324155ac66c2000db6e6b9577de3190fb24c23d/sdk/metric/internal/x/README.md#exemplars
+    value: "always_off"
+
+nodeSelector: {}
+
+tolerations:
+  - key: node-role.kubernetes.io/master
+    operator: Exists
+    effect: NoSchedule
+  - operator: "Exists"
+    effect: "NoSchedule"
+
+affinity: {}
+
+release_version: ""
+
+config:
+  logs:
+    enabled: true
+    collectAgentLogs: false
+    excludedNamespaces:
+      - kube-system
+
+  metrics:
+    enabled: true
+    collectAgentMetrics: false
+    collectK8sClusterMetrics: false
+    excludedNamespaces: []
+
+    # Additional Prometheus scrape configs to be added to the metrics collection
+    # Each entry should be a valid Prometheus scrape_config block
+    # Example:
+    # additionalTargets:
+    #   - job_name: 'my-custom-service'
+    #     static_configs:
+    #       - targets: ['service:9090']
+    #     scrape_interval: 30s
+    #   - job_name: 'kubernetes-custom-endpoints'
+    #     kubernetes_sd_configs:
+    #       - role: endpoints
+    #     relabel_configs:
+    #       - source_labels: [__meta_kubernetes_service_annotation_custom_scrape]
+    #         action: keep
+    #         regex: true
+    additionalTargets: []
+  iam:
+    enabled: true
+    auth_scheme: "iam-token-file"
+    token_file: "/mnt/cloud-metadata/tsa-token"
+    endpoint: tokens.iam.api.nebius.cloud:443
+
+  #metadata:
+  # region: eu-north1
+  # parent_id: "project-e00abcde..."
+
+  
+  podLogsDiscoveryRule: 'type == "pod" and ("logs.nebius.ai/collect" in annotations ? annotations["logs.nebius.ai/collect"] : "true") != "false"'
+  parentIdPath: "/mnt/cloud-metadata/parent-id"
+  regionPath: "/mnt/cloud-metadata/region-name"
+  clusterIdPath: "/usr/local/etc/mk8s-cluster-id"
+  nodeGroupIdPath: "/usr/local/etc/mk8s-node-group-id"
+  ports:
+    metrics: 9090

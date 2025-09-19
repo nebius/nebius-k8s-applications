@@ -1,0 +1,180 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ template "o11y-agent.appname" . }}
+
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "o11y-agent.labels" . | nindent 4 }}
+    app: {{ template "o11y-agent.appname" . }}
+spec:
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 10%
+  selector:
+    matchLabels:
+      {{- include "o11y-agent.selectorLabels" . | nindent 6 }}
+      app: {{ template "o11y-agent.appname" . }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- if .Values.config.metrics.collectAgentMetrics}}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: {{ .Values.config.ports.metrics | quote }}
+        prometheus.io/path: /metrics
+        {{ end }}
+        {{-  if not .Values.config.logs.collectAgentLogs }}
+        logs.nebius.ai/collect: "false"
+        {{- end }}
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "o11y-agent.selectorLabels" . | nindent 8 }}
+        app: {{ template "o11y-agent.appname" . }}
+    spec:
+      hostNetwork: {{ .Values.hostNetwork }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "o11y-agent.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.config.ports.metrics}}
+              name: metrics
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 13133
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 13133
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: agent-configmap
+              mountPath: /etc/nebius-o11y-agent
+            {{- if eq .Values.config.iam.auth_scheme "iam-key-file" }}
+            - name: agent-sa-key
+              mountPath: /etc/iam-key
+            {{- end }}
+            {{- if eq .Values.config.iam.auth_scheme "iam-credentials-file" }}
+            - name: credentials
+              mountPath: /etc/iam-key
+            {{- end }}
+            - name: cloud-metadata
+              mountPath: /mnt/cloud-metadata
+            - name: cluster-id
+              mountPath: /usr/local/etc/mk8s-cluster-id
+            - name: node-group-id
+              mountPath: /usr/local/etc/mk8s-node-group-id
+            {{- if .Values.config.iam.mount_host_token }}
+            - name: host-token
+              mountPath: /mnt/cloud-metadata/token
+            {{- end }}
+            - name: offsets
+              mountPath: {{ .Values.config.persistentDir | default "/var/lib/nebius-o11y-agent" }}
+            - name: varlogpods
+              mountPath: /var/log/pods
+              readOnly: true
+            {{- range .Values.config.volumeMounts }}
+            - name: {{ .name }}
+              mountPath: {{ .podPath }}
+              readOnly: {{ .readOnly }}
+             {{- end }}
+          env:
+            {{- with .Values.env }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
+            {{- if ne .Values.config.parentIdPath "" }}
+            - name: PARENT_ID_PATH
+              value: {{ .Values.config.parentIdPath }}
+            {{- end }}
+            {{- if ne .Values.config.regionPath "" }}
+            - name: REGION_PATH
+              value: {{ .Values.config.regionPath }}
+            {{- end }}
+            {{- if ne .Values.config.clusterIdPath "" }}
+            - name: CLUSTER_ID_PATH
+              value: {{ .Values.config.clusterIdPath }}
+            {{- end }}
+            {{- if ne .Values.config.nodeGroupIdPath "" }}
+            - name: NODE_GROUP_ID_PATH
+              value: {{ .Values.config.nodeGroupIdPath }}
+            {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: agent-configmap
+          configMap:
+            name: {{ template "o11y-agent.configmapName" . }}
+            items:
+              - key: config
+                path: config.yaml
+        - name: varlogpods
+          hostPath:
+            path: /var/log/pods
+        - name: offsets
+          hostPath:
+            path: {{ .Values.config.persistentDir | default "/var/lib/nebius-o11y-agent" }}
+            type: DirectoryOrCreate
+        - name: cloud-metadata
+          hostPath:
+            path: "/mnt/cloud-metadata"
+        - name: cluster-id
+          hostPath:
+            path: "/usr/local/etc/mk8s-cluster-id"
+            type: FileOrCreate
+        - name: node-group-id
+          hostPath:
+            path: "/usr/local/etc/mk8s-node-group-id"
+            type: FileOrCreate
+        {{- if .Values.config.iam.mount_host_token}}
+        - name: host-token
+          hostPath:
+            path: "/mnt/cloud-metadata/token"
+            type: FileOrCreate
+            {{- end }}
+        {{- if  .Values.config.iam.enabled }}
+        {{- if eq .Values.config.iam.auth_scheme "iam-key-file" }}
+        - name: agent-sa-key
+          secret:
+            secretName: {{ .Values.config.iam.private_key_secret_name | default "o11y-agent-sa-key" }}
+        {{- end }}
+        {{- if eq .Values.config.iam.auth_scheme "iam-credentials-file" }}
+        - name: credentials
+          secret:
+            secretName: {{ .Values.config.iam.credentials_file_secret_name  }}
+        {{- end }}
+        {{- end }}
+        {{- range .Values.config.volumeMounts }}
+        - name: {{ .name }}
+          hostPath:
+            path: {{ .hostPath }}
+            type: {{ .type }}
+          {{- end }}

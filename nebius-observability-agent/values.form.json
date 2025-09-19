@@ -1,0 +1,160 @@
+{
+  "type": "object",
+  "defaultValue": {
+    "config": {
+      "logs": {
+        "enabled": true,
+        "collectAgentLogs": false,
+        "excludedNamespaces": ["kube-system"]
+      },
+      "metrics": {
+        "enabled": true,
+        "collectAgentMetrics": false,
+        "collectK8sClusterMetrics": false,
+        "excludedNamespaces": []
+      }
+    }
+  },
+  "properties": {
+    "config": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "layout": "transparent"
+      },
+      "properties": {
+        "logs": {
+          "type": "object",
+          "viewSpec": {
+            "type": "base",
+            "layout": "accordeon",
+            "layoutTitle": "Logs Configuration",
+            "layoutDescription": "Configure log collection settings",
+            "layoutOpen": true,
+            "order": [
+              "enabled",
+              "collectAgentLogs",
+              "excludedNamespaces"
+            ]
+          },
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "viewSpec": {
+                "type": "switch",
+                "layout": "row",
+                "layoutTitle": "Enable Log Collection",
+                "layoutDescription": "Enable collection of logs from pods and containers"
+              }
+            },
+            "collectAgentLogs": {
+              "type": "boolean",
+              "viewSpec": {
+                "type": "switch",
+                "layout": "row",
+                "layoutTitle": "Collect Agent Logs",
+                "layoutDescription": "Enable collection of observability agent's own logs"
+              }
+            },
+            "excludedNamespaces": {
+              "type": "array",
+              "defaultValue": [
+                "kube-system"
+              ],
+              "viewSpec": {
+                "type": "base",
+                "layout": "group",
+                "layoutTitle": "Excluded Namespaces for Logs",
+                "itemLabel": "Add namespace",
+                "layoutDescription": "Namespaces to exclude from log collection"
+              },
+              "items": {
+                "type": "string",
+                "viewSpec": {
+                  "type": "base",
+                  "layout": "transparent",
+                  "layoutTitle": "",
+                  "placeholder": "Enter namespace name"
+                }
+              }
+            }
+          }
+        },
+        "metrics": {
+          "type": "object",
+          "viewSpec": {
+            "type": "base",
+            "layout": "accordeon",
+            "layoutTitle": "Metrics Configuration",
+            "layoutDescription": "Configure metrics collection settings",
+            "layoutOpen": false,
+            "order": [
+              "enabled",
+              "collectK8sClusterMetrics",
+              "collectAgentMetrics",
+              "excludedNamespaces"
+            ]
+          },
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "viewSpec": {
+                "type": "switch",
+                "layout": "row",
+                "layoutTitle": "Enable Metrics Collection",
+                "layoutDescription": "Enable collection of metrics from pods and containers"
+              }
+            },
+            "collectAgentMetrics": {
+              "type": "boolean",
+              "viewSpec": {
+                "type": "switch",
+                "layout": "row",
+                "layoutTitle": "Collect Agent Metrics",
+                "layoutDescription": "Enable collection of observability agent's own metrics"
+              }
+            },
+            "collectK8sClusterMetrics": {
+              "type": "boolean",
+              "viewSpec": {
+                "type": "switch",
+                "layout": "row",
+                "layoutTitle": "Collect Kubernetes Cluster Metrics",
+                "layoutDescription": "Enable collection of Kubernetes cluster-level metrics"
+              }
+            },
+            "excludedNamespaces": {
+              "type": "array",
+              "defaultValue": [
+                ""
+              ],
+              "viewSpec": {
+                "type": "base",
+                "layout": "group",
+                "layoutTitle": "Excluded Namespaces for Metrics",
+                "itemLabel": "Add namespace",
+                "layoutDescription": "Namespaces to exclude from metrics collection"
+              },
+              "items": {
+                "type": "string",
+                "required": true,
+                "viewSpec": {
+                  "type": "base",
+                  "layout": "transparent",
+                  "layoutTitle": "",
+                  "placeholder": "Enter namespace name"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "viewSpec": {
+    "type": "base",
+    "order": [
+      "config"
+    ]
+  }
+}
