@@ -3,6 +3,14 @@ grafana:
     projectId: REPLACE WITH PROJECT ID
     accessToken: REPLACE WITH ACCESS TOKEN
 
+  persistence:
+    type: pvc
+    enabled: true
+    storageClassName: compute-csi-default-sc
+    accessModes:
+      - ReadWriteOnce
+    size: 10Gi
+
   resources:
     requests: # https://grafana.com/docs/grafana/latest/setup-grafana/installation/kubernetes/#minimum-hardware-requirements
       cpu: 250m
