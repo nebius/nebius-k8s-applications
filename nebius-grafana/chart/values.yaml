@@ -4,11 +4,8 @@ grafana:
     accessToken: REPLACE WITH ACCESS TOKEN
 
   persistence:
-    type: pvc
     enabled: true
     storageClassName: compute-csi-default-sc
-    accessModes:
-      - ReadWriteOnce
     size: 10Gi
 
   resources:
