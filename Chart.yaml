@@ -7,7 +7,7 @@ appVersion: "1.0"
 
 dependencies:
 - name: airflow
-  version: "1.13.1"
+  version: "1.18.0"
   repository: "https://airflow.apache.org"
 - name: argo-cd
   version: "7.7.5"
