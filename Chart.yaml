@@ -10,7 +10,7 @@ dependencies:
   version: "1.13.1"
   repository: "https://airflow.apache.org"
 - name: argo-cd
-  version: "7.7.5"
+  version: "7.9.1"
   repository: "https://argoproj.github.io/argo-helm"
 - name: cvat
   version: "0.14.3"
