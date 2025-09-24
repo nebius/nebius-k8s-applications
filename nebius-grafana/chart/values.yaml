@@ -5,7 +5,6 @@ grafana:
 
   persistence:
     enabled: true
-    storageClassName: compute-csi-default-sc
     size: 10Gi
 
   resources:
