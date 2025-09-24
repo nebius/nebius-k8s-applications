@@ -19,7 +19,7 @@ dependencies:
 - condition: prometheus-node-exporter.enabled
   name: prometheus-node-exporter
   repository: https://prometheus-community.github.io/helm-charts
-  version: 4.43.*
+  version: 4.48.*
 - condition: prometheus-pushgateway.enabled
   name: prometheus-pushgateway
   repository: https://prometheus-community.github.io/helm-charts
