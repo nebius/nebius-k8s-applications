@@ -34,7 +34,7 @@ dependencies:
   version: "1.0.4"
   repository: "oci://registry-1.docker.io/bitnamicharts/mlflow"
 - name: gpu-operator
-  version: "v24.6.2"
+  version: "v24.9.2"
   repository: "https://helm.ngc.nvidia.com/nvidia"
 - name: network-operator
   version: "24.4.0"
