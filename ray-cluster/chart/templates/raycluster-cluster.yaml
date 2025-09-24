@@ -17,6 +17,9 @@ spec:
   {{- if .Values.head.autoscalerOptions }}
   autoscalerOptions: {{- toYaml .Values.head.autoscalerOptions | nindent 4 }}
   {{- end }}
+  {{- with .Values.gcsFaultToleranceOptions }}
+  gcsFaultToleranceOptions: {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
   headGroupSpec:
     {{- if .Values.head.headService }}
     headService: {{- toYaml .Values.head.headService | nindent 6 }}

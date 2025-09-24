@@ -1,10 +1,10 @@
 {
   "defaultValue": {
-    "newBackend": true,
     "head.resources.limits.cpu": "4",
     "head.resources.limits.memory": "8Gi",
     "head.enableInTreeAutoscaling": true,
     "gpuPlatform": "NVIDIA® H100 NVLink with Intel Sapphire Rapids",
+    "gpuPerWorker": "1",
     "worker.minReplicas": "1",
     "worker.maxReplicas": "3",
     "additionalWorkerGroups.cpu.disabled": false,
@@ -16,15 +16,6 @@
   },
   "type": "object",
   "properties": {
-    "newBackend": {
-      "type": "boolean",
-      "viewSpec": {
-        "type": "base",
-        "layout": "row",
-        "hidden": "true"
-      },
-      "required": true
-    },
     "head.resources.limits.cpu": {
       "type": "string",
       "viewSpec": {
@@ -76,6 +67,20 @@
         "disabled": true
       },
       "required": true
+    },
+    "gpuPerWorker": {
+      "type": "string",
+      "viewSpec": {
+        "layoutTitle": "GPU per each worker",
+        "layoutDescription": "Enter the number of GPU per each worker.\n",
+        "layout": "row",
+        "type": "rangeinputpicker",
+        "inputProps": {
+          "min": 1,
+          "max": 8
+        }
+      },
+      "required": false
     },
     "worker.minReplicas": {
       "type": "string",
@@ -187,11 +192,11 @@
     "type": "base",
     "layout": "",
     "order": [
-      "newBackend",
       "head.resources.limits.cpu",
       "head.resources.limits.memory",
       "head.enableInTreeAutoscaling",
       "gpuPlatform",
+      "gpuPerWorker",
       "worker.minReplicas",
       "worker.maxReplicas",
       "additionalWorkerGroups.cpu.minReplicas",
