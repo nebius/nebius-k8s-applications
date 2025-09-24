@@ -3,8 +3,12 @@ grafana:
     projectId: REPLACE WITH PROJECT ID
     accessToken: REPLACE WITH ACCESS TOKEN
 
+  persistence:
+    enabled: true
+    size: 10Gi
+
   resources:
-    requests:  # https://grafana.com/docs/grafana/latest/setup-grafana/installation/kubernetes/#minimum-hardware-requirements
+    requests: # https://grafana.com/docs/grafana/latest/setup-grafana/installation/kubernetes/#minimum-hardware-requirements
       cpu: 250m
       memory: 750Mi
 
