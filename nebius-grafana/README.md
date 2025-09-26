@@ -39,8 +39,14 @@ To install the product:
 
 ## Usage
 
-To verify that Grafana® solution by Nebius is working with Kubernetes, access its UI:
-
+You have two options to access UI of Grafana® solution by Nebius:
+### Option 1: Create a Temporary Public Endpoint
+1. Open Grafana® solution by Nebius in the Consoles ["Applications" section](https://console.nebius.com/applications).
+2. Go to the **Endpoints** section and click **Create**. This will generate an endpoint valid for 48 hours.
+3. Click **Copy URL** and open the link in your browser.
+4. Log in to Grafana® solution by Nebius using the username **admin** and the password you set during installation.
+   
+### Option 2: Use kubectl port-forwarding
 1. [Install kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl) and [configure it to work with the created cluster](https://docs.nebius.com/kubernetes/connect).
 1. Set up port forwarding:
     ```bash
