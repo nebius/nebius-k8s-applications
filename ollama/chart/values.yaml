@@ -29,7 +29,7 @@ image:
   pullPolicy: IfNotPresent
 
   # -- Docker image tag, overrides the image tag whose default is the chart appVersion.
-  tag: "0.5.7"
+  tag: "0.12.3"
 
 # -- Docker registry secret names as an array
 imagePullSecrets: []
