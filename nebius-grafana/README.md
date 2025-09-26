@@ -42,7 +42,7 @@ To install the product:
 You have two options to access UI of Grafana® solution by Nebius:
 ### Option 1: Create a Temporary Public Endpoint
 1. Open Grafana® solution by Nebius in the Consoles ["Applications" section](https://console.nebius.com/applications).
-2. Go to the **Endpoints** section and click **Create**. This will generate an endpoint valid for 24 hours.
+2. Go to the **Endpoints** section and click **Create**. This will generate an endpoint valid for 48 hours.
 3. Click **Copy URL** and open the link in your browser.
 4. Log in to Grafana® solution by Nebius using the username **admin** and the password you set during installation.
    
