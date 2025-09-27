@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "type": "object",
+  "properties": {
+    "imagePullSecret.secretKey": {
+      "type": "string",
+      "viewSpec": {
+        "type": "base",
+        "layout": "row",
+        "layoutTitle": "NVIDIA NGC Registry Key"
+      }
+    }
+  },
+  "viewSpec": {
+    "type": "base",
+    "layout": ""
+  }
+}

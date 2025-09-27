@@ -1,0 +1,19 @@
+name: NVIDIA® BioNeMo Blueprint - Generative Virtual Screening for Drug Discovery
+slug: nvidia-gpu-operator
+ownerName: NVIDIA
+publisherName: Nebius
+categories:
+  - inference
+  - new-products
+  - llm-apps-framework
+  - ml-ai
+images:
+  - tag: msa.tag
+    nameWithRegistry: msa.repository
+  - tag: openfold2.tag
+    nameWithRegistry: openfold2.repository
+  - tag: genmol.tag
+    nameWithRegistry: genmol.repository
+  - tag: diffdock.tag
+    nameWithRegistry: diffdock.repository
+

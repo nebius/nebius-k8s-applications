@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: msa-{{ .Release.Name | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "generative-virtual-screening-chart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: msa
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "generative-virtual-screening-chart.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: msa
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "generative-virtual-screening-chart.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: msa
+    spec:
+      {{- if .Values.imagePullSecret }}
+      imagePullSecrets:
+        - name: {{ .Values.imagePullSecret.name }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: volume-permissions
+          image: busybox:1.31.1
+          command:
+            - sh
+            - -c
+            - |
+              mkdir -p {{ .Values.msa.cacheFolder | quote }} && 
+              chmod -R 777 {{ .Values.msa.cacheFolder | quote }}
+          volumeMounts:
+            - name: msa-pv1
+              mountPath: {{ .Values.msa.cacheFolder | quote }}
+          securityContext:
+            runAsUser: 0
+      containers:
+        - name: {{ .Values.msa.containerName }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.msa.repository }}:{{ .Values.msa.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.msa.pullPolicy }}
+          env:
+            - name: NGC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.imagePullSecret.secretName }}
+                  key: {{ .Values.imagePullSecret.secretKey }}
+            - name: NIM_CACHE_PATH
+              value: {{ .Values.msa.cacheFolder | quote }}
+            - name: NIM_API_PORT
+              value: {{ .Values.msa.containerPort | quote }}
+            - name: NIM_GLOBAL_MAX_MSA_SEQUENCES
+              value: "100"
+            - name: NIM_DISABLE_GPU_SERVER
+              value: "True"
+          volumeMounts:
+            - mountPath : {{ .Values.msa.cacheFolder | quote }}
+              name: msa-pv1
+          ports:
+            - name: http
+              containerPort: {{ .Values.msa.containerPort }}
+              protocol: TCP
+          startupProbe:
+            httpGet:
+              path: /v1/health/ready
+              port: {{ .Values.msa.containerPort }}
+            initialDelaySeconds: 300
+            periodSeconds: 10
+            failureThreshold: 1410 # 235 minutes
+          livenessProbe:
+            initialDelaySeconds: 0
+            httpGet:
+              path: /v1/health/live
+              port: {{ .Values.msa.containerPort }}
+          readinessProbe:
+            initialDelaySeconds: 0
+            httpGet:
+              path: /v1/health/ready
+              port: {{ .Values.msa.containerPort }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: msa-pv1
+          persistentVolumeClaim:
+            claimName: gvs-shared-vol
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
