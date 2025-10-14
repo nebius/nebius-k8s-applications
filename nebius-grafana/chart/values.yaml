@@ -77,6 +77,9 @@ grafana:
       nebius-shared-filesystems:
         gnetId: 23313  # https://grafana.com/dashboards/23313
         revision: 5
+      nebius-observability:
+        gnetId: 24246  # https://grafana.com/dashboards/24246
+        revision: 1
       node-exporter-full:
         gnetId: 1860  # https://grafana.com/dashboards/1860
         revision: 40
