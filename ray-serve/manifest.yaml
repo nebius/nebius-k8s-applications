@@ -1,0 +1,23 @@
+slug: ray-serve
+ownerName: Ray
+publisherName: Nebius
+name: Ray Serve
+categories:
+  - training
+  - llm-apps-framework
+images:
+  - tag: image.tag
+    nameWithRegistry: image.repository
+  - tag: worker.image.tag
+    nameWithRegistry: worker.image.repository
+  - tag: kuberay-operator.image.tag
+    nameWithRegistry: kuberay-operator.image.repository
+  - registry: redis.image.registry
+    tag: redis.image.tag
+    nameWithoutRegistry: redis.image.repository
+  - registry: redis.sentinel.image.registry
+    tag: redis.sentinel.image.tag
+    nameWithoutRegistry: redis.sentinel.image.repository
+  - registry: redis.kubectl.image.registry
+    tag: redis.kubectl.image.tag
+    nameWithoutRegistry: redis.kubectl.image.repository

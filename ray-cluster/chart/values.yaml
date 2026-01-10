@@ -6,8 +6,8 @@
 # in this Helm chart.
 
 image:
-  repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/ray-cluster/image/ray-ml
-  tag: 2.37.0.1b620f-cpu
+  repository: rayproject/ray-ml
+  tag: 2.47.1.aeaf41-cpu
   pullPolicy: IfNotPresent
 
 nameOverride: "kuberay"
@@ -18,10 +18,11 @@ imagePullSecrets: []
 
 common:
   containerEnv:
-    - name: RAY_REDIS_ADDRESS
-      value: "redis://{{ .Release.Name }}-redis-master:6379"
     - name: AWS_EC2_METADATA_DISABLED
       value: "TRUE"
+
+gcsFaultToleranceOptions:
+  redisAddress: "redis://{{ .Release.Name }}-redis-master:6379"
 
 head:
   # rayVersion determines the autoscaler's image version.
@@ -156,13 +157,13 @@ worker:
   # for further guidance.
   resources:
     limits:
-      cpu: '{{ (get .Values.gpuToResourceHelperValues .Values.gpuPlatform).cpu }}'
-      memory: '{{ (get .Values.gpuToResourceHelperValues .Values.gpuPlatform).memory }}Gi'
-      nvidia.com/gpu: "1"
+      cpu: '{{ mul (get .Values.gpuToResourceHelperValues .Values.gpuPlatform).cpu .Values.gpuPerWorker }}m'
+      memory: '{{ mul (get .Values.gpuToResourceHelperValues .Values.gpuPlatform).memory .Values.gpuPerWorker }}Gi'
+      nvidia.com/gpu: '{{ .Values.gpuPerWorker }}'
     requests:
-      cpu: "{{ tpl .Values.worker.resources.limits.cpu . }}"
-      memory: "{{ tpl .Values.worker.resources.limits.memory . }}"
-      nvidia.com/gpu: "1"
+      cpu: '{{ mul (get .Values.gpuToResourceHelperValues .Values.gpuPlatform).cpu .Values.gpuPerWorker }}m'
+      memory: '{{ mul (get .Values.gpuToResourceHelperValues .Values.gpuPlatform).memory .Values.gpuPerWorker }}Gi'
+      nvidia.com/gpu: '{{ .Values.gpuPerWorker }}'
   annotations: {}
   nodeSelector: {}
   tolerations:
@@ -191,8 +192,8 @@ worker:
   command: []
   args: []
   image:
-    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/ray-cluster/image/ray-ml
-    tag: 2.37.0.1b620f-gpu
+    repository: rayproject/ray-ml
+    tag: 2.47.1.aeaf41-gpu
     pullPolicy: IfNotPresent
 # The map's key is used as the groupName.
 # For example, key:small-group in the map below
@@ -269,22 +270,23 @@ service:
 customImage: null
 
 gpuPlatform: NVIDIA® H100 NVLink with Intel Sapphire Rapids
+gpuPerWorker: "2"
 gpuToResourceHelperValues:
   NVIDIA® H100 NVLink with Intel Sapphire Rapids:
-    cpu: 1450m
+    cpu: 1450
     memory: 180
 
 kuberay-operator:
   image:
-    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/ray-cluster/image/operator
-    tag: v1.2.1
+    repository: quay.io/kuberay/operator
+    tag: v1.4.0
     pullPolicy: IfNotPresent
   singleNamespaceInstall: true
 
 redis:
   image:
-    registry: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex
-    repository: nebius/ray-cluster/image/redis
+    registry: docker.io/bitnami
+    repository: redis
     tag: 7.2.4-debian-12-r9
     pullPolicy: IfNotPresent
   auth:
@@ -323,9 +325,9 @@ redis:
           weight: 1
   sentinel:
     image:
-      registry: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex
-      repository: nebius/ray-cluster/image/redis-sentinel
-      tag: 7.2.4-debian-12-r7
+      registry: docker.io/bitnami
+      repository: redis
+      tag: 7.2.4-debian-12-r9
     enabled: true
     persistence:
       size: 16Gi
@@ -333,8 +335,8 @@ redis:
       createMaster: true
   kubectl:
     image:
-      registry: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex
-      repository: nebius/ray-cluster/image/kubectl
+      registry: docker.io/bitnami
+      repository: kubectl
       tag: 1.29.2-debian-12-r3
   rbac:
     create: true
