@@ -53,6 +53,17 @@ grafana:
           isDefault: false
           version: 1
 
+        - name: Nebius Tracing
+          type: tempo
+          access: proxy
+          url: 'https://read.tracing.api.nebius.cloud/tempo/{{ .Values.nebius.projectId }}'
+          jsonData:
+            httpHeaderName1: 'Authorization'
+          secureJsonData:
+            httpHeaderValue1: 'Bearer {{ .Values.nebius.accessToken }}'
+          isDefault: false
+          version: 1
+
   dashboardProviders:
     dashboardproviders.yaml:
       apiVersion: 1
