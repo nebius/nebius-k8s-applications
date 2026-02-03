@@ -1,7 +1,7 @@
 ---
 image:
   repository: cr.eu-north1.nebius.cloud/marketplace/nebius/ikargapolov-vllm/image/gradio-ui
-  tag: v0.0.2
+  tag: v0.0.4
 
 replicas: 1
 
