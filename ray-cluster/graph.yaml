@@ -1,0 +1,182 @@
+releaseType: "k8s"
+components:
+  endpoint001:
+    type: "endpoint"
+    spec:
+      refMap:
+        clusterId: "components.cluster001.state.result.id"
+        helmReleaseName: "parameters.releaseName"
+        helmReleaseNamespace: "parameters.releaseNamespace"
+      componentSpec:
+        ports: []
+    dependencies:
+      components:
+        helmchart001:
+
+  helmchart001:
+    type: "helm_chart"
+    spec:
+      refMap:
+        parentId: "parameters.parentId"
+        clusterId: "components.cluster001.state.result.id"
+        releaseName: "parameters.releaseName"
+        releaseNamespace: "parameters.releaseNamespace"
+        values.configuration.configure.head_group.advanced.rayStartParams.dashboard_host: "parameters.configurationConfigureHeadGroupAdvancedRayStartParamsDashboardHost"
+        values.configuration.configure.head_group.advanced.rayStartParams.num_cpus: "parameters.configurationConfigureHeadGroupAdvancedRayStartParamsNumCpus"
+        values.configuration.configure.head_group.advanced.resources.limits.cpu: "parameters.configurationConfigureHeadGroupAdvancedResourcesLimitsCpu"
+        values.configuration.configure.head_group.advanced.resources.limits.memory: "parameters.configurationConfigureHeadGroupAdvancedResourcesLimitsMemory"
+        values.configuration.configure.head_group.advanced.resources.requests.cpu: "parameters.configurationConfigureHeadGroupAdvancedResourcesRequestsCpu"
+        values.configuration.configure.head_group.advanced.resources.requests.memory: "parameters.configurationConfigureHeadGroupAdvancedResourcesRequestsMemory"
+        values.configuration.configure.head_group.image: "parameters.configurationConfigureHeadGroupImage"
+        values.configuration.configure.head_group.serviceType: "parameters.configurationConfigureHeadGroupServiceType"
+        values.configuration.configure.ray_autoscaling.advanced.idleTimeoutSeconds: "parameters.configurationConfigureRayAutoscalingAdvancedIdleTimeoutSeconds"
+        values.configuration.configure.ray_autoscaling.advanced.upscalingMode: "parameters.configurationConfigureRayAutoscalingAdvancedUpscalingMode"
+        values.configuration.configure.ray_autoscaling.advanced.version: "parameters.configurationConfigureRayAutoscalingAdvancedVersion"
+        values.configuration.configure.ray_autoscaling.enable: "parameters.configurationConfigureRayAutoscalingEnable"
+        values.configuration.configure.ray_version: "parameters.configurationConfigureRayVersion"
+        values.configuration.configure.workers_group.groups: "parameters.configurationConfigureWorkersGroupGroups"
+        values.configuration.putspec.yamlInput: "parameters.configurationPutspecYamlInput"
+        values.kube-prometheus-stack.enabled: "parameters.kubePrometheusStackEnabled"
+        values.kube-prometheus-stack.grafana.adminPassword: "parameters.kubePrometheusStackGrafanaAdminPassword"
+        values.kuberay.enabled: "parameters.kuberayEnabled"
+      componentSpec:
+        productSlug: "nebius/ray-cluster"
+    dependencies:
+      components:
+        cluster001:
+
+  cluster001:
+    type: "mk8s_cluster"
+    spec:
+      refMap:
+        api_spec.metadata.parentId: "parameters.parentId"
+        api_spec.metadata.id: "parameters.clusterId"
+        api_spec.metadata.name: "parameters.clusterName"
+      componentSpec:
+        api_spec:
+          metadata:
+            name: "ray-cluster-cluster"
+          spec:
+            control_plane:
+              # fill in subnetId with default value in the code
+              endpoints:
+                public_endpoint:
+
+
+parameters:
+  "parentId":
+    type: "string"
+    description: "The project ID for the Ray Cluster deployment."
+
+  "clusterId":
+    type: "string"
+    description: "Existing mk8s cluster ID for the Ray Cluster deployment."
+
+  "clusterName":
+    type: "string"
+    description: "Existing mk8s cluster name for the Ray Cluster deployment."
+
+  "releaseName":
+    type: "string"
+    description: "Helm release name."
+
+  "releaseNamespace":
+    type: "string"
+    description: "Helm release namespace."
+
+  "configurationConfigureHeadGroupAdvancedRayStartParamsDashboardHost":
+    type: "string"
+    description: "Value for Helm key 'configuration.configure.head_group.advanced.rayStartParams.dashboard_host'."
+
+  "configurationConfigureHeadGroupAdvancedRayStartParamsNumCpus":
+    type: "string"
+    description: "Value for Helm key 'configuration.configure.head_group.advanced.rayStartParams.num_cpus'."
+
+  "configurationConfigureHeadGroupAdvancedResourcesLimitsCpu":
+    type: "number"
+    description: "Value for Helm key 'configuration.configure.head_group.advanced.resources.limits.cpu'."
+
+  "configurationConfigureHeadGroupAdvancedResourcesLimitsMemory":
+    type: "number"
+    description: "Value for Helm key 'configuration.configure.head_group.advanced.resources.limits.memory'."
+
+  "configurationConfigureHeadGroupAdvancedResourcesRequestsCpu":
+    type: "number"
+    description: "Value for Helm key 'configuration.configure.head_group.advanced.resources.requests.cpu'."
+
+  "configurationConfigureHeadGroupAdvancedResourcesRequestsMemory":
+    type: "number"
+    description: "Value for Helm key 'configuration.configure.head_group.advanced.resources.requests.memory'."
+
+  "configurationConfigureHeadGroupImage":
+    type: "string"
+    description: "Value for Helm key 'configuration.configure.head_group.image'."
+
+  "configurationConfigureHeadGroupServiceType":
+    type: "string"
+    description: "Value for Helm key 'configuration.configure.head_group.serviceType'."
+
+  "configurationConfigureRayAutoscalingAdvancedIdleTimeoutSeconds":
+    type: "number"
+    description: "Value for Helm key 'configuration.configure.ray_autoscaling.advanced.idleTimeoutSeconds'."
+
+  "configurationConfigureRayAutoscalingAdvancedUpscalingMode":
+    type: "string"
+    description: "Value for Helm key 'configuration.configure.ray_autoscaling.advanced.upscalingMode'."
+
+  "configurationConfigureRayAutoscalingAdvancedVersion":
+    type: "string"
+    description: "Value for Helm key 'configuration.configure.ray_autoscaling.advanced.version'."
+
+  "configurationConfigureRayAutoscalingEnable":
+    type: "bool"
+    description: "Value for Helm key 'configuration.configure.ray_autoscaling.enable'."
+
+  "configurationConfigureRayVersion":
+    type: "string"
+    description: "Value for Helm key 'configuration.configure.ray_version'."
+
+  "configurationConfigureWorkersGroupGroups":
+    type: "any"
+    description: "Value for Helm key 'configuration.configure.workers_group.groups'."
+
+  "configurationPutspecYamlInput":
+    type: "string"
+    description: "Value for Helm key 'configuration.putspec.yamlInput'."
+
+  "kubePrometheusStackEnabled":
+    type: "bool"
+    description: "Value for Helm key 'kube-prometheus-stack.enabled'."
+
+  "kubePrometheusStackGrafanaAdminPassword":
+    type: "string"
+    description: "Value for Helm key 'kube-prometheus-stack.grafana.adminPassword'."
+
+  "kuberayEnabled":
+    type: "bool"
+    description: "Value for Helm key 'kuberay.enabled'."
+
+ui:
+  mapping:
+    clusterId: "mk8sCluster.clusterId"
+    clusterName: "mk8sCluster.name"
+    configurationConfigureHeadGroupAdvancedRayStartParamsDashboardHost: 'configuration.configure.head_group.advanced.rayStartParams.dashboard_host'
+    configurationConfigureHeadGroupAdvancedRayStartParamsNumCpus: 'configuration.configure.head_group.advanced.rayStartParams.num_cpus'
+    configurationConfigureHeadGroupAdvancedResourcesLimitsCpu: 'configuration.configure.head_group.advanced.resources.limits.cpu'
+    configurationConfigureHeadGroupAdvancedResourcesLimitsMemory: 'configuration.configure.head_group.advanced.resources.limits.memory'
+    configurationConfigureHeadGroupAdvancedResourcesRequestsCpu: 'configuration.configure.head_group.advanced.resources.requests.cpu'
+    configurationConfigureHeadGroupAdvancedResourcesRequestsMemory: 'configuration.configure.head_group.advanced.resources.requests.memory'
+    configurationConfigureHeadGroupImage: 'configuration.configure.head_group.image'
+    configurationConfigureHeadGroupServiceType: 'configuration.configure.head_group.serviceType'
+    configurationConfigureRayAutoscalingAdvancedIdleTimeoutSeconds: 'configuration.configure.ray_autoscaling.advanced.idleTimeoutSeconds'
+    configurationConfigureRayAutoscalingAdvancedUpscalingMode: 'configuration.configure.ray_autoscaling.advanced.upscalingMode'
+    configurationConfigureRayAutoscalingAdvancedVersion: 'configuration.configure.ray_autoscaling.advanced.version'
+    configurationConfigureRayAutoscalingEnable: 'configuration.configure.ray_autoscaling.enable'
+    configurationConfigureRayVersion: 'configuration.configure.ray_version'
+    configurationConfigureWorkersGroupGroups: 'configuration.configure.workers_group.groups'
+    configurationPutspecYamlInput: 'configuration.putspec.yamlInput'
+    kubePrometheusStackEnabled: 'kube-prometheus-stack.enabled'
+    kubePrometheusStackGrafanaAdminPassword: 'kube-prometheus-stack.grafana.adminPassword'
+    kuberayEnabled: 'kuberay.enabled'
+    releaseName: "general.appname"
+    releaseNamespace: "general.namespace"

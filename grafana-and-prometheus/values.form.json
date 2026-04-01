@@ -2,127 +2,239 @@
   "viewSpec": {
     "type": "base",
     "layout": "base",
-    "order": ["grafana", "prometheus"]
+    "order": [
+      "mk8sCluster",
+      "general",
+      "setup"
+    ]
   },
-  "defaultValue": {
-    "grafana": {
-      "adminPassword": ""
-    },
-    "prometheus": {
-      "server": {
-        "global": {
-          "scrape_interval": "1m"
-        },
-        "retention": "15d",
-        "persistentVolume": {
-          "size": "50Gi"
-        }
-      }
-    }
-  },
+  "defaultValue": {},
   "type": "object",
   "properties": {
-    "grafana": {
+    "mk8sCluster": {
       "type": "object",
       "required": true,
       "viewSpec": {
-        "type": "base",
-        "order": ["adminPassword"],
-        "layout": ""
-      },
-      "properties": {
-        "adminPassword": {
-          "type": "string",
-          "required": true,
-          "pattern": "^[a-zA-Z0-9-!@#$%^&*]{12,}$",
-          "viewSpec": {
-            "type": "password",
-            "layout": "row",
-            "layoutTitle": "Grafana admin password",
-            "layoutDescription": "Set administrator password for Grafana UI access. Minimum 12 characters with allowed special symbols: !@#$%^&*-",
-            "generateRandomValueButton": true
-          }
-        }
+        "type": "mk8s_cluster"
       }
     },
-    "prometheus": {
+    "general": {
       "type": "object",
       "viewSpec": {
         "type": "base",
-        "order": ["server"],
-        "layout": ""
+        "layout": "section",
+        "layoutTitle": "General"
       },
+      "defaultValue": {},
       "properties": {
-        "server": {
-          "type": "object",
+        "appname": {
+          "type": "string",
+          "required": true,
           "viewSpec": {
             "type": "base",
-            "order": ["global", "retention", "persistentVolume"],
-            "layout": ""
+            "layout": "row",
+            "layoutTitle": "Application name"
           },
+          "defaultValue": "grafana-and-prometheus"
+        },
+        "namespace": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Namespace"
+          },
+          "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "patternError": "namespace must consist of lower case alphanumeric characters or '-', and must start and end with an alphanumeric character (e.g. 'my-name',  or '123-abc', regex used for validation is ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "defaultValue": "grafana-and-prometheus"
+        }
+      }
+    },
+    "setup": {
+      "type": "object",
+      "properties": {
+        "app_settings": {
+          "type": "object",
           "properties": {
-            "global": {
+            "grafana": {
               "type": "object",
               "required": true,
               "viewSpec": {
                 "type": "base",
-                "order": ["scrape_interval"],
+                "order": [
+                  "adminPassword"
+                ],
                 "layout": ""
               },
               "properties": {
-                "scrape_interval": {
+                "adminPassword": {
                   "type": "string",
                   "required": true,
-                  "pattern": "^\\d+(y|w|d|h|m|s|ms)$",
+                  "pattern": "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[*.!@#$%^&*-]).{15,}$",
                   "viewSpec": {
-                    "type": "base",
+                    "type": "password",
                     "layout": "row",
-                    "layoutTitle": "Prometheus scrape interval",
-                    "layoutDescription": "Specify how frequently targets should be scraped for metrics. Supported units: ms, s, m, h, d, w, y."
+                    "layoutTitle": "Grafana admin password",
+                    "layoutDescription": "Set a password for the Grafana admin. It must be at least 15 characters long and include a number, a lowercase letter, an uppercase letter, and one of these symbols: !@#$%^&*-",
+                    "generateRandomValueButton": true
                   }
                 }
               }
             },
-            "retention": {
-              "required": true,
-              "type": "string",
-              "pattern": "^\\d+(y|w|d|h|m|s|ms)$",
-              "viewSpec": {
-                "type": "base",
-                "layout": "row",
-                "layoutTitle": "Prometheus retention",
-                "layoutDescription": "Specify retention duration for collected metrics. Supported units: ms, s, m, h, d, w, y."
-              }
-            },
-            "persistentVolume": {
+            "prometheus": {
               "type": "object",
-              "required": true,
               "viewSpec": {
                 "type": "base",
-                "order": ["size"],
+                "order": [
+                  "server"
+                ],
                 "layout": ""
               },
               "properties": {
-                "size": {
-                  "type": "string",
+                "server": {
+                  "type": "object",
                   "viewSpec": {
-                    "disabled": false,
-                    "inputProps": {
-                      "max": 100,
-                      "min": 8,
-                      "suffix": "Gi"
+                    "type": "base",
+                    "order": [
+                      "global",
+                      "retention",
+                      "persistentVolume"
+                    ],
+                    "layout": ""
+                  },
+                  "properties": {
+                    "global": {
+                      "type": "object",
+                      "required": true,
+                      "viewSpec": {
+                        "type": "base",
+                        "order": [
+                          "scrape_interval"
+                        ],
+                        "layout": ""
+                      },
+                      "properties": {
+                        "scrape_interval": {
+                          "type": "string",
+                          "required": true,
+                          "pattern": "^\\d+(y|w|d|h|m|s|ms)$",
+                          "viewSpec": {
+                            "type": "base",
+                            "layout": "row",
+                            "layoutTitle": "Prometheus scrape interval",
+                            "layoutDescription": "Specify how frequently targets should be scraped for metrics. Supported units: ms, s, m, h, d, w, y."
+                          }
+                        }
+                      }
                     },
-                    "layout": "row",
-                    "layoutTitle": "Prometheus storage size",
-                    "layoutDescription": "Specify storage size for Prometheus metrics.",
-                    "type": "rangeinputpicker"
+                    "retention": {
+                      "required": true,
+                      "type": "string",
+                      "pattern": "^\\d+(y|w|d|h|m|s|ms)$",
+                      "viewSpec": {
+                        "type": "base",
+                        "layout": "row",
+                        "layoutTitle": "Prometheus retention",
+                        "layoutDescription": "Specify retention duration for collected metrics. Supported units: ms, s, m, h, d, w, y."
+                      }
+                    },
+                    "persistentVolume": {
+                      "type": "object",
+                      "required": true,
+                      "viewSpec": {
+                        "type": "base",
+                        "order": [
+                          "size"
+                        ],
+                        "layout": ""
+                      },
+                      "properties": {
+                        "size": {
+                          "type": "string",
+                          "viewSpec": {
+                            "disabled": false,
+                            "inputProps": {
+                              "max": 100,
+                              "min": 8,
+                              "suffix": "Gi"
+                            },
+                            "layout": "row",
+                            "layoutTitle": "Prometheus storage size",
+                            "layoutDescription": "Specify storage size for Prometheus metrics.",
+                            "type": "rangeinputpicker"
+                          }
+                        }
+                      }
+                    }
                   }
                 }
               }
             }
+          },
+          "defaultValue": {
+            "grafana": {
+              "adminPassword": ""
+            },
+            "prometheus": {
+              "server": {
+                "global": {
+                  "scrape_interval": "1m"
+                },
+                "retention": "15d",
+                "persistentVolume": {
+                  "size": "50Gi"
+                }
+              }
+            }
+          },
+          "viewSpec": {
+            "type": "base",
+            "layout": "",
+            "order": [
+              "grafana",
+              "prometheus"
+            ]
+          }
+        },
+        "compose": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "string",
+              "viewSpec": {
+                "type": "yaml_input",
+                "layout": "row",
+                "layoutTitle": "Values",
+                "inputProps": {
+                  "buttonText": "Compose settings",
+                  "dialogTitle": "Compose",
+                  "description": "Use the YAML editor to set application parameters. Parameters set in compose mode are not automatically applied to the application settings tab."
+                }
+              },
+              "defaultValue": "grafana:\n  service:\n    annotations:\n      nebius.com/MarketplaceServiceAccess: title=Grafana,ssl=false,type=web,port=service\n  sidecar:\n    image:\n      registry: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex\n      repository: nebius/o11y/k8s-sidecar\n      tag: \"1.28.0\"\n    datasources:\n      labelValue: \"\"\n      enabled: true\n      maxLines: 1000\n      searchNamespace: ALL\n    dashboards:\n      enabled: true\n      label: \"grafana_dashboard\"\n      labelValue: 1\n      searchNamespace: ALL\n\n  dashboardProviders:\n    dashboardproviders.yaml:\n      apiVersion: 1\n      providers:\n        - name: node-exporter\n          orgId: 1\n          folder: \"Node Exporter\"\n          type: file\n          disableDeletion: false\n          editable: true\n          options:\n            path: /var/lib/grafana/dashboards/node-exporter\n        - name: gpu\n          orgId: 1\n          folder: \"GPU\"\n          type: file\n          disableDeletion: false\n          editable: true\n          options:\n            path: /var/lib/grafana/dashboards/gpu\n        - name: loki\n          orgId: 1\n          folder: 'Loki'\n          type: file\n          disableDeletion: false\n          editable: true\n          options:\n            path: /var/lib/grafana/dashboards/loki\n\n  dashboards:\n    node-exporter:\n      node-exporter:\n        gnetId: 1860\n        revision: 37\n        datasource: Prometheus\n      kubernetes-node-exporter:\n        gnetId: 8171\n        datasource: Prometheus\n    gpu:\n      dcgm-exporter:\n        url: https://raw.githubusercontent.com/NVIDIA/dcgm-exporter/main/grafana/dcgm-exporter-dashboard.json\n        datasource: Prometheus\n    loki:\n      loki-logs:\n        gnetId: 15141\n        datasource: Loki\n  datasources:\n    datasources.yaml:\n      apiVersion: 1\n      datasources:\n        - name: Prometheus\n          type: prometheus\n          uid: prometheus\n          url: http://prometheus-server\n          access: proxy\n          isDefault: false\n          version: 1\n\n  image:\n    registry: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex\n    repository: nebius/o11y/grafana\n    tag: \"11.4.0\"\n\n  testFramework:\n    image:\n      registry: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex\n      repository: nebius/o11y/bats\n      tag: \"v1.4.1\"\n\n  downloadDashboardsImage:\n    registry: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex\n    repository: nebius/o11y/curl\n    tag: \"7.85.0\"\n\n  initChownData:\n    image:\n      registry: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex\n      repository: nebius/o11y/busybox\n      tag: \"1.31.1\"\n\n  imageRenderer:\n    image:\n      registry: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex\n      repository: nebius/o11y/grafana-image-renderer\n      tag: latest_pinned\n\nprometheus:\n  extraScrapeConfigs: |\n    - job_name: cilium-agent\n      kubernetes_sd_configs:\n      - role: pod\n        namespaces:\n          names:\n          - kube-system\n      relabel_configs:\n      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]\n        regex: true\n        action: keep\n      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_port]\n        regex: 9962\n        action: keep\n      - source_labels: [__meta_kubernetes_pod_container_port_number]\n        regex: .*\n        action: keep\n      - source_labels: [__meta_kubernetes_pod_container_port_number]\n        regex: \"\"\n        action: drop\n      - target_label: k8s_app\n        replacement: cilium\n      - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]\n        regex: (.+):\\d+;(\\d+)\n        replacement: ${1}:${2}\n        target_label: __address__\n      - source_labels: [__meta_kubernetes_namespace]\n        target_label: namespace\n      - source_labels: [__meta_kubernetes_pod_name]\n        target_label: pod\n      - source_labels: [__meta_kubernetes_pod_node_name]\n        target_label: node\n      metrics_path: /metrics\n      scheme: http\n      honor_labels: true\n      scrape_interval: 10s\n    - job_name: 'hubble'\n      kubernetes_sd_configs:\n      - role: endpoints\n        namespaces:\n          names:\n          - kube-system\n      relabel_configs:\n      - source_labels: [__meta_kubernetes_service_label_k8s_app]\n        regex: hubble\n        action: keep\n      - source_labels: [__meta_kubernetes_endpoint_port_name]\n        regex: hubble-metrics\n        action: keep\n      - source_labels: [__meta_kubernetes_pod_node_name]\n        regex: (.+)\n        replacement: ${1}\n        target_label: node\n      - source_labels: [__meta_kubernetes_service_name]\n        target_label: service\n      - source_labels: [__meta_kubernetes_namespace]\n        target_label: namespace\n      metrics_path: /metrics\n      scheme: http\n      honor_labels: true\n      scrape_interval: 10s\n    - job_name: 'servicemonitors'\n      kubernetes_sd_configs:\n        - role: endpoints\n      relabel_configs:\n        # Relabel for all ServiceMonitor-compatible services\n        - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]\n          action: keep\n          regex: true\n        # Exclude specific services in kube-system namespace\n        - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name]\n          action: drop\n          regex: kube-system;(cilium-agent|hubble-metrics|hubble-peer|hubble-relay|hubble-ui)\n        # Add namespace metadata to metrics\n        - source_labels: [__meta_kubernetes_namespace]\n          target_label: namespace\n        # Add service metadata to metrics\n        - source_labels: [__meta_kubernetes_service_name]\n          target_label: service\n\n  alertmanager:\n    enabled: false\n    image:\n      repository: 'cr.eu-north1.nebius.cloud/marketplace/nebius/elijah-k-o11y/image/alertmanager'\n      tag: v0.27.0\n    configmapReload:\n      image:\n        repository: 'cr.eu-north1.nebius.cloud/marketplace/nebius/elijah-k-o11y/image/prometheus-config-reloader'\n        tag: v0.66.0\n\n  kube-state-metrics:\n    metricLabelsAllowlist:\n      - nodes=[nebius.com/group-name]\n    image:\n      registry: 'cr.eu-north1.nebius.cloud/marketplace'\n      repository: nebius/elijah-k-o11y/image/kube-state-metrics\n      tag: v2.14.0\n    kubeRBACProxy:\n      image:\n        registry: 'cr.eu-north1.nebius.cloud/marketplace'\n        repository: nebius/elijah-k-o11y/image/kube-rbac-proxy\n        tag: v0.18.2\n\n  prometheus-node-exporter:\n    enabled: true\n    image:\n      registry: 'cr.eu-north1.nebius.cloud/marketplace'\n      repository: nebius/elijah-k-o11y/image/node-exporter\n      tag: v1.8.2\n    kubeRBACProxy:\n      image:\n        registry: 'cr.eu-north1.nebius.cloud/marketplace'\n        repository: nebius/elijah-k-o11y/image/kube-rbac-proxy\n        tag: v0.18.2\n\n  prometheus-pushgateway:\n    enabled: false\n    image:\n      repository: 'cr.eu-north1.nebius.cloud/marketplace/nebius/elijah-k-o11y/image/pushgateway'\n      tag: v1.10.0\n  configmapReload:\n    prometheus:\n      image:\n        repository: 'cr.eu-north1.nebius.cloud/marketplace/nebius/elijah-k-o11y/image/prometheus-config-reloader'\n        tag: v0.78.2\n  server:\n    fullnameOverride: prometheus-server\n    securityContext:\n      fsGroup: 65534\n      runAsGroup: 0\n      runAsNonRoot: false\n      runAsUser: 0\n    image:\n      repository: 'cr.eu-north1.nebius.cloud/marketplace/nebius/elijah-k-o11y/image/prometheus'\n      tag: v3.1.0\n"
+            }
+          },
+          "defaultValue": {},
+          "viewSpec": {
+            "type": "base"
           }
         }
-      }
+      },
+      "viewSpec": {
+        "type": "oneof_flat",
+        "layout": "section",
+        "layoutTitle": "Configuration",
+        "order": [
+          "app_settings",
+          "compose"
+        ]
+      },
+      "description": {
+        "app_settings": "Application settings",
+        "compose": "Compose"
+      },
+      "defaultValue": {}
     }
   }
 }

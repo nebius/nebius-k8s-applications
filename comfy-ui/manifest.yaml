@@ -1,0 +1,14 @@
+# Default manifest for comfy-ui
+# This is a YAML-formatted file.
+# Declare variables to be passed into marketplace product.
+
+slug: comfy-ui
+name: ComfyUI
+publisherName: Nebius
+ownerName: Nebius
+categories:
+  - inference
+  - models
+  - serving
+  - orchestration
+

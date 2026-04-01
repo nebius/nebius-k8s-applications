@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "dstack.fullname" . }}-test-connection"
+  labels:
+    {{- include "dstack.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "dstack.fullname" . }}:{{ .Values.service.port }}']
+  restartPolicy: Never

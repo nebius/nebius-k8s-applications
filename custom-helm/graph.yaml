@@ -1,0 +1,85 @@
+releaseType: "k8s"
+components:
+  helmchart001:
+    type: "helm_chart"
+    spec:
+      refMap:
+        parentId: "parameters.parentId"
+        clusterId: "components.cluster001.state.result.id"
+        releaseName: "parameters.releaseName"
+        releaseNamespace: "parameters.releaseNamespace"
+        values.chart: "parameters.chart"
+        values.repo: "parameters.repo"
+        values.values: "parameters.values"
+        values.version: "parameters.version"
+      componentSpec:
+        productSlug: "nebius/custom-helm"
+    dependencies:
+      components:
+        cluster001:
+
+  cluster001:
+    type: "mk8s_cluster"
+    spec:
+      refMap:
+        api_spec.metadata.parentId: "parameters.parentId"
+        api_spec.metadata.id: "parameters.clusterId"
+        api_spec.metadata.name: "parameters.clusterName"
+      componentSpec:
+        api_spec:
+          metadata:
+            name: "custom-helm-cluster"
+          spec:
+            control_plane:
+              # fill in subnetId with default value in the code
+              endpoints:
+                public_endpoint:
+
+
+parameters:
+  "parentId":
+    type: "string"
+    description: "The project ID for the Custom Helm Chart deployment."
+
+  "clusterId":
+    type: "string"
+    description: "Existing mk8s cluster ID for the Custom Helm Chart deployment."
+
+  "clusterName":
+    type: "string"
+    description: "Existing mk8s cluster name for the Custom Helm Chart deployment."
+
+  "releaseName":
+    type: "string"
+    description: "Helm release name."
+
+  "releaseNamespace":
+    type: "string"
+    description: "Helm release namespace."
+
+  "chart":
+    type: "string"
+    description: "Value for Helm key 'chart'."
+
+  "repo":
+    type: "string"
+    description: "Value for Helm key 'repo'."
+
+  "values":
+    type: "string"
+    description: "Value for Helm key 'values'."
+
+  "version":
+    type: "string"
+    description: "Value for Helm key 'version'."
+
+ui:
+  mapping:
+    clusterId: "mk8sCluster.clusterId"
+    clusterName: "mk8sCluster.name"
+    chart: 'chart'
+    repo: 'repo'
+    values: 'values'
+    version: 'version'
+    releaseName: "general.appname"
+    releaseNamespace: "general.namespace"

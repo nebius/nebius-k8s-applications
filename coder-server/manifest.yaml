@@ -1,0 +1,13 @@
+# Default manifest for coder-server
+# This is a YAML-formatted file.
+# Declare variables to be passed into marketplace product.
+
+slug: coder-server
+name: Coder Server
+publisherName: Nebius
+ownerName: Nebius
+categories:
+  - development-and-frameworks
+tariff_type: free
+
+

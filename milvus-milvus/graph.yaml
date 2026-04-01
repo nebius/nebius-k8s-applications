@@ -1,0 +1,91 @@
+releaseType: "k8s"
+components:
+  helmchart001:
+    type: "helm_chart"
+    spec:
+      refMap:
+        parentId: "parameters.parentId"
+        clusterId: "components.cluster001.state.result.id"
+        releaseName: "parameters.releaseName"
+        releaseNamespace: "parameters.releaseNamespace"
+        values.cluster.enabled: "parameters.clusterEnabled"
+        values.etcd.replicaCount: "parameters.etcdReplicaCount"
+        values.gpu_number: "parameters.gpuNumber"
+        values.minio.mode: "parameters.minioMode"
+        values.pulsar.enabled: "parameters.pulsarEnabled"
+      componentSpec:
+        productSlug: "nebius/milvus"
+    dependencies:
+      components:
+        cluster001:
+
+  cluster001:
+    type: "mk8s_cluster"
+    spec:
+      refMap:
+        api_spec.metadata.parentId: "parameters.parentId"
+        api_spec.metadata.id: "parameters.clusterId"
+        api_spec.metadata.name: "parameters.clusterName"
+      componentSpec:
+        api_spec:
+          metadata:
+            name: "milvus-cluster"
+          spec:
+            control_plane:
+              # fill in subnetId with default value in the code
+              endpoints:
+                public_endpoint:
+
+
+parameters:
+  "parentId":
+    type: "string"
+    description: "The project ID for the Milvus deployment."
+
+  "clusterId":
+    type: "string"
+    description: "Existing mk8s cluster ID for the Milvus deployment."
+
+  "clusterName":
+    type: "string"
+    description: "Existing mk8s cluster name for the Milvus deployment."
+
+  "releaseName":
+    type: "string"
+    description: "Helm release name."
+
+  "releaseNamespace":
+    type: "string"
+    description: "Helm release namespace."
+
+  "clusterEnabled":
+    type: "bool"
+    description: "Value for Helm key 'cluster.enabled'."
+
+  "etcdReplicaCount":
+    type: "string"
+    description: "Value for Helm key 'etcd.replicaCount'."
+
+  "gpuNumber":
+    type: "number"
+    description: "Value for Helm key 'gpu_number'."
+
+  "minioMode":
+    type: "string"
+    description: "Value for Helm key 'minio.mode'."
+
+  "pulsarEnabled":
+    type: "bool"
+    description: "Value for Helm key 'pulsar.enabled'."
+
+ui:
+  mapping:
+    clusterId: "mk8sCluster.clusterId"
+    clusterName: "mk8sCluster.name"
+    clusterEnabled: 'cluster.enabled'
+    etcdReplicaCount: 'etcd.replicaCount'
+    gpuNumber: 'gpu_number'
+    minioMode: 'minio.mode'
+    pulsarEnabled: 'pulsar.enabled'
+    releaseName: "general.appname"
+    releaseNamespace: "general.namespace"

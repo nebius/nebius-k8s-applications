@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: child-values
+  namespace: {{ .Release.Namespace }}
+data:
+  values.yaml: |-
+{{ .Values.values | indent 4 }}

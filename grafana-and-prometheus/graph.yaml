@@ -1,0 +1,104 @@
+releaseType: "k8s"
+components:
+  endpoint001:
+    type: "endpoint"
+    spec:
+      refMap:
+        clusterId: "components.cluster001.state.result.id"
+        helmReleaseName: "parameters.releaseName"
+        helmReleaseNamespace: "parameters.releaseNamespace"
+      componentSpec:
+        ports: []
+    dependencies:
+      components:
+        helmchart001:
+
+  helmchart001:
+    type: "helm_chart"
+    spec:
+      refMap:
+        parentId: "parameters.parentId"
+        clusterId: "components.cluster001.state.result.id"
+        releaseName: "parameters.releaseName"
+        releaseNamespace: "parameters.releaseNamespace"
+        rawValues: "parameters.rawValues"
+        values.grafana.adminPassword: "parameters.grafanaAdminPassword"
+        values.prometheus.server.global.scrape_interval: "parameters.prometheusServerGlobalScrapeInterval"
+        values.prometheus.server.persistentVolume.size: "parameters.prometheusServerPersistentVolumeSize"
+        values.prometheus.server.retention: "parameters.prometheusServerRetention"
+      componentSpec:
+        productSlug: "nebius/grafana-and-prometheus"
+    dependencies:
+      components:
+        cluster001:
+
+  cluster001:
+    type: "mk8s_cluster"
+    spec:
+      refMap:
+        api_spec.metadata.parentId: "parameters.parentId"
+        api_spec.metadata.id: "parameters.clusterId"
+        api_spec.metadata.name: "parameters.clusterName"
+      componentSpec:
+        api_spec:
+          metadata:
+            name: "grafana-and-prometheus-cluster"
+          spec:
+            control_plane:
+              # fill in subnetId with default value in the code
+              endpoints:
+                public_endpoint:
+
+
+parameters:
+  "parentId":
+    type: "string"
+    description: "The project ID for the Grafana and Prometheus deployment."
+
+  "clusterId":
+    type: "string"
+    description: "Existing mk8s cluster ID for the Grafana and Prometheus deployment."
+
+  "clusterName":
+    type: "string"
+    description: "Existing mk8s cluster name for the Grafana and Prometheus deployment."
+
+  "releaseName":
+    type: "string"
+    description: "Helm release name."
+
+  "releaseNamespace":
+    type: "string"
+    description: "Helm release namespace."
+
+  "grafanaAdminPassword":
+    type: "string"
+    description: "Value for Helm key 'grafana.adminPassword'."
+
+  "prometheusServerGlobalScrapeInterval":
+    type: "string"
+    description: "Value for Helm key 'prometheus.server.global.scrape_interval'."
+
+  "prometheusServerPersistentVolumeSize":
+    type: "string"
+    description: "Value for Helm key 'prometheus.server.persistentVolume.size'."
+
+  "prometheusServerRetention":
+    type: "string"
+    description: "Value for Helm key 'prometheus.server.retention'."
+
+  "rawValues":
+    type: "string"
+    description: "Helm values YAML (compose mode)."
+
+ui:
+  mapping:
+    clusterId: "mk8sCluster.clusterId"
+    clusterName: "mk8sCluster.name"
+    grafanaAdminPassword: 'setup.app_settings.grafana.adminPassword'
+    prometheusServerGlobalScrapeInterval: 'setup.app_settings.prometheus.server.global.scrape_interval'
+    prometheusServerPersistentVolumeSize: 'setup.app_settings.prometheus.server.persistentVolume.size'
+    prometheusServerRetention: 'setup.app_settings.prometheus.server.retention'
+    releaseName: "general.appname"
+    releaseNamespace: "general.namespace"
+    rawValues: "setup.compose.data"

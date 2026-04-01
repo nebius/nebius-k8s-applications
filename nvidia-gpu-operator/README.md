@@ -20,7 +20,7 @@ NVIDIA® GPU Operator automates GPU setup in Kubernetes clusters.
 
 **To check that the NVIDIA GPU Operator is working:**
 
-1. [Install the kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl) and [configure it to work with the created cluster](https://nebius.ai/docs/managed-kubernetes/operations/connect/#kubectl-connect).
+1. [Install the kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl) and [configure it to work with the created cluster](https://docs.nebius.com/kubernetes/connect).
 1. Check that NVIDIA GPU Operator pods are running:
 
    ```bash
@@ -35,7 +35,7 @@ NVIDIA® GPU Operator automates GPU setup in Kubernetes clusters.
 ## Links
 
 * [NVIDIA GPU Operator](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/index.html)
-* [Using node groups with GPUs](https://nebius.ai/docs/managed-kubernetes/tutorials/driverless-gpu)
+* [Using node groups with GPUs](https://docs.nebius.com/kubernetes/gpu/set-up)
 
 ## Term of service
 

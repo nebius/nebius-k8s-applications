@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: generative-virtual-screening
+  labels:
+    {{- include "generative-virtual-screening-chart.labels" . | nindent 4 }}
+data:
+  {{- (.Files.Glob "files/generative-virtual-screening.ipynb").AsConfig | nindent 2 }}

@@ -4,6 +4,8 @@
   "viewSpec": {
     "type": "base",
     "order": [
+      "mk8sCluster",
+      "general",
       "airflowVersion",
       "webserverSecretKey",
       "webserver",
@@ -14,7 +16,7 @@
     "layout": ""
   },
   "defaultValue": {
-    "airflowVersion": "2.9.1",
+    "airflowVersion": "3.1.7",
     "dags": {
       "gitSync": {
         "gitPassword": null,
@@ -43,6 +45,46 @@
     }
   },
   "properties": {
+    "mk8sCluster": {
+      "type": "object",
+      "required": true,
+      "viewSpec": {
+        "type": "mk8s_cluster"
+      }
+    },
+    "general": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "layout": "section",
+        "layoutTitle": "General"
+      },
+      "defaultValue": {},
+      "properties": {
+        "appname": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Application name"
+          },
+          "defaultValue": "airflow"
+        },
+        "namespace": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Namespace"
+          },
+          "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "patternError": "namespace must consist of lower case alphanumeric characters or '-', and must start and end with an alphanumeric character (e.g. 'my-name',  or '123-abc', regex used for validation is ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "defaultValue": "airflow"
+        }
+      }
+    },
     "airflowVersion": {
       "type": "string",
       "required": true,
@@ -182,13 +224,14 @@
             "password": {
               "type": "string",
               "required": true,
+              "pattern": "^[A-Za-z0-9*.$^\\d]{16,}$",
               "viewSpec": {
                 "disabled": false,
                 "generateRandomValueButton": true,
                 "layout": "row",
                 "layoutDescription": "Create a password for the Airflow admin.\n",
                 "layoutTitle": "Admin user password",
-                "type": "password"
+                "type": "password_generator"
               }
             }
           }

@@ -1,0 +1,17 @@
+containers:
+  containers: []
+
+initContainers:
+  containers: []
+
+storages:
+  storage: []
+
+other:
+  replicas: 1
+  nodeSelector: ""
+
+autoRemove:
+  enabled: false
+  mode: scale # or delete
+  applyAfter: 1

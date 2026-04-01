@@ -36,14 +36,10 @@ This repository serves as a central hub for managing and deploying applications 
 - [NVIDIA® Network Operator](nvidia-network-operator/README.md)
 - [Qdrant](qdrant-qdrant/README.md)
 - [Ray Cluster](ray-cluster/README.md)
+- [Ray Serve](ray-serve/README.md)
 - [Stable Diffusion WebUI](stable-diffusion-webui/README.md)
 - [vLLM](vllm/README.md)
-- [Grafana Loki](loki/README.md)
-- [Grafana and Prometheus](grafana-and-prometheus/README.md)
-- [Grafana® solution by Nebius](nebius-grafana/README.md)
-- [Ollama](ollama/README.md)
-- [Volcano](volcano-volcano/README.md)
-- [Clear ML agent](clearml-agent/README.md)
+- [Weaviate](weaviate/README.md)
 
 ---
 

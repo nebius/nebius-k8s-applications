@@ -3,7 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.15.0
+    controller-gen.kubebuilder.io/version: v0.18.0
   name: clusterpolicies.nvidia.com
 spec:
   group: nvidia.com
@@ -136,13 +136,15 @@ spec:
                 properties:
                   default:
                     default: false
-                    description: Default indicates whether to use CDI as the default
-                      mechanism for providing GPU access to containers.
+                    description: 'Deprecated: This field is no longer used. Setting
+                      cdi.enabled=true will configure CDI as the default mechanism
+                      for making GPUs accessible to containers.'
                     type: boolean
                   enabled:
-                    default: false
-                    description: Enabled indicates whether CDI can be used to make
-                      GPUs accessible to containers.
+                    default: true
+                    description: Enabled indicates whether the Container Device Interface
+                      (CDI) should be used as the mechanism for making GPUs accessible
+                      to containers.
                     type: boolean
                 type: object
               daemonsets:
@@ -337,6 +339,10 @@ spec:
                       - name
                       type: object
                     type: array
+                  hostPID:
+                    description: HostPID allows the DCGM-Exporter daemon set to access
+                      the host's PID namespace
+                    type: boolean
                   image:
                     description: NVIDIA DCGM Exporter image name
                     pattern: '[a-zA-Z0-9\-]+'
@@ -381,6 +387,19 @@ spec:
                           More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
                         type: object
                     type: object
+                  service:
+                    description: 'Optional: Service configuration for NVIDIA DCGM
+                      Exporter'
+                    properties:
+                      internalTrafficPolicy:
+                        description: InternalTrafficPolicy describes how nodes distribute
+                          service traffic they receive on the ClusterIP.
+                        type: string
+                      type:
+                        description: Type represents the ServiceType which describes
+                          ingress methods for a service
+                        type: string
+                    type: object
                   serviceMonitor:
                     description: 'Optional: ServiceMonitor configuration for NVIDIA
                       DCGM Exporter'
@@ -413,7 +432,6 @@ spec:
                             RelabelConfig allows dynamic rewriting of the label set for targets, alerts,
                             scraped samples and remote write samples.
 
-
                             More info: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config
                           properties:
                             action:
@@ -421,10 +439,8 @@ spec:
                               description: |-
                                 Action to perform based on the regex matching.
 
-
                                 `Uppercase` and `Lowercase` actions require Prometheus >= v2.36.0.
                                 `DropEqual` and `KeepEqual` actions require Prometheus >= v2.41.0.
-
 
                                 Default: "Replace"
                               enum:
@@ -455,7 +471,6 @@ spec:
                               description: |-
                                 Modulus to take of the hash of the source label values.
 
-
                                 Only applicable when the action is `HashMod`.
                               format: int64
                               type: integer
@@ -467,7 +482,6 @@ spec:
                               description: |-
                                 Replacement value against which a Replace action is performed if the
                                 regular expression matches.
-
 
                                 Regex capture groups are available.
                               type: string
@@ -491,10 +505,8 @@ spec:
                               description: |-
                                 Label to which the resulting string is written in a replacement.
 
-
                                 It is mandatory for `Replace`, `HashMod`, `Lowercase`, `Uppercase`,
                                 `KeepEqual` and `DropEqual` actions.
-
 
                                 Regex capture groups are available.
                               type: string
@@ -657,16 +669,34 @@ spec:
                       name:
                         type: string
                     type: object
+                  kernelModuleType:
+                    default: auto
+                    description: |-
+                      KernelModuleType represents the type of driver kernel modules to be used when installing the GPU driver.
+                      Accepted values are auto, proprietary and open. NOTE: If auto is chosen, it means that the recommended kernel module
+                      type is chosen based on the GPU devices on the host and the driver branch used
+                    enum:
+                    - auto
+                    - open
+                    - proprietary
+                    type: string
                   licensingConfig:
                     description: 'Optional: Licensing configuration for NVIDIA vGPU
                       licensing'
                     properties:
                       configMapName:
+                        description: 'Deprecated: ConfigMapName has been deprecated
+                          in favour of SecretName. Please use secrets to handle the
+                          licensing server configuration more securely'
                         type: string
                       nlsEnabled:
                         description: NLSEnabled indicates if NVIDIA Licensing System
                           is used for licensing.
                         type: boolean
+                      secretName:
+                        description: SecretName indicates the name of the secret containing
+                          the licensing token
+                        type: string
                     type: object
                   livenessProbe:
                     description: NVIDIA Driver container liveness probe settings
@@ -840,6 +870,10 @@ spec:
                           More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
                         type: object
                     type: object
+                  secretEnv:
+                    description: 'Optional: SecretEnv represents the name of the Kubernetes
+                      Secret with secret environment variables for the NVIDIA Driver'
+                    type: string
                   startupProbe:
                     description: NVIDIA Driver container startup probe settings
                     properties:
@@ -985,8 +1019,9 @@ spec:
                       NVIDIA Driver is managed by the NVIDIADriver CRD type
                     type: boolean
                   useOpenKernelModules:
-                    description: UseOpenKernelModules indicates if the open GPU kernel
-                      modules should be used
+                    description: |-
+                      Deprecated: This field is no longer honored by the gpu-operator. Please use KernelModuleType instead.
+                      UseOpenKernelModules indicates if the open GPU kernel modules should be used
                     type: boolean
                   usePrecompiled:
                     description: UsePrecompiled indicates if deployment of NVIDIA
@@ -2316,16 +2351,8 @@ spec:
                 description: Conditions is a list of conditions representing the ClusterPolicy's
                   current state.
                 items:
-                  description: "Condition contains details for one aspect of the current
-                    state of this API Resource.\n---\nThis struct is intended for
-                    direct use as an array at the field path .status.conditions.  For
-                    example,\n\n\n\ttype FooStatus struct{\n\t    // Represents the
-                    observations of a foo's current state.\n\t    // Known .status.conditions.type
-                    are: \"Available\", \"Progressing\", and \"Degraded\"\n\t    //
-                    +patchMergeKey=type\n\t    // +patchStrategy=merge\n\t    // +listType=map\n\t
-                    \   // +listMapKey=type\n\t    Conditions []metav1.Condition `json:\"conditions,omitempty\"
-                    patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"`\n\n\n\t
-                    \   // other fields\n\t}"
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
                   properties:
                     lastTransitionTime:
                       description: |-
@@ -2366,12 +2393,7 @@ spec:
                       - Unknown
                       type: string
                     type:
-                      description: |-
-                        type of condition in CamelCase or in foo.example.com/CamelCase.
-                        ---
-                        Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be
-                        useful (see .node.status.conditions), the ability to deconflict is important.
-                        The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
                       maxLength: 316
                       pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
                       type: string

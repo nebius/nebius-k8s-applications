@@ -1,53 +1,87 @@
 {
-  "defaultValue": {
-    "driver.rdma.enabled": true,
-    "driver.version": "550.54.15"
-  },
   "type": "object",
-  "properties": {
-    "driver.rdma.enabled": {
-      "type": "boolean",
-      "viewSpec": {
-        "layoutTitle": "RDMA",
-        "layout": "row",
-        "type": "switch",
-        "disabled": false,
-        "layoutDescription": "Recommended to switch on"
-      }
-    },
-    "driver.version": {
-      "type": "string",
-      "enum": [
-        "550.54.15",
-        "550.127.08",
-        "535.161.08"
-      ],
-      "description": {
-        "550.54.15": "550.54.15",
-        "550.127.08": "550.127.08",
-        "535.161.08": "535.161.08"
-      },
-      "viewSpec": {
-        "type": "select",
-        "layout": "row",
-        "layoutTitle": "Driver version",
-        "placeholder": "550.54.15",
-        "selectParams": {
-          "filterPlaceholder": "550.54.15",
-          "meta": {
-            "535.161.08": "",
-            "550.54.15": "",
-            "550.127.08": ""
-          }
-        }
-      }
-    }
-  },
+  "required": true,
   "viewSpec": {
     "type": "base",
     "layout": "",
     "order": [
-      "driver.rdma.enabled"
+      "mk8sCluster",
+      "general",
+      "driver"
     ]
+  },
+  "defaultValue": {
+    "driver": {
+      "version": "580.95.05"
+    }
+  },
+  "properties": {
+    "mk8sCluster": {
+      "type": "object",
+      "required": true,
+      "viewSpec": {
+        "type": "mk8s_cluster"
+      }
+    },
+    "general": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "layout": "section",
+        "layoutTitle": "General"
+      },
+      "defaultValue": {},
+      "properties": {
+        "appname": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Application name"
+          },
+          "defaultValue": "nvidia-gpu-operator"
+        },
+        "namespace": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Namespace"
+          },
+          "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "patternError": "namespace must consist of lower case alphanumeric characters or '-', and must start and end with an alphanumeric character (e.g. 'my-name',  or '123-abc', regex used for validation is ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "defaultValue": "nvidia-gpu-operator"
+        }
+      }
+    },
+    "driver": {
+      "type": "object",
+      "required": true,
+      "viewSpec": {
+        "type": "base",
+        "layout": "",
+        "order": [
+          "version"
+        ]
+      },
+      "properties": {
+        "version": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "select",
+            "layout": "row",
+            "layoutTitle": "GPU Drivers version",
+            "layoutDescription": "Select the GPU driver version to install in the K8s cluster. \nThe 580 driver is required for NVIDIA® B300. \n"
+          },
+          "enum": [
+            "570.148.08",
+            "580.95.05"
+          ]
+        }
+      }
+    }
   }
 }

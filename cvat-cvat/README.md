@@ -34,7 +34,7 @@ By using the application, you agree to their terms and conditions: [the helm-cha
 
 To connect to the CVAT UI:
 
-1. [Install kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl) and [configure it to work with the created cluster](https://nebius.ai/docs/managed-kubernetes/operations/connect/#kubectl-connect).
+1. [Install kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl) and [configure it to work with the created cluster](https://docs.nebius.com/kubernetes/connect).
 
 1. Find out the CVAT server pod’s name:
 
@@ -74,13 +74,13 @@ To check that CVAT is working:
 
 To store images and datasets in a Nebius AI Object Storage bucket:
 
-1. [Create an Object Storage bucket](https://nebius.ai/docs/storage/operations/buckets/create).
+1. [Create an Object Storage bucket](https://docs.nebius.com/object-storage/buckets/manage#create).
 
 1. Configure access to the bucket:
 
-   1. [Create a service account](https://nebius.ai/docs/iam/operations/sa/create) and [add it to the `editors` group](https://nebius.ai/docs/iam/operations/groups/add-member).
+   1. [Create a service account](https://docs.nebius.com/iam/service-accounts/manage#create) and [add it to the editors group](https://docs.nebius.com/iam/service-accounts/manage#access).
 
-   1. [Create a static access key](https://nebius.ai/docs/iam/operations/sa/create-access-key) for the service account.
+   1. [Create a static access key](https://docs.nebius.com/iam/service-accounts/access-keys) for the service account.
 
 1. Connect the bucket with CVAT:
 

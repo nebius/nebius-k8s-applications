@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    kubernetes.io/metadata.name: nvca-operator
+    name: nvca-operator
+    {{- include "nvcaop.labels" . | nindent 4 }}    
+  name: nvca-operator
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    kubernetes.io/metadata.name: nvca-operator
+    name: nvca-system
+    {{- include "nvcaop.labels" . | nindent 4 }}
+  name: nvca-system
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    kubernetes.io/metadata.name: nvca-operator
+    name: nvcf-backend
+    {{- include "nvcaop.labels" . | nindent 4 }}
+  name: nvcf-backend

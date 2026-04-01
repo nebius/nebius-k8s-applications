@@ -29,12 +29,24 @@ rules:
     verbs:
       - '*'
   - apiGroups:
-      - monitoring.coreos.com
+      - networking.k8s.io
     resources:
-      - servicemonitors
+      - networkpolicies
     verbs:
       - get
       - create
+      - update
+      - delete
+  - apiGroups:
+      - monitoring.coreos.com
+    resources:
+      - servicemonitors
+      - prometheusrules
+    verbs:
+      - get
+      - create
+      - update
+      - delete
   - apiGroups:
       - apps
     resourceNames:
@@ -59,6 +71,12 @@ rules:
       - get
       - list
       - watch
+  - apiGroups:
+      - 'coordination.k8s.io'
+    resources:
+      - 'leases'
+    verbs:
+      - '*'
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -73,13 +91,10 @@ rules:
     resources:
       - pods
     verbs:
-      - '*'
-  - apiGroups:
-      - apps
-    resources:
-      - daemonsets
-    verbs:
-      - '*'
+      - "get"
+      - "list"
+      - "watch"
+      - "delete"
   - apiGroups:
       - sriovnetwork.openshift.io
     resources:

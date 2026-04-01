@@ -16,7 +16,7 @@ gradio-ui:
   enablePublicIP: false
   image:
     repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/vllm/gradio-ui
-    tag: v0.0.3
+    tag: v0.0.4
   secret:
     env:
       AUTH_USER:
@@ -28,7 +28,7 @@ gpuPlatform: NVIDIA® H200 NVLink with Intel Sapphire Rapids
 gpuToResourceHelperValues:
   NVIDIA® H100 NVLink with Intel Sapphire Rapids:
     cpu: 14500
-    memory: 194
+    memory: 190
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:
@@ -44,7 +44,7 @@ gpuToResourceHelperValues:
               - gpu-h100-sxm
   NVIDIA® H200 NVLink with Intel Sapphire Rapids:
     cpu: 14500
-    memory: 194
+    memory: 190
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:
@@ -58,6 +58,22 @@ gpuToResourceHelperValues:
             operator: In
             values:
               - gpu-h200-sxm
+  NVIDIA® B200 NVLink with Intel Emerald Rapids:
+    cpu: 14500
+    memory: 214
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: nvidia.com/gpu.product
+            operator: In
+            values:
+              - NVIDIA-B200
+        - matchExpressions:
+          - key: node.kubernetes.io/instance-type
+            operator: In
+            values:
+              - gpu-b200-sxm
 
 vllm:
   replicas: 1
@@ -83,10 +99,17 @@ worker:
   replicas: '{{ mul .Values.vllm.replicas (index .Values.vllm.config "pipeline-parallel-size") }}'
   resources:
     limits:
-      cpu: '{{ mul (get .Values.gpuToResourceHelperValues .Values.gpuPlatform).cpu .Values.gpuPerWorker }}m'
-      memory: '{{ mul (get .Values.gpuToResourceHelperValues .Values.gpuPlatform).memory .Values.gpuPerWorker }}Gi'
-      nvidia.com/gpu: '{{ .Values.gpuPerWorker }}'
+      cpu: "{{ mul (get .Values.gpuToResourceHelperValues .Values.gpuPlatform).cpu .Values.gpuPerWorker }}m"
+      memory: "{{ mul (get .Values.gpuToResourceHelperValues .Values.gpuPlatform).memory .Values.gpuPerWorker }}Gi"
+      nvidia.com/gpu: "{{ .Values.gpuPerWorker }}"
+      ephemeral-storage: "1024Gi"
     requests:
       cpu: "{{ tpl .Values.worker.resources.limits.cpu . }}"
       memory: "{{ tpl .Values.worker.resources.limits.memory . }}"
       nvidia.com/gpu: '{{ tpl (get .Values.worker.resources.limits "nvidia.com/gpu") . }}'
+      ephemeral-storage: '{{ tpl (get .Values.worker.resources.limits "ephemeral-storage") . }}'
+
+curl:
+  image:
+    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/vllm/curl
+    tag: 8.12.1

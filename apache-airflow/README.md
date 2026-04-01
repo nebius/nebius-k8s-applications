@@ -48,7 +48,7 @@ If you are going to use this product in production, we recommend to configu
 
 ## Usage
 
-1. [Install kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl) and [configure it to work with the created cluster](https://nebius.ai/docs/managed-kubernetes/operations/connect/#kubectl-connect).
+1. [Install kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl) and [configure it to work with the created cluster](https://docs.nebius.com/kubernetes/connect).
 1. To check that Airflow is working, access its UI:
 
    1. Set up port forwarding:

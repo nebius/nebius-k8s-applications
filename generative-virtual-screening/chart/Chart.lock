@@ -1,0 +1,12 @@
+dependencies:
+- name: nfs
+  repository: file://./charts/nfs
+  version: 0.1.0
+- name: csi-driver-nfs
+  repository: file://./charts/csi-driver-nfs
+  version: 4.11.0
+- name: jupyterhub
+  repository: oci://cr.eu-north1.nebius.cloud/marketplace/nebius/jupyterhub/chart
+  version: 4.1.0
+digest: sha256:5e8be1a89471a52ab24000c65d2b1c34e7aceec495312683c166fa7211c98a5b
+generated: "2025-08-22T14:05:17.085991575+02:00"

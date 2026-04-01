@@ -1,0 +1,336 @@
+postgresql:
+  global:
+    security:
+      allowInsecureImages: true
+  image:
+    registry: docker.io
+
+  architecture: standalone
+  auth:
+    username: osmo
+    database: osmo
+    existingSecret: "db-secret"
+    secretKeys:
+      adminPasswordKey: db-password
+      userPasswordKey: db-password
+      replicationPasswordKey: db-password
+
+redis:
+  global:
+    security:
+      allowInsecureImages: true
+  image:
+    registry: docker.io
+
+  architecture: standalone
+  auth:
+    existingSecret: "redis-secret"
+    existingSecretPasswordKey: redis-password
+
+osmo:
+  dbPassword: secret
+  redisPassword: secret
+
+workflowData:
+  bucket: "s3://my_bucket/workflows"
+  accessKeyId: "EXAMPLE_ACCESS_KEY_ID"
+  accessKey: "EXAMPLE_ACCESS_KEY"
+  endpoint: "storage.us-central1.nebius.cloud"
+
+service:
+  global:
+    osmoImageTag: latest
+
+  services:
+    configFile:
+      enabled: true
+
+    postgres:
+      # Set to true if you want Postgres to be deployed as
+      # part of the OSMO install, otherwise set to false to
+      # use an external Postgres database
+      enabled: false
+
+      # This should match the database name in the prior configuration step
+      db: osmo
+      user: osmo
+      serviceName: osmo-postgresql-hl
+
+    redis:
+      # Set to true if you want Redis to be deployed as
+      # part of the OSMO install, otherwise set to false to
+      # use an external Redis cache
+      enabled: false
+      serviceName: osmo-redis-master
+      port: 6379
+      tlsEnabled: false # Set to false if your Redis does not require TLS
+
+    service:
+      scaling:
+        minReplicas: 1
+        maxReplicas: 1
+
+      # Set your domain for ingress if you want to enable ingress for external access
+      hostname: osmo.nebo-apps.com
+      #ingress:
+      #  enabled: false  # Set to true if you want to enable ingress for external access
+
+        # Example: Using alb as ingress
+        # ingress:
+        #   enabled: true
+        #   ingressClass: alb
+        #   sslEnabled: true
+        #   albAnnotations:
+        #     enabled: true
+        #     sslCertArn: <your-ssl-cert-arn>
+        #   annotations:
+        #     ## the alb scheme is used to specify the scheme of the ingress rule, internet-facing for public ALB and internal for private ALB
+        #     # alb.ingress.kubernetes.io/scheme: internet-facing
+
+        # Example: Using nginx as ingress
+      ingress:
+        enabled: true
+        ingressClass: nginx
+        annotations:
+          nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
+          nginx.ingress.kubernetes.io/proxy-buffers: "8 16k"
+          nginx.ingress.kubernetes.io/proxy-busy-buffers-size: "32k"
+          nginx.ingress.kubernetes.io/large-client-header-buffers: "4 16k"
+          nginx.ingress.kubernetes.io/server-alias: '*.nebius.cloud'
+          nginx.ingress.kubernetes.io/ssl-redirect: "false"
+
+    agent:
+      scaling:
+        minReplicas: 1
+        maxReplicas: 1
+
+    worker:
+      scaling:
+        minReplicas: 1
+        maxReplicas: 1
+
+    logger:
+      scaling:
+        minReplicas: 1
+        maxReplicas: 1
+
+  sidecars:
+    envoy:
+      enabled: false
+
+    logAgent:
+      enabled: false
+
+      logrotate:
+        enabled: false
+
+    otel:
+      enabled: false
+
+    rateLimit:
+      enabled: false
+
+web-ui:
+  global:
+    osmoImageTag: latest
+
+  services:
+    ui:
+      # Set your domain for UI ingress if you want to enable ingress for external access
+      hostname: osmo.nebo-apps.com
+
+      apiHostname: osmo-service:80 # update to your namespace if not using osmo-minimal namespace
+
+      #ingress:
+      #  enabled: false  # Set to true if you want to enable ingress for external access
+
+      # Example: Using alb as ingress
+      # ingress:
+      #   enabled: true
+      #   ingressClass: alb
+      #   sslEnabled: true
+      #   albAnnotations:
+      #     enabled: true
+      #     sslCertArn: <your-ssl-cert-arn>
+      #   annotations:
+      #     ## the alb scheme is used to specify the scheme of the ingress rule, internet-facing for public ALB and internal for private ALB
+      #     # alb.ingress.kubernetes.io/scheme: internet-facing
+
+      # Example: Using nginx as ingress
+      ingress:
+        enabled: true
+        ingressClass: nginx
+        annotations:
+          nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
+          nginx.ingress.kubernetes.io/proxy-buffers: "8 16k"
+          nginx.ingress.kubernetes.io/proxy-busy-buffers-size: "32k"
+          nginx.ingress.kubernetes.io/large-client-header-buffers: "4 16k"
+          nginx.ingress.kubernetes.io/server-alias: '*.nebius.cloud'
+          nginx.ingress.kubernetes.io/ssl-redirect: "false"
+
+  sidecars:
+    envoy:
+      enabled: false
+
+router:
+  global:
+    osmoImageTag: latest
+
+  services:
+    configFile:
+      enabled: true
+
+    postgres:
+      # This should match the database name in the prior configuration step
+      db: osmo
+      user: osmo
+      serviceName: osmo-postgresql-hl
+      passwordSecretName: osmo-postgresql
+
+    service:
+      scaling:
+        minReplicas: 1
+        maxReplicas: 1
+      # Set your domain for router ingress if you want to enable ingress for external access
+      hostname: osmo.nebo-apps.com
+      #ingress:
+      #  enabled: false  # Set to true if you want to enable ingress for external access
+
+        # Example: Using alb as ingress
+        # ingress:
+        #   enabled: true
+        #   ingressClass: alb
+        #   sslEnabled: true
+        #   albAnnotations:
+        #     enabled: true
+        #     sslCertArn: <your-ssl-cert-arn>
+        #   annotations:
+        #     ## the alb scheme is used to specify the scheme of the ingress rule, internet-facing for public ALB and internal for private ALB
+        #     # alb.ingress.kubernetes.io/scheme: internet-facing
+
+        # Example: Using nginx as ingress
+      ingress:
+        enabled: true
+        ingressClass: nginx
+        annotations:
+          nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
+          nginx.ingress.kubernetes.io/proxy-buffers: "8 16k"
+          nginx.ingress.kubernetes.io/proxy-busy-buffers-size: "32k"
+          nginx.ingress.kubernetes.io/large-client-header-buffers: "4 16k"
+          nginx.ingress.kubernetes.io/server-alias: '*.nebius.cloud'
+          nginx.ingress.kubernetes.io/ssl-redirect: "false"
+
+  sidecars:
+    envoy:
+      enabled: false
+
+    logAgent:
+      enabled: false
+
+    otel:
+      enabled: false
+
+backend-operator:
+  global:
+    osmoImageTag: latest
+    # update to the actual service URL if you have enabled ingress for external access
+    serviceUrl: http://osmo-agent.default
+    agentNamespace: osmo-operator
+    backendNamespace: osmo-workflows
+    backendName: default
+    accountTokenSecret: osmo-operator-token
+    loginMethod: token
+
+  services:
+    backendListener:
+      resources:
+        requests:
+          cpu: "125m"
+          memory: "128Mi"
+        limits:
+          cpu: "250m"
+          memory: "256Mi"
+    backendWorker:
+      resources:
+        requests:
+          cpu: "125m"
+          memory: "128Mi"
+        limits:
+          cpu: "250m"
+          memory: "256Mi"
+
+  sidecars:
+    otel:
+      enabled: false
+
+kai-scheduler:
+  global:
+    # Modify the node selectors and tolerations to match your cluster
+    nodeSelector: {}
+    tolerations: []
+
+  scheduler:
+    additionalArgs:
+    - --default-staleness-grace-period=-1s  # Disable stalegangeviction
+    - --update-pod-eviction-condition=true  # Enable OSMO to read preemption conditions
+
+keycloak:
+  global:
+    security:
+      allowInsecureImages: true
+
+  image:
+    registry: docker.io
+
+  # Hostname configuration
+  hostname: auth-<your-domain>
+  proxy: edge
+
+  # Production mode
+  production: true
+  tls:
+    enabled: true
+    autoGenerated: true
+
+  # Admin user credentials
+  auth:
+    adminUser: admin
+    adminPassword: your-secure-password  # Change this!
+
+  # Ingress configuration
+  ingress:
+    enabled: true
+    tls: true
+    ingressClassName: nginx
+    hostname: auth-<your-domain>
+    path: /
+    pathType: Prefix
+    servicePort: 80
+
+  # Autoscaling configuration
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 3
+    targetCPU: 80
+    targetMemory: 80
+
+  # Resource allocation
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "512Mi"
+    limits:
+      cpu: "2"
+      memory: "1Gi"
+
+  # Option 2: Built-in PostgreSQL (for testing)
+  postgresql:
+    enabled: true
+
+  # Additional environment variables
+  extraEnvVars:
+    - name: KC_HOSTNAME_STRICT_HTTPS
+      value: "true"
+    - name: KC_PROXY
+      value: "edge"

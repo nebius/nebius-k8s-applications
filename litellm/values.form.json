@@ -1,0 +1,174 @@
+{
+  "type": "object",
+  "required": true,
+  "viewSpec": {
+    "type": "base",
+    "order": [
+      "mk8sCluster",
+      "general",
+      "masterkey",
+      "proxy_config"
+    ],
+    "layout": ""
+  },
+  "defaultValue": {
+    "proxy_config": {
+      "model_list": [
+        {
+          "model_name": "",
+          "litellm_params": {
+            "model": "",
+            "api_base": "",
+            "api_key": ""
+          }
+        }
+      ]
+    }
+  },
+  "properties": {
+    "mk8sCluster": {
+      "type": "object",
+      "required": true,
+      "viewSpec": {
+        "type": "mk8s_cluster"
+      }
+    },
+    "general": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "layout": "section",
+        "layoutTitle": "General"
+      },
+      "defaultValue": {},
+      "properties": {
+        "appname": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Application name"
+          },
+          "defaultValue": "litellm"
+        },
+        "namespace": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Namespace"
+          },
+          "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "patternError": "namespace must consist of lower case alphanumeric characters or '-', and must start and end with an alphanumeric character (e.g. 'my-name',  or '123-abc', regex used for validation is ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "defaultValue": "litellm"
+        }
+      }
+    },
+    "masterkey": {
+      "type": "string",
+      "required": true,
+      "pattern": "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[*.!@#$%^&*-]).{15,}$",
+      "viewSpec": {
+        "type": "password",
+        "layout": "row",
+        "layoutTitle": "Master Key",
+        "layoutDescription": "Set a password for the Master Key. It must be at least 15 characters long and include a number, a lowercase letter, an uppercase letter, and one of these symbols: !@#$%^&*-",
+        "generateRandomValueButton": true
+      }
+    },
+    "proxy_config": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "order": [
+          "model_list"
+        ],
+        "layout": ""
+      },
+      "properties": {
+        "model_list": {
+          "type": "array",
+          "viewSpec": {
+            "type": "base",
+            "layout": "accordeon",
+            "layoutTitle": "Models",
+            "layoutDescription": "List of models",
+            "layoutOpen": true,
+            "itemLabel": "Add model"
+          },
+          "items": {
+            "type": "object",
+            "required": true,
+            "viewSpec": {
+              "type": "base",
+              "order": [
+                "model_name",
+                "litellm_params"
+              ],
+              "layout": ""
+            },
+            "properties": {
+              "model_name": {
+                "required": true,
+                "type": "string",
+                "viewSpec": {
+                  "type": "base",
+                  "layout": "row",
+                  "layoutTitle": "LiteLLM Model Name",
+                  "layoutDescription": "Name of the model that's going be used in LiteLLm"
+                }
+              },
+              "litellm_params": {
+                "type": "object",
+                "required": true,
+                "viewSpec": {
+                  "type": "base",
+                  "order": [
+                    "model",
+                    "api_base",
+                    "api_key"
+                  ],
+                  "layout": ""
+                },
+                "properties": {
+                  "model": {
+                    "required": true,
+                    "type": "string",
+                    "viewSpec": {
+                      "type": "base",
+                      "layout": "row",
+                      "layoutTitle": "Upstream Model Name",
+                      "layoutDescription": "Name of the model in the upstream service, e.g. openai/meta-llama/Meta-Llama-3-8B-Instruct"
+                    }
+                  },
+                  "api_base": {
+                    "required": false,
+                    "type": "string",
+                    "viewSpec": {
+                      "type": "base",
+                      "layout": "row",
+                      "layoutTitle": "API Base",
+                      "layoutDescription": "If applicable, URL of the upstream service, e.g. http://vllm-serve-svc.vllm:8000"
+                    }
+                  },
+                  "api_key": {
+                    "required": false,
+                    "type": "string",
+                    "viewSpec": {
+                      "type": "base",
+                      "layout": "row",
+                      "layoutTitle": "API key",
+                      "layoutDescription": "If applicable, API key of the upstream service"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

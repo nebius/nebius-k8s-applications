@@ -39,7 +39,6 @@ spec:
         command: ["gpu-operator"]
         args:
         - --leader-elect
-        - --leader-lease-renew-deadline=30s
       {{- if .Values.operator.logging.develMode }}
         - --zap-devel
       {{- else }}

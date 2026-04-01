@@ -3,9 +3,8 @@ ownerName: Apache
 publisherName: Nebius
 name: Apache Airflow™
 categories:
-  - new-products
-  - dev-tools
-  - training
+  - orchestration
+  - data-preparation
 images:
   - tag: defaultAirflowTag
     nameWithRegistry: defaultAirflowRepository

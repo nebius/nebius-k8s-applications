@@ -3,7 +3,8 @@ ownerName: AUTOMATIC1111
 publisherName: Nebius
 name: Stable Diffusion web UI
 categories:
-  - inference
+  - serving
+
 images:
   - tag: image.tag
     nameWithRegistry: image.repository

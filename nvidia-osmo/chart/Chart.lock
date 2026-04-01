@@ -1,0 +1,27 @@
+dependencies:
+- name: service
+  repository: https://helm.ngc.nvidia.com/nvidia/osmo
+  version: 1.0.1
+- name: web-ui
+  repository: https://helm.ngc.nvidia.com/nvidia/osmo
+  version: 1.0.1
+- name: backend-operator
+  repository: https://helm.ngc.nvidia.com/nvidia/osmo
+  version: 1.0.1
+- name: router
+  repository: https://helm.ngc.nvidia.com/nvidia/osmo
+  version: 1.0.1
+- name: ingress-nginx
+  repository: https://kubernetes.github.io/ingress-nginx
+  version: 4.13.2
+- name: postgresql
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 18.5.1
+- name: redis
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 25.3.2
+- name: kai-scheduler
+  repository: oci://ghcr.io/nvidia/kai-scheduler
+  version: v0.12.12
+digest: sha256:338191291d946a9375a36b8312d33c2f78bfcaa23174e0a16a5f8b321b929044
+generated: "2026-02-27T15:08:13.572475465+01:00"

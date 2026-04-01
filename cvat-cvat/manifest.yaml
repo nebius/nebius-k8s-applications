@@ -3,8 +3,8 @@ publisherName: Nebius
 ownerName: Cvat
 name: CVAT
 categories:
-  - dataset-preparation
-  - k3s-dataset-preparation
+  - data-preparation
+
 images:
   - tag: cvat.backend.tag
     nameWithRegistry: cvat.backend.image

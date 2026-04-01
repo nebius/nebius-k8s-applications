@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mek-configmap
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "osmo.labels" . | nindent 4 }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: mek-configmap-cluster
+  labels:
+    {{- include "osmo.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "create", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: mek-configmap-cluster
+  labels:
+    {{- include "osmo.labels" . | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: mek-configmap
+    namespace: {{ $.Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mek-configmap-cluster
+---
+# Job using an initContainer to wait for an external Pod/container to be ready,
+# then main containers: generator + kubectl apply the secret from generated files.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: make-secret-init-wait-target-mek-configmap
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "osmo.labels" . | nindent 4 }}
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      serviceAccountName: mek-configmap
+      restartPolicy: Never
+      containers:
+        - name: generator
+          # Replace this with your custom generator image and command.
+          image: ubuntu:latest
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -eux
+              apt update 
+              apt install -y curl openssl
+              curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+              install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+              RANDOM_KEY=$(openssl rand -base64 32 | tr -d '\n')
+              JWK_JSON="{\"k\":\"$RANDOM_KEY\",\"kid\":\"key1\",\"kty\":\"oct\"}"
+              ENCODED_JWK=$(echo -n "$JWK_JSON" | base64 | tr -d '\n')
+              
+              kubectl create configmap --namespace {{ $.Release.Namespace }} mek-config \
+                --from-literal=mek.yaml="$(printf 'currentMek: key1\nmeks:\n  key1: %s\n' "$ENCODED_JWK")" \
+                --dry-run=client -o yaml | kubectl apply -f -
+
+              echo "Generator finished."

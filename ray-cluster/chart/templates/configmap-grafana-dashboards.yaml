@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: {{ .Release.Namespace }}
+  labels:
+    grafana_dashboard: "1"
+data:
+{{- $files := .Files.Glob "dashboards/*.json" }}
+{{- $allFiles := .Files -}}
+{{- range $path, $_ := $files }}
+  {{ base $path }}: |-
+{{ $allFiles.Get $path | indent 4 }}
+{{- end }}

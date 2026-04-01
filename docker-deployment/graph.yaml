@@ -1,0 +1,122 @@
+releaseType: "k8s"
+components:
+  endpoint001:
+    type: "endpoint"
+    spec:
+      refMap:
+        clusterId: "components.cluster001.state.result.id"
+        helmReleaseName: "parameters.releaseName"
+        helmReleaseNamespace: "parameters.releaseNamespace"
+      componentSpec:
+        ports: []
+    dependencies:
+      components:
+        helmchart001:
+
+  helmchart001:
+    type: "helm_chart"
+    spec:
+      refMap:
+        parentId: "parameters.parentId"
+        clusterId: "components.cluster001.state.result.id"
+        releaseName: "parameters.releaseName"
+        releaseNamespace: "parameters.releaseNamespace"
+        values.autoRemove.applyAfter: "parameters.autoRemoveApplyAfter"
+        values.autoRemove.enabled: "parameters.autoRemoveEnabled"
+        values.autoRemove.mode: "parameters.autoRemoveMode"
+        values.containers.containers: "parameters.containersContainers"
+        values.initContainers.containers: "parameters.initContainersContainers"
+        values.other.nodeSelector: "parameters.otherNodeSelector"
+        values.other.replicas: "parameters.otherReplicas"
+        values.storages.storage: "parameters.storagesStorage"
+      componentSpec:
+        productSlug: "nebius/custom-docker"
+    dependencies:
+      components:
+        cluster001:
+
+  cluster001:
+    type: "mk8s_cluster"
+    spec:
+      refMap:
+        api_spec.metadata.parentId: "parameters.parentId"
+        api_spec.metadata.id: "parameters.clusterId"
+        api_spec.metadata.name: "parameters.clusterName"
+      componentSpec:
+        api_spec:
+          metadata:
+            name: "custom-docker-cluster"
+          spec:
+            control_plane:
+              # fill in subnetId with default value in the code
+              endpoints:
+                public_endpoint:
+
+
+parameters:
+  "parentId":
+    type: "string"
+    description: "The project ID for the Custom Docker Containers deployment."
+
+  "clusterId":
+    type: "string"
+    description: "Existing mk8s cluster ID for the Custom Docker Containers deployment."
+
+  "clusterName":
+    type: "string"
+    description: "Existing mk8s cluster name for the Custom Docker Containers deployment."
+
+  "releaseName":
+    type: "string"
+    description: "Helm release name."
+
+  "releaseNamespace":
+    type: "string"
+    description: "Helm release namespace."
+
+  "autoRemoveApplyAfter":
+    type: "number"
+    description: "Value for Helm key 'autoRemove.applyAfter'."
+
+  "autoRemoveEnabled":
+    type: "bool"
+    description: "Value for Helm key 'autoRemove.enabled'."
+
+  "autoRemoveMode":
+    type: "string"
+    description: "Value for Helm key 'autoRemove.mode'."
+
+  "containersContainers":
+    type: "any"
+    description: "Value for Helm key 'containers.containers'."
+
+  "initContainersContainers":
+    type: "any"
+    description: "Value for Helm key 'initContainers.containers'."
+
+  "otherNodeSelector":
+    type: "string"
+    description: "Value for Helm key 'other.nodeSelector'."
+
+  "otherReplicas":
+    type: "number"
+    description: "Value for Helm key 'other.replicas'."
+
+  "storagesStorage":
+    type: "any"
+    description: "Value for Helm key 'storages.storage'."
+
+ui:
+  mapping:
+    clusterId: "mk8sCluster.clusterId"
+    clusterName: "mk8sCluster.name"
+    autoRemoveApplyAfter: 'autoRemove.applyAfter'
+    autoRemoveEnabled: 'autoRemove.enabled'
+    autoRemoveMode: 'autoRemove.mode'
+    containersContainers: 'containers.containers'
+    initContainersContainers: 'initContainers.containers'
+    otherNodeSelector: 'other.nodeSelector'
+    otherReplicas: 'other.replicas'
+    storagesStorage: 'storages.storage'
+    releaseName: "general.appname"
+    releaseNamespace: "general.namespace"

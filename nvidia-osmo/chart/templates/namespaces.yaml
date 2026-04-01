@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: osmo-operator
+  labels:
+    {{- include "osmo.labels" . | nindent 4 }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: osmo-workflows
+  labels:
+    {{- include "osmo.labels" . | nindent 4 }}

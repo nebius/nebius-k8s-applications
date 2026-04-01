@@ -1,0 +1,9 @@
+apiVersion: v2
+name: kubernetes-dashboard-readonly
+version: 1.0.0
+appVersion: "2.9.0"
+
+dependencies:
+  - name: kubernetes-dashboard
+    version: "7.13.0"
+    repository: "https://kubernetes.github.io/dashboard/"

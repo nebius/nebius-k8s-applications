@@ -1,0 +1,197 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: secret-writer-backend-token
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "osmo.labels" . | nindent 4 }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: secret-writer-backend-token-cluster
+  labels:
+    {{- include "osmo.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "create", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: secret-writer-backend-token-cluster
+  labels:
+    {{- include "osmo.labels" . | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: secret-writer-backend-token
+    namespace: {{ $.Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: secret-writer-backend-token-cluster
+---
+# Job using an initContainer to wait for an external Pod/container to be ready,
+# then main containers: generator + kubectl apply the secret from generated files.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: make-secret-init-wait-target-backend-token
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "osmo.labels" . | nindent 4 }}
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      serviceAccountName: secret-writer-backend-token
+      restartPolicy: Never
+      initContainers:
+        - name: wait-for-target
+          image: bitnami/kubectl
+          # init container will run as the service account, so kubectl uses in-cluster auth
+          env:
+            - name: TARGET_NAMESPACE
+              value: {{ $.Release.Namespace }}            # namespace where the target pod lives
+            - name: TARGET_POD
+              value: ""                   # pod name to wait for (leave empty to use TARGET_LABEL)
+            - name: TARGET_LABEL
+              value: "app=osmo-service"         # label selector (used if TARGET_POD is empty)
+            - name: EXTERNAL_WAIT_TIMEOUT
+              value: "600"                # total seconds to wait before timing out
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -eux
+
+              NAMESPACE="${TARGET_NAMESPACE:-default}"
+              POD="${TARGET_POD:-}"
+              LABEL="${TARGET_LABEL:-}"
+              TIMEOUT=${EXTERNAL_WAIT_TIMEOUT:-120}
+
+              start_ts=$(date +%s)
+
+              echo "initContainer: waiting (up to ${TIMEOUT}s) for target to be ready..."
+
+              if [ -n "$POD" ]; then
+                # Wait for a pod by name to become Ready.
+                # Use kubectl wait which checks the Pod Ready condition.
+                kubectl -n "$NAMESPACE" wait --for=condition=ready pod/"$POD" --timeout=${TIMEOUT}s
+              else
+                # Use label selector flow: find a pod name matching label, then wait for it.
+                # This loops: if pod is not yet present, or replaced, it will retry until total timeout.
+                while true; do
+                  # pick the first pod name matching the selector (if any)
+                  PODNAME=$(kubectl -n "$NAMESPACE" get pods -l "$LABEL" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || true)
+
+                  if [ -n "$PODNAME" ]; then
+                    echo "Found pod '$PODNAME' for selector '$LABEL' — waiting for ready..."
+                    # wait a short time for that pod to be Ready; if not ready within 5s we re-check overall timeout and loop
+                    if kubectl -n "$NAMESPACE" wait --for=condition=ready pod/"$PODNAME" --timeout=5s >/dev/null 2>&1; then
+                      echo "Pod '$PODNAME' is Ready."
+                      break
+                    fi
+                  else
+                    echo "No pod found yet for selector '$LABEL'."
+                  fi
+
+                  now_ts=$(date +%s)
+                  elapsed=$((now_ts - start_ts))
+                  if [ "$elapsed" -ge "$TIMEOUT" ]; then
+                    echo "Timed out waiting for a pod matching '$LABEL' to become ready (waited ${elapsed}s)." >&2
+                    exit 2
+                  fi
+                  sleep 1
+                done
+              fi
+
+              echo "initContainer: target ready — continuing."
+
+      containers:
+        - name: generator
+          # Replace this with your custom generator image and command.
+          image: ubuntu:latest
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              set -euo pipefail
+              apt update 
+              apt install -y curl jq 
+              curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+              install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+              curl -fsSL https://raw.githubusercontent.com/NVIDIA/OSMO/refs/heads/main/install.sh | bash
+              /usr/local/bin/osmo login http://osmo-service --method=dev --username=testuser
+              export BACKEND_TOKEN=$(/usr/local/bin/osmo token set backend-token-$(date '+%Y%m%d%H%M%S') --expires-at "2027-01-01" --description "Backend Operator Token" --service --roles osmo-backend -t json | jq -r '.token')
+
+              kubectl create secret generic osmo-operator-token --from-literal=token=$BACKEND_TOKEN --namespace osmo-operator --dry-run=client -o yaml | kubectl apply -f -
+
+              cat <<'EOF' > /tmp/workflow_data_config.json
+              {
+                "workflow_log": {
+                  "credential": {
+                    "endpoint": "tos://{{ .Values.workflowData.endpoint }}/{{ .Values.workflowData.bucket }}/workflows",
+                    "access_key_id": "{{ .Values.workflowData.accessKeyId }}",
+                    "access_key": "{{ .Values.workflowData.accessKey }}"
+                  }
+                },
+                "workflow_data": {
+                  "credential": {
+                    "endpoint": "tos://{{ .Values.workflowData.endpoint }}/{{ .Values.workflowData.bucket }}/workflows",
+                    "access_key_id": "{{ .Values.workflowData.accessKeyId }}",
+                    "access_key": "{{ .Values.workflowData.accessKey }}"
+                  }
+                }
+              }
+              EOF
+
+              # Build the request body from the same JSON file
+              BODY=$(jq -n \
+                --arg desc "Configure workflow data storage" \
+                --slurpfile cfg /tmp/workflow_data_config.json \
+                '{description: $desc, configs_dict: $cfg[0]}')
+
+              # PATCH the OSMO API directly — no interactive terminal needed
+              curl -s -X PATCH "http://osmo-service/api/configs/workflow" \
+                -H "Content-Type: application/json" \
+                -H "x-osmo-user: osmo-admin" \
+                -H "x-osmo-roles: osmo-admin,osmo-user" \
+                -d "$BODY"
+
+              osmo profile set pool default
+
+              cat <<'EOF' > /tmp/osmo_dataset_bucket_obj.json
+              {
+                "dataset_path": "s3://{{ .Values.workflowData.bucket }}/osmo-datasets",
+                "description": "Nebius Object Storage bucket",
+                "mode": "read-write",
+                "default_credential": {
+                  "access_key_id": "{{ .Values.workflowData.accessKeyId }}",
+                  "access_key": "{{ .Values.workflowData.accessKey }}"
+                }
+              }
+              EOF
+              cat /tmp/osmo_dataset_bucket_obj.json
+
+              jq -n --arg name "default" \
+                 --slurpfile bucket "/tmp/osmo_dataset_bucket_obj.json" \
+                 '{ buckets: { ($name): $bucket[0] }, default_bucket: $name }' > /tmp/updated_osmo_dataset_bucket_obj.json
+                 
+              # Build the request body from the same JSON file
+              BODY=$(jq -n \
+                --arg desc "Configure workflow data set storage" \
+                --slurpfile cfg /tmp/updated_osmo_dataset_bucket_obj.json \
+                '{description: $desc, configs_dict: $cfg[0]}')
+
+              # PATCH the OSMO API directly — no interactive terminal needed
+              curl -s -X PATCH "http://osmo-service/api/configs/dataset" \
+                -H "Content-Type: application/json" \
+                -H "x-osmo-user: osmo-admin" \
+                -H "x-osmo-roles: osmo-admin,osmo-user" \
+                -d "$BODY"
+
+              echo "Generator finished."

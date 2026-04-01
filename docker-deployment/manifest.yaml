@@ -1,0 +1,18 @@
+slug: custom-docker
+ownerName: Docker
+publisherName: Nebius
+name: Custom Docker Containers
+categories:
+  - training
+  - llm-apps-framework
+  - orchestration
+  - databases
+  - inference
+  - models
+  - data-preparation
+  - development-and-frameworks
+  - infrastructure
+  - serving
+  - security
+  - monitoring
+  - gpu-compute

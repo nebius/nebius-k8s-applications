@@ -1,0 +1,14 @@
+name: NVIDIA® Device Plugin
+slug: nvidia-device-plugin
+ownerName: NVIDIA
+publisherName: Nebius
+categories:
+  - gpu-compute
+
+images:
+  - nameWithRegistry: image.repository
+    tag: image.tag
+  - nameWithRegistry: nfd.image.repository
+    tag: nfd.image.tag
+  - tag: dcgm-exporter.image.tag
+    nameWithRegistry: dcgm-exporter.image.repository

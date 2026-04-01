@@ -4,7 +4,7 @@
 
 The [NVIDIA® Network Operator](https://catalog.ngc.nvidia.com/orgs/nvidia/teams/cloud-native/containers/network-operator) is an application for Kubernetes designed for managing and optimizing software components for networking between NVIDIA GPUs in the cloud. The operator automates many tasks related to network setup, including the configuration of high-performance networking features like RDMA (Remote Direct Memory Access) and GPUDirect, which are crucial for applications requiring low latency and high throughput. This tool is particularly beneficial for environments where NVIDIA GPUs are deployed for compute-intensive tasks, as it ensures that the network can support the high data transfer demands of such applications.
 
-Your cluster must have a node group attached to a Compute Cloud [GPU cluster](https://nebius.ai/docs/compute/concepts/gpu-clusters).
+Your cluster must have a node group attached to a Compute Cloud [GPU cluster](https://docs.nebius.com/compute/clusters/gpu).
 
 ## Short description
 
@@ -14,8 +14,8 @@ Optimize GPU networking in Kubernetes with NVIDIA® Network Operator on Nebius A
 
 **Before installing this product:**
 
-1. [Create a GPU cluster](https://nebius.ai/docs/compute/operations/gpu-cluster/gpu-cluster-create) in Compute Cloud.
-1. [Create a Kubernetes cluster](https://nebius.ai/docs/managed-kubernetes/operations/kubernetes-cluster/kubernetes-cluster-create) and a [node group](https://nebius.ai/docs/managed-kubernetes/operations/node-group/node-group-create) in it. When creating the group, select the created GPU cluster for it.
+1. [Create a GPU cluster](https://docs.nebius.com/compute/clusters/gpu#create-cluster) in Compute.
+1. [Create a Kubernetes cluster](https://docs.nebius.com/kubernetes/clusters/manage) and a [node group](https://docs.nebius.com/kubernetes/node-groups/manage) in it. When creating the group, select the created GPU cluster for it.
 
 **To install the product:**
 
@@ -26,7 +26,7 @@ Optimize GPU networking in Kubernetes with NVIDIA® Network Operator on Nebius A
 
 **To check that the NVIDIA Network Operator is working:**
 
-1. [Install kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl) and [configure it to work with the created cluster](https://nebius.ai/docs/managed-kubernetes/operations/connect/#kubectl-connect).
+1. [Install kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl) and [configure it to work with the created cluster](https://docs.nebius.com/kubernetes/connect).
 1. Check that NVIDIA Network Operator pods are running:
 
    ```bash

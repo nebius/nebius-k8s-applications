@@ -14,7 +14,6 @@ psa:
 
 cdi:
   enabled: false
-  default: false
 
 sandboxWorkloads:
   enabled: false
@@ -50,29 +49,26 @@ daemonsets:
     maxUnavailable: "1"
 
 validator:
-  repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2
-  image: gpu-operator-validator
+  repository: nvcr.io/nvidia
+  image: gpu-operator
   # If version is not specified, then default is to use chart.AppVersion
-  version: "v24.6.2"
+  version: "v25.10.0"
   imagePullPolicy: IfNotPresent
   imagePullSecrets: [ ]
   env: [ ]
   args: [ ]
   resources: { }
   plugin:
-    env:
-      - name: WITH_WORKLOAD
-        value: "false"
+    env: []
 
 operator:
-  repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2
+  repository: nvcr.io/nvidia
   image: gpu-operator
   # If version is not specified, then default is to use chart.AppVersion
-  version: "v24.6.2"
+  version: "v25.10.0"
   imagePullPolicy: IfNotPresent
   imagePullSecrets: [ ]
   priorityClassName: system-node-critical
-  defaultRuntime: docker
   runtimeClass: nvidia
   use_ocp_driver_toolkit: false
   # cleanup CRD on chart un-install
@@ -82,8 +78,8 @@ operator:
   upgradeCRD: false
   initContainer:
     image: cuda
-    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2
-    version: 12.6.1-base-ubi8
+    repository: nvcr.io/nvidia
+    version: 13.0.1-base-ubi9
     imagePullPolicy: IfNotPresent
   tolerations:
     - key: "node-role.kubernetes.io/master"
@@ -133,23 +129,25 @@ mig:
 driver:
   enabled: true
   nvidiaDriverCRD:
-    enabled: false
-    deployDefaultCR: true
+    enabled: true
+    deployDefaultCR: false
     driverType: gpu
     nodeSelector: { }
-  useOpenKernelModules: false
+  kernelModuleType: "auto"
+
+  # NOTE: useOpenKernelModules has been deprecated and made no-op. Please use kernelModuleType instead.
+  # useOpenKernelModules: false
+
   # use pre-compiled packages for NVIDIA driver installation.
   # only supported for as a tech-preview feature on ubuntu22.04 kernels.
   usePrecompiled: false
-  repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2
+  repository: cr.eu-north1.nebius.cloud/e00y1syzjqamn87qwm/nvidia-gpu-operator
   image: driver
-  version: "550.54.15"
-  full_version: "535.161.08-ubuntu20.04"
-  full_alternative_image: "cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2/driver:535.161.08-ubuntu22.04"
-  full_new_image: "cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2/driver:550.54.15-ubuntu20.04"
-  full_new_alternative_image: "cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2/driver:550.54.15-ubuntu22.04"
-  full_image-550-127-08: "cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2/driver:550.127.08-ubuntu20.04"
-  full_alternative_image-550-127-08: "cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2/driver:550.127.08-ubuntu22.04"
+  version: "580.95.05"
+  full_version: "570.148.08-ubuntu22.04"
+  full_version_ubuntu24: "570.148.08-ubuntu24.04"
+  full_version_580: "580.95.05-ubuntu22.04"
+  full_version_ubuntu24_580: "580.95.05-ubuntu24.04"
   imagePullPolicy: IfNotPresent
   imagePullSecrets: [ ]
   startupProbe:
@@ -160,7 +158,7 @@ driver:
     timeoutSeconds: 60
     failureThreshold: 120
   rdma:
-    enabled: true
+    enabled: false
     useHostMofed: false
   upgradePolicy:
     # global switch for automatic upgrade feature
@@ -196,24 +194,12 @@ driver:
       deleteEmptyDir: false
   manager:
     image: k8s-driver-manager
-    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2
+    repository: nvcr.io/nvidia/cloud-native
     # When choosing a different version of k8s-driver-manager, DO NOT downgrade to a version lower than v0.6.4
     # to ensure k8s-driver-manager stays compatible with gpu-operator starting from v24.3.0
-    version: v0.6.10
+    version: v0.9.0
     imagePullPolicy: IfNotPresent
-    env:
-      - name: ENABLE_GPU_POD_EVICTION
-        value: "true"
-      - name: ENABLE_AUTO_DRAIN
-        value: "false"
-      - name: DRAIN_USE_FORCE
-        value: "false"
-      - name: DRAIN_POD_SELECTOR_LABEL
-        value: ""
-      - name: DRAIN_TIMEOUT_SECONDS
-        value: "0s"
-      - name: DRAIN_DELETE_EMPTYDIR_DATA
-        value: "false"
+    env: []
   env: [ ]
   resources: { }
   # Private mirror repository configuration
@@ -224,20 +210,22 @@ driver:
     name: ""
   # vGPU licensing configuration
   licensingConfig:
-    configMapName: ""
+    secretName: ""
     nlsEnabled: true
   # vGPU topology daemon configuration
   virtualTopology:
     config: ""
   # kernel module configuration for NVIDIA driver
   kernelModuleConfig:
-    name: ""
+    name: "nebius-kernel-module-params"
+  # Name of Kubernetes Secret which contains secrets to be passed in as environment variables
+  secretEnv: ""
 
 toolkit:
   enabled: true
-  repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2
+  repository: nvcr.io/nvidia/k8s
   image: container-toolkit
-  version: v1.16.2-ubuntu20.04
+  version: v1.18.0
   imagePullPolicy: IfNotPresent
   imagePullSecrets: [ ]
   env: [ ]
@@ -246,25 +234,13 @@ toolkit:
 
 devicePlugin:
   enabled: true
-  repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2
+  repository: nvcr.io/nvidia
   image: k8s-device-plugin
-  version: v0.16.2-ubi8
+  version: v0.18.0
   imagePullPolicy: IfNotPresent
   imagePullSecrets: [ ]
   args: [ ]
-  env:
-    - name: PASS_DEVICE_SPECS
-      value: "true"
-    - name: FAIL_ON_INIT_ERROR
-      value: "true"
-    - name: DEVICE_LIST_STRATEGY
-      value: envvar
-    - name: DEVICE_ID_STRATEGY
-      value: uuid
-    - name: NVIDIA_VISIBLE_DEVICES
-      value: all
-    - name: NVIDIA_DRIVER_CAPABILITIES
-      value: all
+  env: []
   resources: { }
   # Plugin configuration
   # Use "name" to either point to an existing ConfigMap or to create a new one with a list of configurations(i.e with create=true).
@@ -304,9 +280,9 @@ devicePlugin:
 dcgm:
   # disabled by default to use embedded nv-hostengine by exporter
   enabled: false
-  repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2
+  repository: nvcr.io/nvidia/cloud-native
   image: dcgm
-  version: 3.3.7-1-ubuntu22.04
+  version: 4.4.1-2-ubuntu22.04
   imagePullPolicy: IfNotPresent
   args: [ ]
   env: [ ]
@@ -314,58 +290,120 @@ dcgm:
 
 dcgmExporter:
   enabled: true
-  repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2
+  repository: nvcr.io/nvidia/k8s
   image: dcgm-exporter
-  version: 3.3.7-3.5.0-ubuntu22.04
+  version: 4.4.1-4.6.0-distroless
   imagePullPolicy: IfNotPresent
-  env:
-    - name: DCGM_EXPORTER_LISTEN
-      value: ":9400"
-    - name: DCGM_EXPORTER_KUBERNETES
-      value: "true"
-    - name: DCGM_EXPORTER_COLLECTORS
-      value: "/etc/dcgm-exporter/dcp-metrics-included.csv"
+  env: []
   resources: { }
+  hostPID: false
+  service:
+    internalTrafficPolicy: Cluster
   serviceMonitor:
     enabled: false
     interval: 15s
     honorLabels: false
     additionalLabels: { }
     relabelings: [ ]
-  config:
-    name: "exporter-metrics-config-map"
-
     # - source_labels:
     #     - __meta_kubernetes_pod_node_name
     #   regex: (.*)
     #   target_label: instance
     #   replacement: $1
     #   action: replace
-
+    # DCGM Exporter configuration
+  # This block is used to configure DCGM Exporter to emit a customized list of metrics.
+  # Use "name" to either point to an existing ConfigMap or to create a new one with a
+  # list of configurations (i.e with create=true).
+  # When pointing to an existing ConfigMap, the ConfigMap must exist in the same namespace as the release.
+  # The metrics are expected to be listed under a key called `dcgm-metrics.csv`.
+  # Use "data" to build an integrated ConfigMap from a set of custom metrics as
+  # part of the chart. An example of some custom metrics are shown below. Note that
+  # the contents of "data" must be in CSV format and be valid DCGM Exporter metric configurations.
+  config:
+    name: "exporter-metrics-config-map"
+    create: true
+    data: |-
+      # Format
+      # If line starts with a '#' it is considered a comment
+      # DCGM FIELD                                                      ,Prometheus metric type ,help message
+      # Clocks
+      DCGM_FI_DEV_SM_CLOCK                                              ,gauge                  ,SM clock frequency (in MHz).
+      DCGM_FI_DEV_MEM_CLOCK                                             ,gauge                  ,Memory clock frequency (in MHz).
+      # Temperature
+      DCGM_FI_DEV_MEMORY_TEMP                                           ,gauge                  ,Memory temperature (in C).
+      DCGM_FI_DEV_GPU_TEMP                                              ,gauge                  ,GPU temperature (in C).
+      # Power
+      DCGM_FI_DEV_POWER_USAGE                                           ,gauge                  ,Power draw (in W).
+      DCGM_FI_DEV_TOTAL_ENERGY_CONSUMPTION                              ,counter                ,Total energy consumption since boot (in mJ).
+      # PCIE
+      DCGM_FI_DEV_PCIE_REPLAY_COUNTER                                   ,counter                ,Total number of PCIe retries.
+      # Utilization (the sample period varies depending on the product)
+      DCGM_FI_DEV_GPU_UTIL                                              ,gauge                  ,GPU utilization (in %).
+      DCGM_FI_DEV_MEM_COPY_UTIL                                         ,gauge                  ,Memory utilization (in %).
+      DCGM_FI_DEV_ENC_UTIL                                              ,gauge                  ,Encoder utilization (in %).
+      DCGM_FI_DEV_DEC_UTIL                                              ,gauge                  ,Decoder utilization (in %).
+      # Errors and violations
+      DCGM_FI_DEV_XID_ERRORS                                            ,gauge                  ,Value of the last XID error encountered.
+      # Memory usage
+      DCGM_FI_DEV_FB_FREE                                               ,gauge                  ,Framebuffer memory free (in MiB).
+      DCGM_FI_DEV_FB_USED                                               ,gauge                  ,Framebuffer memory used (in MiB).
+      # NVLink
+      DCGM_FI_DEV_NVLINK_BANDWIDTH_TOTAL                                ,counter                ,Total number of NVLink bandwidth counters for all lanes.
+      DCGM_FI_PROF_NVLINK_TX_BYTES                                      ,gauge                  ,The number of bytes of active NvLink tx (transmit) data including both header and payload.
+      DCGM_FI_PROF_NVLINK_RX_BYTES                                      ,gauge                  ,The number of bytes of active NvLink rx (read) data including both header and payload.
+      # VGPU License status
+      DCGM_FI_DEV_VGPU_LICENSE_STATUS                                   ,gauge                  ,vGPU License status
+      # Remapped rows
+      DCGM_FI_DEV_UNCORRECTABLE_REMAPPED_ROWS                           ,counter                ,Number of remapped rows for uncorrectable errors
+      DCGM_FI_DEV_CORRECTABLE_REMAPPED_ROWS                             ,counter                ,Number of remapped rows for correctable errors
+      DCGM_FI_DEV_ROW_REMAP_FAILURE                                     ,gauge                  ,Whether remapping of rows has failed
+      # DCP metrics
+      DCGM_FI_PROF_PCIE_TX_BYTES                                        ,counter                ,The number of bytes of active pcie tx data including both header and payload.
+      DCGM_FI_PROF_PCIE_RX_BYTES                                        ,counter                ,The number of bytes of active pcie rx data including both header and payload.
+      DCGM_FI_PROF_GR_ENGINE_ACTIVE                                     ,gauge                  ,Ratio of time the graphics engine is active (in %).
+      DCGM_FI_PROF_SM_ACTIVE                                            ,gauge                  ,The ratio of cycles an SM has at least 1 warp assigned (in %).
+      DCGM_FI_PROF_SM_OCCUPANCY                                         ,gauge                  ,The ratio of number of warps resident on an SM (in %).
+      DCGM_FI_PROF_PIPE_TENSOR_ACTIVE                                   ,gauge                  ,Ratio of cycles the tensor (HMMA) pipe is active (in %).
+      DCGM_FI_PROF_DRAM_ACTIVE                                          ,gauge                  ,Ratio of cycles the device memory interface is active sending or receiving data (in %).
+      DCGM_FI_PROF_PIPE_FP64_ACTIVE                                     ,gauge                  ,Ratio of cycles the fp64 pipes are active (in %).
+      DCGM_FI_PROF_PIPE_FP32_ACTIVE                                     ,gauge                  ,Ratio of cycles the fp32 pipes are active (in %).
+      DCGM_FI_PROF_PIPE_FP16_ACTIVE                                     ,gauge                  ,Ratio of cycles the fp16 pipes are active (in %).
+      # Datadog additional recommended fields
+      DCGM_FI_DEV_COUNT                                                 ,counter                ,Number of Devices on the node.
+      DCGM_FI_DEV_FAN_SPEED                                             ,gauge                  ,Fan speed for the device in percent 0-100.
+      DCGM_FI_DEV_SLOWDOWN_TEMP                                         ,gauge                  ,Slowdown temperature for the device.
+      DCGM_FI_DEV_POWER_MGMT_LIMIT                                      ,gauge                  ,Current power limit for the device.
+      DCGM_FI_DEV_PSTATE                                                ,gauge                  ,Performance state (P-State) 0-15. 0=highest
+      DCGM_FI_DEV_FB_TOTAL                                              ,gauge                  ,
+      DCGM_FI_DEV_FB_RESERVED                                           ,gauge                  ,
+      DCGM_FI_DEV_FB_USED_PERCENT                                       ,gauge                  ,
+      DCGM_FI_DEV_CLOCK_THROTTLE_REASONS                                ,gauge                  ,Current clock throttle reasons (bitmask of DCGM_CLOCKS_THROTTLE_REASON_*)
+      DCGM_FI_PROCESS_NAME                                              ,label                  ,The Process Name.
+      DCGM_FI_CUDA_DRIVER_VERSION                                       ,label                  ,
+      DCGM_FI_DEV_NAME                                                  ,label                  ,
+      DCGM_FI_DEV_MINOR_NUMBER                                          ,label                  ,
+      DCGM_FI_DRIVER_VERSION                                            ,label                  ,
+      DCGM_FI_DEV_BRAND                                                 ,label                  ,
+      DCGM_FI_DEV_SERIAL                                                ,label                  ,
 gfd:
   enabled: true
-  repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2
+  repository: nvcr.io/nvidia
   image: k8s-device-plugin
-  version: v0.16.2-ubi8
+  version: v0.18.0
   imagePullPolicy: IfNotPresent
   imagePullSecrets: [ ]
-  env:
-    - name: GFD_SLEEP_INTERVAL
-      value: 60s
-    - name: GFD_FAIL_ON_INIT_ERROR
-      value: "true"
+  env: []
   resources: { }
 
 migManager:
   enabled: true
-  repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2
+  repository: nvcr.io/nvidia/cloud-native
   image: k8s-mig-manager
-  version: v0.8.0-ubuntu20.04
+  version: v0.13.0
   imagePullPolicy: IfNotPresent
   imagePullSecrets: [ ]
-  env:
-    - name: WITH_REBOOT
-      value: "false"
+  env: []
   resources: { }
   # MIG configuration
   # Use "name" to either point to an existing ConfigMap or to create a new one with a list of configurations(i.e with create=true).
@@ -374,7 +412,7 @@ migManager:
   # config:
   #   name: custom-mig-parted-configs
   #   create: true
-  #   data: |-
+  #   data:
   #     config.yaml: |-
   #       version: v1
   #       mig-configs:
@@ -411,30 +449,31 @@ migManager:
 
 nodeStatusExporter:
   enabled: false
-  repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2
-  image: gpu-operator-validator
+  repository: nvcr.io/nvidia
+  image: gpu-operator
   # If version is not specified, then default is to use chart.AppVersion
-  version: "v24.6.2"
+  version: "v25.10.0"
   imagePullPolicy: IfNotPresent
   imagePullSecrets: [ ]
   resources: { }
 
 gds:
   enabled: false
-#  repository: nvcr.io/nvidia/cloud-native
-#  image: nvidia-fs
-#  version: "2.17.5"
-#  imagePullPolicy: IfNotPresent
-#  imagePullSecrets: []
-#  env: []
-#  args: []
+  repository: nvcr.io/nvidia/cloud-native
+  image: nvidia-fs
+  version: "2.26.6"
+  imagePullPolicy: IfNotPresent
+  imagePullSecrets: []
+  env: []
+  args: []
 
 gdrcopy:
   enabled: true
-  repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2
+  repository: nvcr.io/nvidia/cloud-native
   image: gdrdrv
-  version: "v2.4.1-1"
-  fullVersion: "v2.4.1-1-ubuntu22.04"
+  version: "v2.5.1"
+  fullVersion: "v2.5.1-ubuntu22.04"
+  fullVersionUbuntu24: "v2.5.1-ubuntu24.04"
   imagePullPolicy: IfNotPresent
   imagePullSecrets: [ ]
   env: [ ]
@@ -450,23 +489,19 @@ vgpuManager:
   #  env: []
   #  resources: {}
   driverManager:
+    repository: nvcr.io/nvidia/cloud-native
     image: k8s-driver-manager
-    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2
     # When choosing a different version of k8s-driver-manager, DO NOT downgrade to a version lower than v0.6.4
     # to ensure k8s-driver-manager stays compatible with gpu-operator starting from v24.3.0
-    version: v0.6.10
+    version: v0.9.0
     imagePullPolicy: IfNotPresent
-    env:
-      - name: ENABLE_GPU_POD_EVICTION
-        value: "false"
-      - name: ENABLE_AUTO_DRAIN
-        value: "false"
+    env: []
 
 vgpuDeviceManager:
   enabled: true
-  repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2
+  repository: nvcr.io/nvidia/cloud-native
   image: vgpu-device-manager
-  version: "v0.2.7"
+  version: "v0.4.1"
   imagePullPolicy: IfNotPresent
   imagePullSecrets: [ ]
   env: [ ]
@@ -476,25 +511,21 @@ vgpuDeviceManager:
 
 vfioManager:
   enabled: true
-  repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2
+  repository: nvcr.io/nvidia
   image: cuda
-  version: 12.6.1-base-ubi8
+  version: 13.0.1-base-ubi9
   imagePullPolicy: IfNotPresent
   imagePullSecrets: [ ]
   env: [ ]
   resources: { }
   driverManager:
+    repository: nvcr.io/nvidia/cloud-native
     image: k8s-driver-manager
-    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2
     # When choosing a different version of k8s-driver-manager, DO NOT downgrade to a version lower than v0.6.4
     # to ensure k8s-driver-manager stays compatible with gpu-operator starting from v24.3.0
-    version: v0.6.10
+    version: v0.9.0
     imagePullPolicy: IfNotPresent
-    env:
-      - name: ENABLE_GPU_POD_EVICTION
-        value: "false"
-      - name: ENABLE_AUTO_DRAIN
-        value: "false"
+    env: []
 
 kataManager:
   enabled: false
@@ -512,9 +543,9 @@ kataManager:
         artifacts:
           url: nvcr.io/nvidia/cloud-native/kata-gpu-artifacts:ubuntu22.04-535.86.10-snp
           pullSecret: ""
-  repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2
+  repository: nvcr.io/nvidia/cloud-native
   image: k8s-kata-manager
-  version: v0.2.1
+  version: v0.2.3
   imagePullPolicy: IfNotPresent
   imagePullSecrets: [ ]
   env: [ ]
@@ -522,9 +553,9 @@ kataManager:
 
 sandboxDevicePlugin:
   enabled: true
-  repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2
+  repository: nvcr.io/nvidia
   image: kubevirt-gpu-device-plugin
-  version: v1.2.9
+  version: v1.4.0
   imagePullPolicy: IfNotPresent
   imagePullSecrets: [ ]
   args: [ ]
@@ -534,7 +565,7 @@ sandboxDevicePlugin:
 ccManager:
   enabled: false
   defaultMode: "off"
-  repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2
+  repository: nvcr.io/nvidia/cloud-native
   image: k8s-cc-manager
   version: v0.1.1
   imagePullPolicy: IfNotPresent
@@ -546,9 +577,8 @@ ccManager:
 
 node-feature-discovery:
   image:
-    repository: "cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/nvidia-gpu-operator-v24-6-2/node-feature-discovery"
-    tag: "v0.16.3"
-  enableNodeFeatureApi: true
+    repository: "registry.k8s.io/nfd/node-feature-discovery"
+    tag: "v0.18.2"
   priorityClassName: system-node-critical
   gc:
     enable: true
@@ -603,3 +633,67 @@ node-feature-discovery:
       # resourceLabels: ["nvidia.com/feature-1","nvidia.com/feature-2"]
       # enableTaints: false
       # labelWhiteList: "nvidia.com/gpu"
+
+nebius:
+  nvidiaDriverCRDPatch:
+    profiles:
+      - name: gpu-rtx6000
+        nodeSelector:
+          node.kubernetes.io/instance-type: gpu-rtx6000
+        managerEnv: []
+      - name: gpu-l40s-a
+        nodeSelector:
+          node.kubernetes.io/instance-type: gpu-l40s-a
+        managerEnv: []
+      - name: gpu-l40s-d
+        nodeSelector:
+          node.kubernetes.io/instance-type: gpu-l40s-d
+        managerEnv: []
+      - name: gpu-h100-sxm
+        nodeSelector:
+          node.kubernetes.io/instance-type: gpu-h100-sxm
+        managerEnv:
+          - name: GPU_DIRECT_RDMA_ENABLED
+            value: "true"
+          - name: USE_HOST_MOFED
+            value: "true"
+      - name: gpu-h200-sxm
+        nodeSelector:
+          node.kubernetes.io/instance-type: gpu-h200-sxm
+        managerEnv:
+          - name: GPU_DIRECT_RDMA_ENABLED
+            value: "true"
+          - name: USE_HOST_MOFED
+            value: "true"
+      - name: gpu-b200-sxm
+        nodeSelector:
+          node.kubernetes.io/instance-type: gpu-b200-sxm
+        managerEnv:
+          - name: GPU_DIRECT_RDMA_ENABLED
+            value: "true"
+          - name: USE_HOST_MOFED
+            value: "true"
+      - name: gpu-b200-sxm-a
+        nodeSelector:
+          node.kubernetes.io/instance-type: gpu-b200-sxm-a
+        managerEnv:
+          - name: GPU_DIRECT_RDMA_ENABLED
+            value: "true"
+          - name: USE_HOST_MOFED
+            value: "true"
+      - name: gpu-b300-sxm
+        nodeSelector:
+          node.kubernetes.io/instance-type: gpu-b300-sxm
+        managerEnv:
+          - name: GPU_DIRECT_RDMA_ENABLED
+            value: "true"
+          - name: USE_HOST_MOFED
+            value: "true"
+      - name: gpu-gb300
+        nodeSelector:
+          node.kubernetes.io/instance-type: gpu-gb300
+        managerEnv:
+          - name: GPU_DIRECT_RDMA_ENABLED
+            value: "true"
+          - name: USE_HOST_MOFED
+            value: "true"

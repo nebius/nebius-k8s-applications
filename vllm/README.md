@@ -12,7 +12,7 @@ A fast and easy-to-use library for LLM inference and serving.
 
 **Before installing this product:**
 
-   1. [Create a node group](https://nebius.ai/docs/managed-kubernetes/operations/node-group/node-group-create) with GPUs in it. The product supports the following [VM platforms](https://nebius.ai/docs/compute/concepts/vm-platforms) with GPUs:
+   1. [Create a node group](https://docs.nebius.com/kubernetes/node-groups/manage) with GPUs in it. The product supports the following [VM platforms](https://docs.nebius.com/compute/virtual-machines/types) with GPUs:
 
       - NVIDIA® H100 NVLink with Intel Sapphire Rapids
       - NVIDIA® H200 NVLink with Intel Sapphire Rapids

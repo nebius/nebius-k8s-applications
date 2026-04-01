@@ -39,7 +39,7 @@ To install the product:
 
 ## Usage
 
-1. [Install kubectl](https://kubernetes.io/docs/tasks/tools/##kubectl) and [configure it to work with the created cluster](https://nebius.ai/docs/managed-kubernetes/operations/connect/##kubectl-connect)
+1. [Install kubectl](https://kubernetes.io/docs/tasks/tools/##kubectl) and [configure it to work with the created cluster](https://docs.nebius.com/kubernetes/connect)
 1. Check that Ollama pods are running:
 
    ```bash

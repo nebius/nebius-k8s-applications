@@ -1,0 +1,17 @@
+slug: clickhouse
+ownerName: ClickHouse
+publisherName: Nebius
+name: ClickHouse
+categories:
+  - databases
+  - data-preparation
+images:
+  - registry: image.registry
+    tag: image.tag
+    nameWithoutRegistry: image.repository
+  - registry: keeper.image.registry
+    tag: keeper.image.tag
+    nameWithoutRegistry: keeper.image.repository
+  - registry: defaultInitContainers.volumePermissions.image.registry
+    tag: defaultInitContainers.volumePermissions.image.tag
+    nameWithoutRegistry: defaultInitContainers.volumePermissions.image.repository

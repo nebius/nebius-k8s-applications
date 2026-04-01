@@ -1,0 +1,27 @@
+{{- $clusterPorts := list }}
+{{- range .Values.containers.containers }}
+  {{- range .ports.port }}
+    {{- if eq .serviceType "ClusterIP" }}
+      {{- $clusterPorts = append $clusterPorts . }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
+{{- if $clusterPorts }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "myapp.fullname" . }}-clusterip
+  annotations:
+    nebius.com/MarketplaceServiceAccess: {{ $result := "" }}{{- range $index, $port := $clusterPorts }}{{- $result = printf "%stitle=%s,ssl=false,type=web,port=%s;" $result $port.name $port.name }}{{- end }}{{ trimSuffix ";" $result | quote }}
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ include "myapp.name" . }}
+  ports:
+    {{- range $clusterPorts }}
+    - name: {{ .name }}
+      port: {{ .containerPort }}
+      targetPort: {{ .containerPort }}
+    {{- end }}
+{{- end }}

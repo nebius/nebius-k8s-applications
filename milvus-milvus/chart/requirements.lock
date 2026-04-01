@@ -12,7 +12,7 @@ dependencies:
   repository: file://charts/kafka
   version: 15.5.1
 - name: gpu-operator
-  repository: oci://cr.nemax.nebius.cloud/yc-marketplace/nebius/nvidia-gpu-operator/chart
-  version: v23.9.0
-digest: sha256:476e6e02f9717a46714220211828487cd3f0fec9e190b12338a1545f8f7f0f64
-generated: "2024-06-25T16:05:20.800126741+02:00"
+  repository: oci://cr.eu-north1.nebius.cloud/marketplace/nebius/nvidia-gpu-operator/chart
+  version: v25.3.2
+digest: sha256:257c2e20457fab1189bbd2da1e918c77f3fa076ba9d9b25130fb10ccf37b3705
+generated: "2025-08-21T13:41:36.357470234+02:00"

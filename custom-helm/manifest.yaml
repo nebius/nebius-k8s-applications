@@ -1,0 +1,20 @@
+slug: custom-helm
+publisherName: Nebius
+ownerName: Nebius
+name: Custom Helm Chart
+categories:
+  - training
+  - llm-apps-framework
+  - orchestration
+  - databases
+  - inference
+  - models
+  - data-preparation
+  - development-and-frameworks
+  - infrastructure
+  - serving
+  - security
+  - monitoring
+  - gpu-compute
+tariff_type: free
+

@@ -1,0 +1,145 @@
+releaseType: "k8s"
+components:
+  helmchart001:
+    type: "helm_chart"
+    spec:
+      refMap:
+        parentId: "parameters.parentId"
+        clusterId: "components.cluster001.state.result.id"
+        releaseName: "parameters.releaseName"
+        releaseNamespace: "parameters.releaseNamespace"
+        values.additionalWorkerGroups.cpu.maxReplicas: "parameters.additionalWorkerGroupsCpuMaxReplicas"
+        values.additionalWorkerGroups.cpu.minReplicas: "parameters.additionalWorkerGroupsCpuMinReplicas"
+        values.additionalWorkerGroups.cpu.resources.limits.cpu: "parameters.additionalWorkerGroupsCpuResourcesLimitsCpu"
+        values.additionalWorkerGroups.cpu.resources.limits.memory: "parameters.additionalWorkerGroupsCpuResourcesLimitsMemory"
+        values.customImage: "parameters.customImage"
+        values.gpuPerWorker: "parameters.gpuPerWorker"
+        values.gpuPlatform: "parameters.gpuPlatform"
+        values.head.enableInTreeAutoscaling: "parameters.headEnableInTreeAutoscaling"
+        values.head.resources.limits.cpu: "parameters.headResourcesLimitsCpu"
+        values.head.resources.limits.memory: "parameters.headResourcesLimitsMemory"
+        values.redis.replica.replicaCount: "parameters.redisReplicaReplicaCount"
+        values.serveConfigV2: "parameters.serveConfigV2"
+        values.worker.maxReplicas: "parameters.workerMaxReplicas"
+        values.worker.minReplicas: "parameters.workerMinReplicas"
+      componentSpec:
+        productSlug: "nebius/ray-serve"
+    dependencies:
+      components:
+        cluster001:
+
+  cluster001:
+    type: "mk8s_cluster"
+    spec:
+      refMap:
+        api_spec.metadata.parentId: "parameters.parentId"
+        api_spec.metadata.id: "parameters.clusterId"
+        api_spec.metadata.name: "parameters.clusterName"
+      componentSpec:
+        api_spec:
+          metadata:
+            name: "ray-serve-cluster"
+          spec:
+            control_plane:
+              # fill in subnetId with default value in the code
+              endpoints:
+                public_endpoint:
+
+
+parameters:
+  "parentId":
+    type: "string"
+    description: "The project ID for the Ray Serve deployment."
+
+  "clusterId":
+    type: "string"
+    description: "Existing mk8s cluster ID for the Ray Serve deployment."
+
+  "clusterName":
+    type: "string"
+    description: "Existing mk8s cluster name for the Ray Serve deployment."
+
+  "releaseName":
+    type: "string"
+    description: "Helm release name."
+
+  "releaseNamespace":
+    type: "string"
+    description: "Helm release namespace."
+
+  "additionalWorkerGroupsCpuMaxReplicas":
+    type: "string"
+    description: "Value for Helm key 'additionalWorkerGroups.cpu.maxReplicas'."
+
+  "additionalWorkerGroupsCpuMinReplicas":
+    type: "string"
+    description: "Value for Helm key 'additionalWorkerGroups.cpu.minReplicas'."
+
+  "additionalWorkerGroupsCpuResourcesLimitsCpu":
+    type: "string"
+    description: "Value for Helm key 'additionalWorkerGroups.cpu.resources.limits.cpu'."
+
+  "additionalWorkerGroupsCpuResourcesLimitsMemory":
+    type: "string"
+    description: "Value for Helm key 'additionalWorkerGroups.cpu.resources.limits.memory'."
+
+  "customImage":
+    type: "string"
+    description: "Value for Helm key 'customImage'."
+
+  "gpuPerWorker":
+    type: "string"
+    description: "Value for Helm key 'gpuPerWorker'."
+
+  "gpuPlatform":
+    type: "string"
+    description: "Value for Helm key 'gpuPlatform'."
+
+  "headEnableInTreeAutoscaling":
+    type: "bool"
+    description: "Value for Helm key 'head.enableInTreeAutoscaling'."
+
+  "headResourcesLimitsCpu":
+    type: "string"
+    description: "Value for Helm key 'head.resources.limits.cpu'."
+
+  "headResourcesLimitsMemory":
+    type: "string"
+    description: "Value for Helm key 'head.resources.limits.memory'."
+
+  "redisReplicaReplicaCount":
+    type: "number"
+    description: "Value for Helm key 'redis.replica.replicaCount'."
+
+  "serveConfigV2":
+    type: "string"
+    description: "Value for Helm key 'serveConfigV2'."
+
+  "workerMaxReplicas":
+    type: "string"
+    description: "Value for Helm key 'worker.maxReplicas'."
+
+  "workerMinReplicas":
+    type: "string"
+    description: "Value for Helm key 'worker.minReplicas'."
+
+ui:
+  mapping:
+    clusterId: "mk8sCluster.clusterId"
+    clusterName: "mk8sCluster.name"
+    additionalWorkerGroupsCpuMaxReplicas: 'additionalWorkerGroups.cpu.maxReplicas'
+    additionalWorkerGroupsCpuMinReplicas: 'additionalWorkerGroups.cpu.minReplicas'
+    additionalWorkerGroupsCpuResourcesLimitsCpu: 'additionalWorkerGroups.cpu.resources.limits.cpu'
+    additionalWorkerGroupsCpuResourcesLimitsMemory: 'additionalWorkerGroups.cpu.resources.limits.memory'
+    customImage: 'customImage'
+    gpuPerWorker: 'gpuPerWorker'
+    gpuPlatform: 'gpuPlatform'
+    headEnableInTreeAutoscaling: 'head.enableInTreeAutoscaling'
+    headResourcesLimitsCpu: 'head.resources.limits.cpu'
+    headResourcesLimitsMemory: 'head.resources.limits.memory'
+    redisReplicaReplicaCount: 'redis.replica.replicaCount'
+    serveConfigV2: 'serveConfigV2'
+    workerMaxReplicas: 'worker.maxReplicas'
+    workerMinReplicas: 'worker.minReplicas'
+    releaseName: "general.appname"
+    releaseNamespace: "general.namespace"

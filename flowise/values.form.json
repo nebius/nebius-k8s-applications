@@ -2,20 +2,76 @@
   "type": "object",
   "viewSpec": {
     "type": "base",
-    "order": ["config", "postgresql", "mariadb"],
+    "order": [
+      "mk8sCluster",
+      "general",
+      "config",
+      "postgresql",
+      "mariadb"
+    ],
     "layout": ""
   },
   "defaultValue": {
-    "config": { "password": "", "username": "" },
-    "mariadb": { "enabled": false },
-    "postgresql": { "enabled": true }
+    "config": {
+      "password": "",
+      "username": ""
+    },
+    "mariadb": {
+      "enabled": false
+    },
+    "postgresql": {
+      "enabled": true
+    }
   },
   "properties": {
+    "mk8sCluster": {
+      "type": "object",
+      "required": true,
+      "viewSpec": {
+        "type": "mk8s_cluster"
+      }
+    },
+    "general": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "layout": "section",
+        "layoutTitle": "General"
+      },
+      "defaultValue": {},
+      "properties": {
+        "appname": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Application name"
+          },
+          "defaultValue": "flowise"
+        },
+        "namespace": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Namespace"
+          },
+          "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "patternError": "namespace must consist of lower case alphanumeric characters or '-', and must start and end with an alphanumeric character (e.g. 'my-name',  or '123-abc', regex used for validation is ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "defaultValue": "flowise"
+        }
+      }
+    },
     "config": {
       "type": "object",
       "viewSpec": {
         "type": "base",
-        "order": ["username", "password"],
+        "order": [
+          "username",
+          "password"
+        ],
         "layout": ""
       },
       "properties": {
@@ -30,7 +86,7 @@
             "layoutDescription": "Create a password for the user name.",
             "type": "password"
           },
-          "pattern": "^[a-zA-Z0-9-!@#\\$%\\^\u0026*]{8,}$"
+          "pattern": "^[a-zA-Z0-9-!@#\\$%\\^&*]{8,}$"
         },
         "username": {
           "type": "string",
@@ -46,7 +102,13 @@
     },
     "mariadb": {
       "type": "object",
-      "viewSpec": { "type": "base", "order": ["enabled"], "layout": "" },
+      "viewSpec": {
+        "type": "base",
+        "order": [
+          "enabled"
+        ],
+        "layout": ""
+      },
       "properties": {
         "enabled": {
           "type": "boolean",
@@ -62,7 +124,13 @@
     },
     "postgresql": {
       "type": "object",
-      "viewSpec": { "type": "base", "order": ["enabled"], "layout": "" },
+      "viewSpec": {
+        "type": "base",
+        "order": [
+          "enabled"
+        ],
+        "layout": ""
+      },
       "properties": {
         "enabled": {
           "type": "boolean",

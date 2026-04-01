@@ -1,0 +1,104 @@
+releaseType: "k8s"
+components:
+  endpoint001:
+    type: "endpoint"
+    spec:
+      refMap:
+        clusterId: "components.cluster001.state.result.id"
+        helmReleaseName: "parameters.releaseName"
+        helmReleaseNamespace: "parameters.releaseNamespace"
+      componentSpec:
+        ports: []
+    dependencies:
+      components:
+        helmchart001:
+
+  helmchart001:
+    type: "helm_chart"
+    spec:
+      refMap:
+        parentId: "parameters.parentId"
+        clusterId: "components.cluster001.state.result.id"
+        releaseName: "parameters.releaseName"
+        releaseNamespace: "parameters.releaseNamespace"
+        values.extraPorts: "parameters.extraPorts"
+        values.password: "parameters.password"
+        values.resources.cpu: "parameters.resourcesCpu"
+        values.resources.gpu: "parameters.resourcesGpu"
+        values.resources.memory: "parameters.resourcesMemory"
+      componentSpec:
+        productSlug: "nebius/coder-server"
+    dependencies:
+      components:
+        cluster001:
+
+  cluster001:
+    type: "mk8s_cluster"
+    spec:
+      refMap:
+        api_spec.metadata.parentId: "parameters.parentId"
+        api_spec.metadata.id: "parameters.clusterId"
+        api_spec.metadata.name: "parameters.clusterName"
+      componentSpec:
+        api_spec:
+          metadata:
+            name: "coder-server-cluster"
+          spec:
+            control_plane:
+              # fill in subnetId with default value in the code
+              endpoints:
+                public_endpoint:
+
+
+parameters:
+  "parentId":
+    type: "string"
+    description: "The project ID for the Coder Server deployment."
+
+  "clusterId":
+    type: "string"
+    description: "Existing mk8s cluster ID for the Coder Server deployment."
+
+  "clusterName":
+    type: "string"
+    description: "Existing mk8s cluster name for the Coder Server deployment."
+
+  "releaseName":
+    type: "string"
+    description: "Helm release name."
+
+  "releaseNamespace":
+    type: "string"
+    description: "Helm release namespace."
+
+  "extraPorts":
+    type: "any"
+    description: "Value for Helm key 'extraPorts'."
+
+  "password":
+    type: "string"
+    description: "Value for Helm key 'password'."
+
+  "resourcesCpu":
+    type: "number"
+    description: "Value for Helm key 'resources.cpu'."
+
+  "resourcesGpu":
+    type: "number"
+    description: "Value for Helm key 'resources.gpu'."
+
+  "resourcesMemory":
+    type: "number"
+    description: "Value for Helm key 'resources.memory'."
+
+ui:
+  mapping:
+    clusterId: "mk8sCluster.clusterId"
+    clusterName: "mk8sCluster.name"
+    extraPorts: 'extraPorts'
+    password: 'password'
+    resourcesCpu: 'resources.cpu'
+    resourcesGpu: 'resources.gpu'
+    resourcesMemory: 'resources.memory'
+    releaseName: "general.appname"
+    releaseNamespace: "general.namespace"

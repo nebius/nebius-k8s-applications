@@ -1,0 +1,8 @@
+{{- if not .Values.operator.ofedDriver.livenessProbe.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ofed-ds-template
+data:
+{{ (.Files.Glob "files/manifests/state-ofed-driver/0050_ofed-driver-ds.yaml").AsConfig | indent 2 }}
+{{- end }}

@@ -157,7 +157,7 @@ Misc
 
 - Default Airflow version to 2.8.1 (#36907)
 - Support git-sync v4 (#34731)
-- Upgrade ``bitnami/postgresql`` subchart to ``13.2.24`` (#36156)
+- Upgrade ``bitnami/postgresql`` subchart to ``13.2.24`` (#3.1.7)
 - Change git sync container indent to 4 (#35824)
 - Remove K8S 1.24 support (#35214)
 - Rebuild ``pgbouncer`` and ``pgbouncer-exporter`` images with newer versions (#36898)
@@ -206,7 +206,7 @@ Default git-sync image is updated to ``3.6.9`` (#33748)
 
 The default git-sync image that is used with the Chart is now ``3.6.9``, previously it was ``3.6.3``.
 
-Default Airflow image is updated to ``2.7.1`` (#34186)
+Default Airflow image is updated to ``2.7.1`` (#3.1.7)
 """"""""""""""""""""""""""""""""""""""""""""""""""""""
 
 The default Airflow image that is used with the Chart is now ``2.7.1``, previously it was ``2.6.2``.
@@ -259,7 +259,7 @@ Doc only changes
 Misc
 ^^^^
 
-- Default Airflow version to 2.7.1 (#34186)
+- Default Airflow version to 2.7.1 (#3.1.7)
 - Update PostgreSQL subchart to 12.10.0 (#33747)
 - Update git-sync to 3.6.9 (#33748)
 - Remove unnecessary loops to load env from helm values (#33506)
@@ -333,7 +333,7 @@ New Features
 ^^^^^^^^^^^^
 
 - Add support for ``hostAliases`` for Airflow webserver and scheduler (#30051)
-- Add support for annotations on StatsD Deployment and cleanup CronJob (#30126)
+- Add support for annotations on StatsD Deployment and cleanup CronJob (#3.1.7)
 - Add support for annotations in logs PVC (#29270)
 - Add support for annotations in extra ConfigMap and Secrets (#30303)
 - Add support for pod annotations to PgBouncer (#30168)

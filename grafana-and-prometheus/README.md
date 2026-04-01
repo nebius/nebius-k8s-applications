@@ -34,6 +34,12 @@ By using the application, you agree to their terms and conditions: [the helm-cha
 
 ## Tutorial
 
+{% note warning %}
+
+- If you want to monitor GPU metrics in driverful nodes, install [NVIDIA® Device Plugin](https://console.eu.nebius.com/applications/overview/nebius/nvidia-device-plugin) with "Enable GPU metrics monitoring" flag enabled.
+
+{% endnote %}
+
 Before installing this product:
 
 To install the product:
@@ -46,7 +52,7 @@ To install the product:
 
 To check that Grafana and Prometheus for Kubernetes is working, access its UI:
 
-1. [Install kubectl](https://kubernetes.io/docs/tasks/tools/##kubectl) and [configure it to work with the created cluster](https://nebius.ai/docs/managed-kubernetes/operations/connect/##kubectl-connect).
+1. [Install kubectl](https://kubernetes.io/docs/tasks/tools/##kubectl) and [configure it to work with the created cluster](https://docs.nebius.com/kubernetes/connect).
 1. Set up port forwarding:
 
    ```bash

@@ -1,0 +1,41 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: installer-job
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    spec:
+      serviceAccountName: installer-sa
+      restartPolicy: Never
+      containers:
+        - name: helm-installer
+          image: dtzar/helm-kubectl:3.19.0
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              echo "Installing child chart..."
+              helm repo add child-repo {{ .Values.repo }}
+              helm repo update
+              helm install {{ .Release.Name }}-child \
+                child-repo/{{ .Values.chart }} \
+                --namespace {{ .Release.Namespace }} \
+                --version {{ .Values.version }} \
+                -f /etc/child-values/values.yaml \
+                --wait \
+                --timeout 60m
+
+              kubectl delete clusterrolebinding installer-sa-admin --ignore-not-found
+          volumeMounts:
+            - name: child-values
+              mountPath: /etc/child-values
+              readOnly: true
+      volumes:
+        - name: child-values
+          configMap:
+            name: child-values

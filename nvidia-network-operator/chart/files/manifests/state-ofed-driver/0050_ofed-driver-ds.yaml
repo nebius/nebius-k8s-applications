@@ -1,0 +1,272 @@
+# source: https://github.com/Mellanox/network-operator/blob/v25.1.0/manifests/state-ofed-driver/0050_ofed-driver-ds.yaml
+#
+# Copyright 2023 NVIDIA
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app: mofed-{{ .RuntimeSpec.OSName }}{{ .RuntimeSpec.OSVer }}-{{ .RuntimeSpec.KernelHash }}
+    nvidia.com/ofed-driver: ""
+    mofed-ds-format-version: "1"
+  name: mofed-{{ .RuntimeSpec.OSName }}{{ .RuntimeSpec.OSVer }}-{{ .RuntimeSpec.KernelHash }}-ds
+  namespace: {{ .RuntimeSpec.Namespace }}
+spec:
+  updateStrategy:
+    type: OnDelete
+  selector:
+    matchLabels:
+      app: mofed-{{ .RuntimeSpec.OSName }}{{ .RuntimeSpec.OSVer }}-{{ .RuntimeSpec.KernelHash }}
+  template:
+    metadata:
+      labels:
+        app: mofed-{{ .RuntimeSpec.OSName }}{{ .RuntimeSpec.OSVer }}-{{ .RuntimeSpec.KernelHash }}
+        kernel: {{ .RuntimeSpec.Kernel }}
+        nvidia.com/ofed-driver: ""
+    spec:
+      priorityClassName: system-node-critical
+      tolerations:
+        {{- if .Tolerations }}
+        {{- .Tolerations | yaml | nindent 8 }}
+        {{- end }}
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: nvidia.com/ofed-driver
+                    operator: Exists
+              topologyKey: kubernetes.io/hostname
+      serviceAccountName: ofed-driver
+      hostNetwork: true
+      {{- if .CrSpec.ImagePullSecrets }}
+      imagePullSecrets:
+      {{- range .CrSpec.ImagePullSecrets }}
+        - name: {{ . }}
+      {{- end }}
+      {{- end }}
+      {{- if .RuntimeSpec.InitContainerConfig.InitContainerEnable  }}
+      initContainers:
+        - name: network-operator-init-container
+          imagePullPolicy: IfNotPresent
+          image: {{ .RuntimeSpec.InitContainerConfig.InitContainerImageName }}
+          args:
+            - --node-name
+            - $(NODE_NAME)
+            - --configmap-name
+            - ofed-init-container-config
+            - --configmap-namespace
+            - {{ .RuntimeSpec.Namespace }}
+            - --configmap-key
+            - config.json
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+      {{- end }}
+      containers:
+        - image: {{ .RuntimeSpec.MOFEDImageName }}
+          imagePullPolicy: IfNotPresent
+          name: mofed-container
+          securityContext:
+            privileged: true
+            seLinuxOptions:
+              level: "s0"
+          env:
+          {{- if .RuntimeSpec.UseDtk }}
+            - name: DTK_OCP_DRIVER_BUILD
+              value: "true"
+            - name: DTK_OCP_NIC_SHARED_DIR
+              value: "/mnt/shared-doca-driver-toolkit"
+          {{- end }}
+          {{- if .CrSpec.Env }}
+          {{- range .CrSpec.Env }}
+            {{ . | yaml | nindentPrefix 14 "- " }}
+          {{- end }}
+          {{- end }}
+          volumeMounts:
+            - name: run-mlnx-ofed
+              mountPath: /run/mellanox/drivers
+              mountPropagation: Bidirectional
+            - name: etc-network
+              mountPath: /etc/network
+            - name: host-etc
+              mountPath: /host/etc
+            - name: host-usr
+              mountPath: /host/usr
+            - name: host-udev
+              mountPath: /host/lib/udev
+            - name: host-run-udev
+              mountPath: /run/udev
+              readOnly: true
+            - name: host-lib-modules
+              mountPath: /host/lib/modules
+            - name: drivers-inventory
+              mountPath: /mnt/drivers-inventory
+            - name: host-ib-core
+              mountPath: /etc/modprobe.d/ib_core.conf
+            {{- if.AdditionalVolumeMounts.VolumeMounts }}
+            {{- range .AdditionalVolumeMounts.VolumeMounts }}
+            - name: {{ .Name }}
+              mountPath: {{ .MountPath }}
+              subPath: {{ .SubPath }}
+              readOnly: {{ .ReadOnly }}
+            {{- end }}
+            {{- end }}
+            {{- if .RuntimeSpec.UseDtk }}
+            - name: shared-doca-driver-toolkit
+              mountPath: /mnt/shared-doca-driver-toolkit
+            {{- end}}
+          {{- with .RuntimeSpec.ContainerResources }}
+          {{- with index . "mofed-container" }}
+          resources:
+            {{- if .Requests }}
+            requests:
+              {{ .Requests | yaml | nindent 14}}
+            {{- end }}
+            {{- if .Limits }}
+            limits:
+              {{ .Limits | yaml | nindent 14}}
+            {{- end }}
+          {{- end }}
+          {{- end }}
+          startupProbe:
+            exec:
+              command:
+                [sh, -c, 'ls /run/mellanox/drivers/.driver-ready']
+            initialDelaySeconds: {{ .CrSpec.StartupProbe.InitialDelaySeconds }}
+            failureThreshold: 60
+            successThreshold: 1
+            timeoutSeconds: 10
+            periodSeconds: {{ .CrSpec.StartupProbe.PeriodSeconds }}
+          readinessProbe:
+            exec:
+              command:
+                [sh, -c, 'lsmod | grep mlx5_core']
+            initialDelaySeconds: {{ .CrSpec.ReadinessProbe.InitialDelaySeconds }}
+            failureThreshold: 1
+            successThreshold: 1
+            timeoutSeconds: 10
+            periodSeconds: {{ .CrSpec.ReadinessProbe.PeriodSeconds }}
+        {{- if .RuntimeSpec.UseDtk }}
+        - image: {{ .RuntimeSpec.DtkImageName }}
+          imagePullPolicy: IfNotPresent
+          name: openshift-driver-toolkit-ctr
+          command: [bash, -xc]
+          args:
+            - |
+              until [ -f /mnt/shared-doca-driver-toolkit/dtk_start_compile ]; do
+                echo Waiting for mofed-container container to prepare the shared directory
+                sleep 3
+              done
+              exec /mnt/shared-doca-driver-toolkit/dtk_nic_driver_build.sh
+          env:
+            - name: DTK_OCP_NIC_SHARED_DIR
+              value: "/mnt/shared-doca-driver-toolkit"
+          {{- if .CrSpec.Env }}
+          {{- range .CrSpec.Env }}
+            {{ . | yaml | nindentPrefix 14 "- " }}
+          {{- end }}
+          {{- end }}
+          volumeMounts:
+            {{- if.AdditionalVolumeMounts.VolumeMounts }}
+            {{- range .AdditionalVolumeMounts.VolumeMounts }}
+            - name: {{ .Name }}
+              mountPath: {{ .MountPath }}
+              subPath: {{ .SubPath }}
+              readOnly: {{ .ReadOnly }}
+            {{- end }}
+            {{- end }}
+            - name: shared-doca-driver-toolkit
+              mountPath: /mnt/shared-doca-driver-toolkit
+          {{- with index .RuntimeSpec.ContainerResources "openshift-driver-toolkit-ctr" }}
+          resources:
+            {{- if .Requests }}
+            requests:
+              {{ .Requests | yaml | nindent 14}}
+            {{- end }}
+            {{- if .Limits }}
+            limits:
+              {{ .Limits | yaml | nindent 14}}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+      # unloading OFED modules can take more time than default terminationGracePeriod (30 sec)
+      terminationGracePeriodSeconds: {{ .CrSpec.TerminationGracePeriodSeconds }}
+      volumes:
+        - name: run-mlnx-ofed
+          hostPath:
+            path: /run/mellanox/drivers
+        - name: etc-network
+          hostPath:
+            path: /etc/network
+        - name: host-etc
+          hostPath:
+            path: /etc
+        - name: host-usr
+          hostPath:
+            path: /usr
+        - name: host-udev
+          hostPath:
+            path: /lib/udev
+        - name: host-run-udev
+          hostPath:
+            path: /run/udev
+        - name: host-lib-modules
+          hostPath:
+            path: /lib/modules
+        - name: drivers-inventory
+          hostPath:
+            path: /var/opt/mofed-container/inventory
+            type: DirectoryOrCreate
+        - name: host-ib-core
+          hostPath:
+            path: /etc/modprobe.d/ib_core.conf
+            type: FileOrCreate
+        {{- range .AdditionalVolumeMounts.Volumes }}
+        - name: {{ .Name }}
+          {{- if and .ConfigMap .ConfigMap.Items }}
+          configMap:
+            name: {{ .Name }}
+            items:
+            {{- range .ConfigMap.Items }}
+            {{ . | yaml | nindentPrefix 14 "- " }}
+            {{- end }}
+          {{- else if .HostPath }}
+          hostPath:
+            path: {{ .HostPath.Path }}
+            type: {{ .HostPath.Type }}
+          {{- end }}
+        {{- end }}
+        {{- if .RuntimeSpec.UseDtk }}
+        - name: shared-doca-driver-toolkit
+          emptyDir: {}
+        {{- end }}
+      nodeSelector:
+        feature.node.kubernetes.io/pci-15b3.present: "true"
+        feature.node.kubernetes.io/system-os_release.ID: {{ .RuntimeSpec.OSName }}
+        feature.node.kubernetes.io/system-os_release.VERSION_ID: "{{ .RuntimeSpec.OSVer }}"
+        feature.node.kubernetes.io/kernel-version.full: "{{ .RuntimeSpec.Kernel }}"
+        {{- if .RuntimeSpec.UseDtk }}
+        feature.node.kubernetes.io/system-os_release.OSTREE_VERSION: "{{ .RuntimeSpec.RhcosVersion }}"
+        {{- end }}
+      {{- if .NodeAffinity }}
+      affinity:
+        nodeAffinity:
+          {{- .NodeAffinity | yaml | nindent 10 }}
+      {{- end }}

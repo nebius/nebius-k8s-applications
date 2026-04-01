@@ -84,11 +84,25 @@ spec:
             - name: CNI_BIN_DIR
               value: "{{ .Values.operator.cniBinDirectory }}"
             {{- end }}
-            {{- if and .Values.ofedDriver.initContainer .Values.ofedDriver.initContainer.enable }}
+            {{- if .Values.operator.cniNetworkDirectory }}
+            - name: CNI_NETWORK_DIR
+              value: "{{ .Values.operator.cniNetworkDirectory }}"
+            {{- end }}
+            {{- if and .Values.operator.ofedDriver.initContainer .Values.operator.ofedDriver.initContainer.enable }}
             - name: OFED_INIT_CONTAINER_IMAGE
-              {{- with .Values.ofedDriver.initContainer }}
+              {{- with .Values.operator.ofedDriver.initContainer }}
               value: "{{ .repository }}/{{ .image }}:{{ .version }}"
               {{- end }}
+            {{- end }}
+            {{- if .Values.maintenanceOperator.enabled }}
+            - name: MAINTENANCE_OPERATOR_ENABLED
+              value: "{{ .Values.operator.maintenanceOperator.useRequestor }}"
+            - name: MAINTENANCE_OPERATOR_REQUESTOR_ID
+              value: {{ .Values.operator.maintenanceOperator.requestorID }}
+            - name: MAINTENANCE_OPERATOR_NODE_MAINTENANCE_PREFIX
+              value: {{ .Values.operator.maintenanceOperator.nodeMaintenanceNamePrefix }}
+            - name: MAINTENANCE_OPERATOR_REQUESTOR_NAMESPACE
+              value: {{ .Values.operator.maintenanceOperator.nodeMaintenanceNamespace }}
             {{- end }}
           securityContext:
             allowPrivilegeEscalation: false

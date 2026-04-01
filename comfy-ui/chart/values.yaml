@@ -1,0 +1,21 @@
+image:
+  repository: "cr.eu-west1.nebius.cloud/marketplace/comfyui/comfy-base-image"
+  tag: "0.6.0"
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+env:
+  COMFY_URL: "https://github.com/comfyanonymous/ComfyUI.git"
+  COMFY_TAG: "latest"
+  MANAGER_URL: "https://github.com/Comfy-Org/ComfyUI-Manager.git"
+  MANAGER_TAG: "latest"
+  COMFY_ARGS: ""
+
+resources:
+  gpu_count: 1
+  gpu_selector: "any"
+  additional:
+    cpu: 4
+    memory: 28
+    storage_size: 100

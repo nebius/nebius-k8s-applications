@@ -3,8 +3,8 @@ slug: nvidia-gpu-operator
 ownerName: NVIDIA
 publisherName: Nebius
 categories:
-  - training
-  - k3s-training
+  - gpu-compute
+
 images:
   - registry: validator.repository
     nameWithoutRegistry: validator.image
@@ -22,15 +22,17 @@ images:
     nameWithoutRegistry: driver.image
     tag: driver.full_version
 
-  - full: driver.full_alternative_image
+  - registry: driver.repository
+    nameWithoutRegistry: driver.image
+    tag: driver.full_version_ubuntu24
 
-  - full: driver.full_new_image
+  - registry: driver.repository
+    nameWithoutRegistry: driver.image
+    tag: driver.full_version_580
 
-  - full: driver.full_new_alternative_image
-
-  - full: driver.full_image-550-127-08
-
-  - full: driver.full_alternative_image-550-127-08
+  - registry: driver.repository
+    nameWithoutRegistry: driver.image
+    tag: driver.full_version_ubuntu24_580
 
   - registry: driver.manager.repository
     nameWithoutRegistry: driver.manager.image
@@ -98,3 +100,7 @@ images:
   - registry: gdrcopy.repository
     nameWithoutRegistry: gdrcopy.image
     tag: gdrcopy.fullVersion
+
+  - registry: gdrcopy.repository
+    nameWithoutRegistry: gdrcopy.image
+    tag: gdrcopy.fullVersionUbuntu24

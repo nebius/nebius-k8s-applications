@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-dashboard-svc
+  annotations:
+    nebius.com/MarketplaceServiceAccess: title=Dashboard,ssl=false,type=web,port=dashboard-port
+spec:
+  type: ClusterIP
+  selector:
+     ray.io/group: headgroup
+  ports:
+    - name: dashboard-port
+      port: 8265
+      targetPort: 8265

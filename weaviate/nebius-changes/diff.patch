@@ -1,0 +1,51 @@
+diff --git a/marketplace/products/github/weaviate/chart/templates/weaviateConfigMap.yaml b/marketplace/products/github/weaviate/chart/templates/weaviateConfigMap.yaml
+index c11fdaeccbc..e419e1a215a 100644
+--- a/marketplace/products/github/weaviate/chart/templates/weaviateConfigMap.yaml
++++ b/marketplace/products/github/weaviate/chart/templates/weaviateConfigMap.yaml
+@@ -10,7 +10,14 @@ data:
+   conf.yaml: |-
+     ---
+     authentication:
+-      {{ toYaml .Values.authentication | nindent 6 | trim }}
++      apikey:
++        enabled: true
++        allowed_keys:
++          - {{ .Values.authentication.apikey.allowed_keys }}
++        users:
++          - {{ .Values.authentication.apikey.users }}
++      anonymous_access:
++        enabled: {{ .Values.authentication.anonymous_access.enabled }}
+     authorization:
+       {{ toYaml .Values.authorization | nindent 6 | trim }}
+     {{ if index .Values "modules" "text2vec-contextionary" "enabled" }}
+diff --git a/marketplace/products/github/weaviate/chart/values.yaml b/marketplace/products/github/weaviate/chart/values.yaml
+index 932a7dbe865..79a5bf37644 100644
+--- a/marketplace/products/github/weaviate/chart/values.yaml
++++ b/marketplace/products/github/weaviate/chart/values.yaml
+@@ -118,7 +118,7 @@ service:
+ # weaviate gRPC port be only accessible within your cluster.
+ grpcService:
+   # Set this to true in order to deploy Weaviate gRPC service
+-  enabled: false
++  enabled: true
+   name: weaviate-grpc
+   ports:
+     - name: grpc
+@@ -174,12 +174,16 @@ terminationGracePeriodSeconds: 600
+ # configuration.
+ authentication:
+   anonymous_access:
+-    enabled: true
++    enabled: false
+   # This configuration allows to add API keys to Weaviate. This configuration allows only
+   # plain text API Keys, if you want to store the API Keys in a Kubernetes secret you can
+   # configure the same configuration with ENV Vars. Read the `env` section below on what
+   # needs to be configured. If using ENV Vars over this make sure to comment out the whole
+   # `apikey` section (as it is by default). ENV Vars has priority over this config.
++  apikey:
++    enabled: true
++    allowed_keys: "admin"
++    users: "admin@example.com"
+   # apikey:
+   #   enabled: false
+   #   # Any number of allowed API Keys as plain text

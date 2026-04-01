@@ -1,0 +1,191 @@
+# Default values for generative-virtual-screening-chart.
+
+replicaCount: 1
+
+msa:
+  containerName: msa
+  containerPort: 8000
+  repository: nvcr.io/nim/colabfold/msa-search
+  tag: "1.0"
+  pullPolicy: Always
+  cacheFolder: /opt/nim/.cache
+  servicePort: 8081
+
+openfold2:
+  containerName: openfold2
+  containerPort: 8000
+  repository: nvcr.io/nim/openfold/openfold2
+  tag: "1.0"
+  pullPolicy: Always
+  cacheFolder: /opt/nim/.cache
+  servicePort: 8082
+
+genmol:
+  containerName: genoml
+  containerPort: 8000
+  repository: nvcr.io/nim/nvidia/genmol
+  tag: "1.0"
+  pullPolicy: Always
+  cacheFolder: /opt/nim/.cache
+  servicePort: 8083
+
+diffdock:
+  containerName: diffdock
+  containerPort: 8000
+  tritonPort: 8003
+  repository: nvcr.io/nim/mit/diffdock
+  tag: "2.0"
+  pullPolicy: Always
+  cacheFolder: /opt/nim/.cache
+  servicePort: 8084
+
+imagePullSecret:
+  registry: "nvcr.io"
+  name: "ngc-secret-docker-registry"
+  create: true
+  username: '$oauthtoken'
+  password: ""
+  secretKey: NGC_REGISTRY_KEY
+
+apiSecret:
+  name: "ngc-secret-gvs-api"
+  secretName: ngc-api-secret
+  secretKey: NGC_API_KEY
+
+service:
+  type: ClusterIP
+
+nameOverride: ""
+fullnameOverride: ""
+
+# serviceAccount:
+#   # Specifies whether a service account should be created
+#   create: true
+#   # Annotations to add to the service account
+#   annotations: {}
+#   # The name of the service account to use.
+#   # If not set and create is true, a name is generated using the fullname template
+#   name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources:
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  limits:
+    nvidia.com/gpu: 1
+  requests:
+    nvidia.com/gpu: 1
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+persistence:
+  enabled: true
+  existingClaim: ""
+  storageClass: nfs
+  accessMode: ReadWriteMany
+  size: 2000Gi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+jupyterhub:
+  hub:
+    config:
+      JupyterHub:
+        authenticator_class: dummy
+
+  singleuser:
+    storage:
+      extraVolumes:
+        - name: generative-virtual-screening
+          configMap:
+            name: generative-virtual-screening
+      extraVolumeMounts:
+        - name: generative-virtual-screening
+          mountPath: /tmp/jupyterhub/generative-virtual-screening
+          readOnly: false
+
+    # singleuser relates to the configuration of KubeSpawner which runs in the hub
+    # pod, and its spawning of user pods such as jupyter-myusername.
+    profileList:
+      - display_name: "Jupyterhub with Generative Virtual Screening notebook"
+        description: "Default image, runs on any node."
+        kubespawner_override:
+          image: quay.io/jupyter/base-notebook:notebook-7.3.2
+          lifecycle_hooks:
+            postStart:
+              exec:
+                command: ["/bin/sh", "-c", "sudo apt update && sudo apt install -y git curl wget libxrender1;cat /home/jovyan/generative-virtual-screening.ipynb || cp /tmp/jupyterhub/generative-virtual-screening/generative-virtual-screening.ipynb /home/jovyan"]
+ 
+nfs:
+  image: itsthenetwork/nfs-server-alpine:latest
+  nfs_pv_size: 2000Gi
+
+csi-driver-nfs:
+  image:
+    nfs:
+        repository: registry.k8s.io/sig-storage/nfsplugin
+        tag: v4.11.0
+        pullPolicy: IfNotPresent
+    csiProvisioner:
+        repository: registry.k8s.io/sig-storage/csi-provisioner
+        tag: v5.2.0
+        pullPolicy: IfNotPresent
+    csiResizer:
+        repository: registry.k8s.io/sig-storage/csi-resizer
+        tag: v1.13.1
+        pullPolicy: IfNotPresent
+    csiSnapshotter:
+        repository: registry.k8s.io/sig-storage/csi-snapshotter
+        tag: v8.2.0
+        pullPolicy: IfNotPresent
+    livenessProbe:
+        repository: registry.k8s.io/sig-storage/livenessprobe
+        tag: v2.15.0
+        pullPolicy: IfNotPresent
+    nodeDriverRegistrar:
+        repository: registry.k8s.io/sig-storage/csi-node-driver-registrar
+        tag: v2.13.0
+        pullPolicy: IfNotPresent
+    externalSnapshotter:
+        repository: registry.k8s.io/sig-storage/snapshot-controller
+        tag: v8.2.0
+        pullPolicy: IfNotPresent

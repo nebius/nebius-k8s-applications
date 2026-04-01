@@ -4,8 +4,8 @@
     "type": "base",
     "layout": "",
     "order": [
-      "namespace",
-      "applicationName",
+      "mk8sCluster",
+      "general",
       "newBackend",
       "clearml.agentk8sglueKey",
       "clearml.agentk8sglueSecret",
@@ -18,20 +18,59 @@
     ]
   },
   "defaultValue": {
-    "applicationName": "clearml-agent",
     "newBackend": true,
     "agentk8sglue.basePodTemplate.gpus": "1",
-    "agentk8sglue.apiServerUrlReference":"https://api.clear.ml",
-    "agentk8sglue.fileServerUrlReference":"https://files.clear.ml",
-    "agentk8sglue.webServerUrlReference":"https://app.clear.ml/"
+    "agentk8sglue.apiServerUrlReference": "https://api.clear.ml",
+    "agentk8sglue.fileServerUrlReference": "https://files.clear.ml",
+    "agentk8sglue.webServerUrlReference": "https://app.clear.ml/"
   },
   "properties": {
+    "mk8sCluster": {
+      "type": "object",
+      "required": true,
+      "viewSpec": {
+        "type": "mk8s_cluster"
+      }
+    },
+    "general": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "layout": "section",
+        "layoutTitle": "General"
+      },
+      "defaultValue": {},
+      "properties": {
+        "appname": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Application name"
+          },
+          "defaultValue": "clearml-agent"
+        },
+        "namespace": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Namespace"
+          },
+          "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "patternError": "namespace must consist of lower case alphanumeric characters or '-', and must start and end with an alphanumeric character (e.g. 'my-name',  or '123-abc', regex used for validation is ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "defaultValue": "clearml-agent"
+        }
+      }
+    },
     "newBackend": {
       "type": "boolean",
       "viewSpec": {
         "type": "base",
         "layout": "row",
-        "hidden": "true"
+        "hidden": true
       },
       "required": true
     },

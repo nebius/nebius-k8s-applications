@@ -3,7 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.14.0
+    controller-gen.kubebuilder.io/version: v0.16.4
   name: ipoibnetworks.mellanox.com
 spec:
   group: mellanox.com
@@ -44,7 +44,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: IPoIBNetworkSpec defines the desired state of IPoIBNetwork
+            description: Defines the desired state of IPoIBNetwork
             properties:
               ipam:
                 description: IPAM configuration to be used for this network.
@@ -58,7 +58,7 @@ spec:
                 type: string
             type: object
           status:
-            description: IPoIBNetworkStatus defines the observed state of IPoIBNetwork
+            description: Defines the observed state of IPoIBNetwork
             properties:
               ipoibNetworkAttachmentDef:
                 description: Network attachment definition generated from IPoIBNetworkSpec

@@ -1,0 +1,16 @@
+apiVersion: v2
+name: generative-virtual-screening-chart
+description: A Helm chart for Generative Virtual Screening NIM Workflow
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+dependencies:
+- name: nfs
+  repository: file://./charts/nfs
+  version: 0.1.0
+- name: csi-driver-nfs
+  repository: file://./charts/csi-driver-nfs
+  version: v4.11.0
+- name: jupyterhub
+  repository: oci://cr.eu-north1.nebius.cloud/marketplace/nebius/jupyterhub/chart
+  version: 4.1.0

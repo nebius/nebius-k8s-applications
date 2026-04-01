@@ -1,0 +1,91 @@
+{{- if .Values.autoRemove.enabled }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: autoshutdown-sa
+  namespace: {{ .Release.Namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: autoshutdown-role
+  namespace: {{ .Release.Namespace }}
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "patch", "update", "delete"]
+  - apiGroups: ["apps"]
+    resources: ["deployments/scale"]
+    verbs: ["patch"]
+  - apiGroups: ["batch"]
+    resources: ["cronjobs"]
+    verbs: ["get", "patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: autoshutdown-rolebinding
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: autoshutdown-role
+subjects:
+  - kind: ServiceAccount
+    name: autoshutdown-sa
+    namespace: {{ .Release.Namespace }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "myapp.fullname" . }}-autoshutdown
+spec:
+  schedule: "*/15 * * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: autoshutdown-sa
+          containers:
+            - name: scaler
+              image: bitnami/kubectl
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  DEPLOYMENT="{{ include "myapp.fullname" . }}"
+                  NAMESPACE="{{ .Release.Namespace }}"
+                  MODE="{{ .Values.autoRemove.mode }}"
+                  APPLY_AFTER_HOURS={{ .Values.autoRemove.applyAfter }}
+                  CRONJOB_NAME="{{ include "myapp.fullname" . }}-autoshutdown"
+
+                  if ! kubectl get deployment $DEPLOYMENT -n $NAMESPACE >/dev/null 2>&1; then
+                    echo "Deployment $DEPLOYMENT not found, disabling cronjob"
+                    kubectl patch cronjob $CRONJOB_NAME -n $NAMESPACE -p '{"spec":{"suspend":true}}'
+                    exit 0
+                  fi
+
+                  CURRENT_TIME=$(date +%s)
+                  CREATED_TIME=$(kubectl get deployment $DEPLOYMENT -n $NAMESPACE -o jsonpath='{.metadata.creationTimestamp}' | date -f - +%s)
+                  TIME_DIFF=$((CURRENT_TIME - CREATED_TIME))
+                  TIME_LIMIT=$((APPLY_AFTER_HOURS * 3600))
+
+                  if [ "$TIME_DIFF" -gt "$TIME_LIMIT" ]; then
+                    if [ "$MODE" = "scale" ]; then
+                      echo "Scaling down deployment $DEPLOYMENT in namespace $NAMESPACE"
+                      kubectl scale deployment $DEPLOYMENT -n $NAMESPACE --replicas=0
+                    elif [ "$MODE" = "delete" ]; then
+                      echo "Deleting deployment $DEPLOYMENT in namespace $NAMESPACE"
+                      kubectl delete deployment $DEPLOYMENT -n $NAMESPACE
+                    fi
+
+                    echo "Action completed, disabling cronjob"
+                    kubectl patch cronjob $CRONJOB_NAME -n $NAMESPACE -p '{"spec":{"suspend":true}}'
+                  else
+                    echo "Not yet time to act"
+                  fi
+          restartPolicy: OnFailure
+{{- end }}

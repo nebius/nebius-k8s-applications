@@ -42,14 +42,15 @@ hub:
 
     FirstUseAuthenticator:
       create_users: False
+      min_password_length: 15
       admin_users:
         - admin
 
     NativeAuthenticator:
       open_signup: True
       allowed_failed_logins: 5
-      check_common_password: False
-      minimum_password_length: 0
+      check_common_password: True
+      minimum_password_length: 15
   service:
     type: ClusterIP
     annotations: {}
@@ -58,6 +59,8 @@ hub:
       appProtocol:
     extraPorts: []
     loadBalancerIP:
+    ipFamilyPolicy: PreferDualStack
+    ipFamilies: []
   baseUrl: /
   cookieSecret:
   initContainers: []
@@ -99,7 +102,7 @@ hub:
   extraVolumeMounts: []
   image:
     name: quay.io/jupyterhub/k8s-hub
-    tag: "4.1.0"
+    tag: "4.3.3"
     pullPolicy:
     pullSecrets: []
   resources: {}
@@ -202,7 +205,7 @@ proxy:
     rollingUpdate:
   # service relates to the proxy-public service
   service:
-    type: LoadBalancer
+    type: ClusterIP
     labels: {}
     annotations: {}
     nodePorts:
@@ -210,8 +213,11 @@ proxy:
       https:
     disableHttpPort: false
     extraPorts: []
+    externalIPs: []
     loadBalancerIP:
     loadBalancerSourceRanges: []
+    ipFamilyPolicy: PreferDualStack
+    ipFamilies: []
   # chp relates to the proxy pod, which is responsible for routing traffic based
   # on dynamic configuration sent from JupyterHub to CHP's REST API.
   chp:
@@ -230,7 +236,7 @@ proxy:
       # tag is automatically bumped to new patch versions by the
       # watch-dependencies.yaml workflow.
       #
-      tag: "4.6.3" # https://github.com/jupyterhub/configurable-http-proxy/tags
+      tag: "5.2.0" # https://github.com/jupyterhub/configurable-http-proxy/tags
       pullPolicy:
       pullSecrets: []
     extraCommandLineFlags: []
@@ -290,7 +296,7 @@ proxy:
       # tag is automatically bumped to new patch versions by the
       # watch-dependencies.yaml workflow.
       #
-      tag: "v3.3.1" # ref: https://hub.docker.com/_/traefik?tab=tags
+      tag: "v3.6.12" # ref: https://hub.docker.com/_/traefik?tab=tags
       pullPolicy:
       pullSecrets: []
     hsts:
@@ -342,7 +348,7 @@ proxy:
         type: "RuntimeDefault"
     image:
       name: quay.io/jupyterhub/k8s-secret-sync
-      tag: "4.1.0"
+      tag: "4.3.3"
       pullPolicy:
       pullSecrets: []
     resources: {}
@@ -367,27 +373,6 @@ proxy:
 # singleuser relates to the configuration of KubeSpawner which runs in the hub
 # pod, and its spawning of user pods such as jupyter-myusername.
 singleuser:
-  profileList:
-    - display_name: "Default Jupyterhub Image"
-      description: "Default image, runs on any node."
-      kubespawner_override:
-        image: quay.io/jupyter/base-notebook:notebook-7.3.2
-        lifecycle_hooks:
-          postStart:
-            exec:
-              command: ["/bin/sh", "-c", "sudo apt update && sudo apt install -y git curl wget;cat /home/jovyan/default.ipynb || cp /tmp/jupyterhub/notebooks/default.ipynb /home/jovyan"]
-
-    - display_name: "Image with GPU support and PyTorch library (Jupyterhub)"
-      description: "Only runs on nodes with GPUs, fails to start if there is no such node available."
-      kubespawner_override:
-        image: quay.io/jupyter/pytorch-notebook:cuda12-notebook-7.3.2
-        extra_resource_limits:
-          nvidia.com/gpu: 1
-        lifecycle_hooks:
-          postStart:
-            exec:
-              command: [ "/bin/sh", "-c", "cat /home/jovyan/default.ipynb || cp /tmp/jupyterhub/notebooks/default.ipynb /home/jovyan" ]
-
   podNameTemplate:
   extraTolerations: []
   nodeSelector: {}
@@ -403,7 +388,7 @@ singleuser:
   networkTools:
     image:
       name: quay.io/jupyterhub/k8s-network-tools
-      tag: "4.1.0"
+      tag: "4.3.3"
       pullPolicy:
       pullSecrets: []
     resources: {}
@@ -415,7 +400,7 @@ singleuser:
   networkPolicy:
     enabled: true
     ingress: []
-    egress: 
+    egress:
       - to:
           - namespaceSelector: {}
     egressAllowRules:
@@ -431,20 +416,20 @@ singleuser:
   extraAnnotations: {}
   extraLabels:
     hub.jupyter.org/network-access-hub: "true"
-  extraFiles: { }
+  extraFiles: {}
   extraEnv:
     GRANT_SUDO: "yes"
     NOTEBOOK_ARGS: "--allow-root"
-  lifecycleHooks: { }
-  initContainers: [ ]
-  extraContainers: [ ]
+  lifecycleHooks: {}
+  initContainers: []
+  extraContainers: []
   allowPrivilegeEscalation: true
   uid: 0
   fsGid: 100
   serviceAccountName:
   storage:
     type: dynamic
-    extraLabels: { }
+    extraLabels: {}
     extraVolumes:
       - name: pytorch-notebook
         configMap:
@@ -466,7 +451,7 @@ singleuser:
       subPath:
   image:
     name: quay.io/jupyterhub/k8s-singleuser-sample
-    tag: "4.1.0"
+    tag: "4.3.3"
     pullPolicy:
     pullSecrets: []
   startTimeout: 300
@@ -482,7 +467,26 @@ singleuser:
   cmd: jupyterhub-singleuser
   defaultUrl:
   extraPodConfig: {}
+  profileList:
+    - display_name: "Default Jupyterhub Image"
+      description: "Default image, runs on any node."
+      kubespawner_override:
+        image: quay.io/jupyter/base-notebook:notebook-7.3.2
+        lifecycle_hooks:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "sudo apt update && sudo apt install -y git curl wget;cat /home/jovyan/default.ipynb || cp /tmp/jupyterhub/notebooks/default.ipynb /home/jovyan"]
 
+    - display_name: "Image with GPU support and PyTorch library (Jupyterhub)"
+      description: "Only runs on nodes with GPUs, fails to start if there is no such node available."
+      kubespawner_override:
+        image: quay.io/jupyter/pytorch-notebook:cuda12-notebook-7.3.2
+        extra_resource_limits:
+          nvidia.com/gpu: 1
+        lifecycle_hooks:
+          postStart:
+            exec:
+              command: [ "/bin/sh", "-c", "cat /home/jovyan/default.ipynb || cp /tmp/jupyterhub/notebooks/default.ipynb /home/jovyan" ]
 
 # scheduling relates to the user-scheduler pods and user-placeholder pods.
 scheduling:
@@ -564,7 +568,7 @@ scheduling:
         type: "RuntimeDefault"
     image:
       # IMPORTANT: Bumping the minor version of this binary should go hand in
-      #            hand with an inspection of the user-scheduelr's RBAC
+      #            hand with an inspection of the user-scheduler's RBAC
       #            resources that we have forked in
       #            templates/scheduling/user-scheduler/rbac.yaml.
       #
@@ -591,14 +595,14 @@ scheduling:
       #            - If "successfully acquired lease" can be seen in the logs, it
       #              is a good sign kube-scheduler is ready to schedule pods.
       #
-      name: registry.k8s.io/kube-scheduler
+      name: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/kube-scheduler
       # tag is automatically bumped to new patch versions by the
       # watch-dependencies.yaml workflow. The minor version is pinned in the
       # workflow, and should be updated there if a minor version bump is done
       # here. We aim to stay around 1 minor version behind the latest k8s
       # version.
       #
-      tag: "v1.30.8" # ref: https://github.com/kubernetes/kubernetes/tree/master/CHANGELOG
+      tag: "v1.30.14" # ref: https://github.com/kubernetes/kubernetes/tree/master/CHANGELOG
       pullPolicy:
       pullSecrets: []
     nodeSelector: {}
@@ -624,13 +628,13 @@ scheduling:
   userPlaceholder:
     enabled: true
     image:
-      name: registry.k8s.io/pause
+      name: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/pause
       # tag is automatically bumped to new patch versions by the
       # watch-dependencies.yaml workflow.
       #
       # If you update this, also update prePuller.pause.image.tag
       #
-      tag: "3.10"
+      tag: "3.10.1"
       pullPolicy:
       pullSecrets: []
     revisionHistoryLimit:
@@ -691,12 +695,12 @@ prePuller:
   extraTolerations: []
   # hook relates to the hook-image-awaiter Job and hook-image-puller DaemonSet
   hook:
-    enabled: true
+    enabled: false
     pullOnlyOnChanges: true
     # image and the configuration below relates to the hook-image-awaiter Job
     image:
       name: quay.io/jupyterhub/k8s-image-awaiter
-      tag: "4.1.0"
+      tag: "4.3.3"
       pullPolicy:
       pullSecrets: []
     containerSecurityContext:
@@ -722,12 +726,14 @@ prePuller:
       create: true
       name:
       annotations: {}
+    daemonsetAnnotations: {}
   continuous:
-    enabled: true
+    enabled: false
     serviceAccount:
       create: true
       name:
       annotations: {}
+    daemonsetAnnotations: {}
   pullProfileListImages: true
   extraImages: {}
   pause:
@@ -741,13 +747,13 @@ prePuller:
       seccompProfile:
         type: "RuntimeDefault"
     image:
-      name: registry.k8s.io/pause
+      name: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/jupyterhub/pause
       # tag is automatically bumped to new patch versions by the
       # watch-dependencies.yaml workflow.
       #
       # If you update this, also update scheduling.userPlaceholder.image.tag
       #
-      tag: "3.10"
+      tag: "3.10.1"
       pullPolicy:
       pullSecrets: []
 
@@ -760,6 +766,15 @@ ingress:
   pathType: Prefix
   tls: []
   extraPaths: []
+
+httpRoute:
+  enabled: false
+  annotations: {}
+  hostnames: []
+  gateway:
+    name: your-gateway
+    namespace: "" # required for a gateway resource in another namespace
+    # sectionName: https # optional: specify Gateway listener section (e.g., 'http', 'https')
 
 # cull relates to the jupyterhub-idle-culler service, responsible for evicting
 # inactive singleuser pods.
@@ -783,3 +798,10 @@ debug:
 
 global:
   safeToShowValues: false
+
+tunna-agent:
+  enabled: false
+  config:
+    logging:
+      level: error
+      format: json

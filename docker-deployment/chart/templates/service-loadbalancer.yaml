@@ -1,0 +1,25 @@
+{{- $lbPorts := list }}
+{{- range .Values.containers.containers }}
+  {{- range .ports.port }}
+    {{- if eq .serviceType "LoadBalancer" }}
+      {{- $lbPorts = append $lbPorts . }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
+{{- if $lbPorts }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "myapp.fullname" . }}-loadbalancer
+spec:
+  type: LoadBalancer
+  selector:
+    app: {{ include "myapp.name" . }}
+  ports:
+    {{- range $lbPorts }}
+    - name: {{ .name }}
+      port: {{ .containerPort }}
+      targetPort: {{ .containerPort }}
+    {{- end }}
+{{- end }}

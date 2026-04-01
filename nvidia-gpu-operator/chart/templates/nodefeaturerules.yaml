@@ -104,4 +104,3 @@ spec:
               nvidia.com/gpu.family: {op: In, value: ["hopper"]}
               tdx.enabled: {op: IsTrue}
 {{- end }}
-

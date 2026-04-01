@@ -35,7 +35,7 @@ By using the application, you agree to their terms and conditions: [the helm-cha
 
 ## Usage
 
-1. [Install the kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl) and [configure it to work with the created cluster](https://nebius.ai/docs/managed-kubernetes/operations/connect/#kubectl-connect).
+1. [Install the kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl) and [configure it to work with the created cluster](https://docs.nebius.com/kubernetes/connect).
 
 1. To access the Argo CD UI:
 

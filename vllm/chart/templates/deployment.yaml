@@ -1,0 +1,51 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-wait-pod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Release.Name }}-wait-pod
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ .Release.Name }}-wait-pod
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: {{ .Release.Name }}-wait-pod
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      containers:
+        - name: {{ .Release.Name }}-wait-pod
+          image: "{{ .Values.curl.image.repository }}:{{ .Values.curl.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["tail"]
+          args: ["-f", "/dev/null"]
+          livenessProbe:
+            exec:
+              command:
+              - curl
+              - 'http://{{ .Release.Name }}-serve-svc:8000/v1/'
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            failureThreshold: 240
+          readinessProbe:
+            exec:
+              command:
+              - curl
+              - 'http://{{ .Release.Name }}-serve-svc:8000/v1/'
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            failureThreshold: 240
+          resources:
+            limits:
+              cpu: 100m
+              memory: 64M
+            requests:
+              cpu: 100m
+              memory: 64M

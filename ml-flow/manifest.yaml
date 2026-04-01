@@ -3,10 +3,9 @@ ownerName: MLflow
 publisherName: Nebius
 name: MLflow for Kubernetes
 categories:
-  - new-products
-  - ml-ai
+  - development-and-frameworks
   - training
-  - inference
+
 images:
   - registry: image.registry
     tag: image.tag

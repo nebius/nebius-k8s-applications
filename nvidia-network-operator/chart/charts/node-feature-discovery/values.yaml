@@ -1,7 +1,7 @@
 image:
-  repository: registry.k8s.io/nfd/node-feature-discovery
+  repository: gcr.io/k8s-staging-nfd/node-feature-discovery
   # This should be set to 'IfNotPresent' for released version
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   # tag, if defined will use the given image tag, else Chart.AppVersion will be used
   # tag
 imagePullSecrets: []
@@ -10,25 +10,42 @@ nameOverride: ""
 fullnameOverride: ""
 namespaceOverride: ""
 
-enableNodeFeatureApi: false
-
 featureGates:
-  NodeFeatureAPI: true
   NodeFeatureGroupAPI: false
 
 priorityClassName: ""
 
+postDeleteCleanup: true
+
 master:
   enable: true
+  extraArgs: []
+  extraEnvs: []
+  hostNetwork: false
+  dnsPolicy: ClusterFirstWithHostNet
   config: ### <NFD-MASTER-CONF-START-DO-NOT-REMOVE>
     # noPublish: false
-    # autoDefaultNs: true
     # extraLabelNs: ["added.ns.io","added.kubernets.io"]
     # denyLabelNs: ["denied.ns.io","denied.kubernetes.io"]
-    # resourceLabels: ["vendor-1.com/feature-1","vendor-2.io/feature-2"]
     # enableTaints: false
+    # informerPageSize: 200
     # labelWhiteList: "foo"
     # resyncPeriod: "2h"
+    # restrictions:
+    #   disableLabels: true
+    #   disableTaints: true
+    #   disableExtendedResources: true
+    #   disableAnnotations: true
+    #   allowOverwrite: false
+    #   denyNodeFeatureLabels: true
+    #   nodeFeatureNamespaceSelector:
+    #    matchLabels:
+    #      kubernetes.io/metadata.name: "node-feature-discovery"
+    #    matchExpressions:
+    #      - key: "kubernetes.io/metadata.name"
+    #        operator: "In"
+    #        values:
+    #           - "node-feature-discovery"
     # klog:
     #    addDirHeader: false
     #    alsologtostderr: false
@@ -52,19 +69,13 @@ master:
     #   retryPeriod: 2s
     # nfdApiParallelism: 10
   ### <NFD-MASTER-CONF-END-DO-NOT-REMOVE>
-  # The TCP port that nfd-master listens for incoming requests. Default: 8080
-  # Deprecated this parameter is related to the deprecated gRPC API and will
-  # be removed with it in a future release
   port: 8080
-  metricsPort: 8081
   instance:
   featureApi:
   resyncPeriod:
   denyLabelNs: []
   extraLabelNs: []
-  resourceLabels: []
   enableTaints: false
-  crdController: null
   featureRulesController: null
   nfdApiParallelism: null
   deploymentAnnotations: {}
@@ -96,33 +107,30 @@ master:
   rbac:
     create: true
 
-  service:
-    type: ClusterIP
-    port: 8080
-
-  resources: {}
-    # We usually recommend not to specify default resources and to leave this as a conscious
-    # choice for the user. This also increases chances charts run on environments with little
-    # resources, such as Minikube. If you do want to specify resources, uncomment the following
-    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-    # limits:
-    #   cpu: 100m
-    #   memory: 128Mi
-    # requests:
-    #   cpu: 100m
-    #   memory: 128Mi
+  resources:
+    limits:
+      memory: 4Gi
+    requests:
+      cpu: 100m
+      # You may want to use the same value for `requests.memory` and `limits.memory`. The “requests” value affects scheduling to accommodate pods on nodes.
+      # If there is a large difference between “requests” and “limits” and nodes experience memory pressure, the kernel may invoke
+      # the OOM Killer, even if the memory does not exceed the “limits” threshold. This can cause unexpected pod evictions. Memory
+      # cannot be compressed and once allocated to a pod, it can only be reclaimed by killing the pod.
+      # Natan Yellin 22/09/2022 https://home.robusta.dev/blog/kubernetes-memory-limit
+      memory: 128Mi
 
   nodeSelector: {}
 
   tolerations:
-  - key: "node-role.kubernetes.io/master"
-    operator: "Equal"
-    value: ""
-    effect: "NoSchedule"
   - key: "node-role.kubernetes.io/control-plane"
     operator: "Equal"
     value: ""
     effect: "NoSchedule"
+
+  podDisruptionBudget:
+    enable: false
+    minAvailable: 1
+    unhealthyPodEvictionPolicy: AlwaysAllow
 
   annotations: {}
 
@@ -132,22 +140,36 @@ master:
         - weight: 1
           preference:
             matchExpressions:
-              - key: "node-role.kubernetes.io/master"
-                operator: In
-                values: [""]
-        - weight: 1
-          preference:
-            matchExpressions:
               - key: "node-role.kubernetes.io/control-plane"
                 operator: In
                 values: [""]
 
+  startupProbe:
+    failureThreshold: 30
+    # periodSeconds: 10
+  livenessProbe: {}
+    # failureThreshold: 3
+    # initialDelaySeconds: 0
+    # periodSeconds: 10
+    # timeoutSeconds: 1
+  readinessProbe:
+    failureThreshold: 10
+    # initialDelaySeconds: 0
+    # periodSeconds: 10
+    # timeoutSeconds: 1
+    # successThreshold: 1
+
 worker:
   enable: true
+  extraArgs: []
+  extraEnvs: []
+  hostNetwork: false
+  dnsPolicy: ClusterFirstWithHostNet
   config: ### <NFD-WORKER-CONF-START-DO-NOT-REMOVE>
     #core:
     #  labelWhiteList:
     #  noPublish: false
+    #  noOwnerRefs: false
     #  sleepInterval: 60s
     #  featureSources: [all]
     #  labelSources: [all]
@@ -224,8 +246,6 @@ worker:
     #      - "class"
     #      - "vendor"
     #      - "device"
-    #  local:
-    #    hooksEnabled: false
     #  custom:
     #    # The following feature demonstrates the capabilities of the matchFeatures
     #    - name: "my custom rule"
@@ -388,7 +408,7 @@ worker:
     #          matchName: {op: In, value: ["SWAP", "X86", "ARM"]}
 ### <NFD-WORKER-CONF-END-DO-NOT-REMOVE>
 
-  metricsPort: 8081
+  port: 8080
   daemonsetAnnotations: {}
   podSecurityContext: {}
     # fsGroup: 2000
@@ -401,19 +421,17 @@ worker:
     runAsNonRoot: true
     # runAsUser: 1000
 
-  # livenessProbe: {}
-    ## NOTE: Currently not configurable, defaults are provided for the sake of extra documentation.
-    # grpc:
-    #   port: 8082
-    # initialDelaySeconds: 10
+  livenessProbe:
+    initialDelaySeconds: 10
+    # failureThreshold: 3
     # periodSeconds: 10
-  # readinessProbe: {}
-    ## NOTE: Currently not configurable, defaults are provided for the sake of extra documentation.
-    # grpc:
-    #   port: 8082
-    # initialDelaySeconds: 5
+    # timeoutSeconds: 1
+  readinessProbe:
+    initialDelaySeconds: 5
+    failureThreshold: 10
     # periodSeconds: 10
-    # failureThreshold: 10
+    # timeoutSeconds: 1
+    # successThreshold: 1
 
   serviceAccount:
     # Specifies whether a service account should be created.
@@ -425,6 +443,9 @@ worker:
     # If not set and create is true, a name is generated using the fullname template
     name:
 
+  # specify how many old ControllerRevisions for the DaemonSet to retain.
+  revisionHistoryLimit:
+
   rbac:
     create: true
 
@@ -432,17 +453,12 @@ worker:
   # Does not work on systems without /usr/src AND a read-only /usr, such as Talos
   mountUsrSrc: false
 
-  resources: {}
-    # We usually recommend not to specify default resources and to leave this as a conscious
-    # choice for the user. This also increases chances charts run on environments with little
-    # resources, such as Minikube. If you do want to specify resources, uncomment the following
-    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-    # limits:
-    #   cpu: 100m
-    #   memory: 128Mi
-    # requests:
-    #   cpu: 100m
-    #   memory: 128Mi
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      cpu: 5m
+      memory: 64Mi
 
   nodeSelector: {}
 
@@ -453,6 +469,12 @@ worker:
   affinity: {}
 
   priorityClassName: ""
+
+  updateStrategy: {}
+    # type: RollingUpdate
+    # rollingUpdate:
+    #   maxSurge: 0
+    #   maxUnavailable: "10%"
 
 topologyUpdater:
   config: ### <NFD-TOPOLOGY-UPDATER-CONF-START-DO-NOT-REMOVE>
@@ -467,15 +489,23 @@ topologyUpdater:
 
   enable: false
   createCRDs: false
+  extraArgs: []
+  extraEnvs: []
+  hostNetwork: false
+  dnsPolicy: ClusterFirstWithHostNet
 
   serviceAccount:
     create: true
     annotations: {}
     name:
+
+  # specify how many old ControllerRevisions for the DaemonSet to retain.
+  revisionHistoryLimit:
+
   rbac:
     create: true
 
-  metricsPort: 8081
+  port: 8080
   kubeletConfigPath:
   kubeletPodResourcesSockPath:
   updateInterval: 60s
@@ -490,31 +520,24 @@ topologyUpdater:
     readOnlyRootFilesystem: true
     runAsUser: 0
 
-  # livenessProbe: {}
-    ## NOTE: Currently not configurable, defaults are provided for the sake of extra documentation.
-    # grpc:
-    #   port: 8082
-    # initialDelaySeconds: 10
+  livenessProbe:
+    initialDelaySeconds: 10
+    # failureThreshold: 3
     # periodSeconds: 10
-  # readinessProbe: {}
-    ## NOTE: Currently not configurable, defaults are provided for the sake of extra documentation.
-    # grpc:
-    #   port: 8082
-    # initialDelaySeconds: 5
+    # timeoutSeconds: 1
+  readinessProbe:
+    initialDelaySeconds: 5
+    failureThreshold: 10
     # periodSeconds: 10
-    # failureThreshold: 10
+    # timeoutSeconds: 1
+    # successThreshold: 1
 
-  resources: {}
-    # We usually recommend not to specify default resources and to leave this as a conscious
-    # choice for the user. This also increases chances charts run on environments with little
-    # resources, such as Minikube. If you do want to specify resources, uncomment the following
-    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-    # limits:
-    #   cpu: 100m
-    #   memory: 128Mi
-    # requests:
-    #   cpu: 100m
-    #   memory: 128Mi
+  resources:
+    limits:
+      memory: 60Mi
+    requests:
+      cpu: 50m
+      memory: 40Mi
 
   nodeSelector: {}
   tolerations: []
@@ -525,7 +548,11 @@ topologyUpdater:
 
 gc:
   enable: true
+  extraArgs: []
+  extraEnvs: []
+  hostNetwork: false
   replicaCount: 1
+  dnsPolicy: ClusterFirstWithHostNet
 
   serviceAccount:
     create: true
@@ -537,26 +564,27 @@ gc:
   interval: 1h
 
   podSecurityContext: {}
-  securityContext:
-    allowPrivilegeEscalation: false
-    capabilities:
-      drop: [ "ALL" ]
-    readOnlyRootFilesystem: true
-    runAsNonRoot: true
 
-  resources: {}
-    # We usually recommend not to specify default resources and to leave this as a conscious
-    # choice for the user. This also increases chances charts run on environments with little
-    # resources, such as Minikube. If you do want to specify resources, uncomment the following
-    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-    # limits:
-    #   cpu: 100m
-    #   memory: 128Mi
-    # requests:
-    #   cpu: 100m
-    #   memory: 128Mi
+  livenessProbe:
+    initialDelaySeconds: 10
+    # failureThreshold: 3
+    # periodSeconds: 10
+    # timeoutSeconds: 1
+  readinessProbe:
+    initialDelaySeconds: 5
+    # failureThreshold: 3
+    # periodSeconds: 10
+    # timeoutSeconds: 1
+    # successThreshold: 1
 
-  metricsPort: 8081
+  resources:
+    limits:
+      memory: 1Gi
+    requests:
+      cpu: 10m
+      memory: 128Mi
+
+  port: 8080
 
   nodeSelector: {}
   tolerations: []
@@ -564,20 +592,13 @@ gc:
   deploymentAnnotations: {}
   affinity: {}
 
+  podDisruptionBudget:
+    enable: false
+    minAvailable: 1
+    unhealthyPodEvictionPolicy: Always
+
   # specify how many old ReplicaSets for the Deployment to retain.
   revisionHistoryLimit:
-
-# Optionally use encryption for worker <--> master comms
-# TODO: verify hostname is not yet supported
-#
-# If you do not enable certManager (and have it installed) you will
-# need to manually, or otherwise, provision the TLS certs as secrets
-tls:
-  enable: false
-  certManager: false
-  certManagerCertificate:
-    issuerKind:
-    issuerName:
 
 prometheus:
   enable: false

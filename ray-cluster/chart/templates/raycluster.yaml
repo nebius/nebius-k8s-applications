@@ -1,0 +1,172 @@
+{{- /*
+Если выбран "Put your own spec": выводим его как есть (поддерживаем tpl).
+*/ -}}
+{{- if .Values.configuration.putspec.yamlInput }}
+{{ tpl .Values.configuration.putspec.yamlInput . }}
+{{- else }}
+{{- $cfg := .Values.configuration.configure -}}
+
+apiVersion: ray.io/v1
+kind: RayCluster
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  rayVersion: {{ $cfg.ray_version | quote }}
+
+  {{- if $cfg.ray_autoscaling.enable }}
+  enableInTreeAutoscaling: true
+  autoscalerOptions:
+    {{- with $cfg.ray_autoscaling.advanced.version }}
+    version: {{ . }}
+    {{- end }}
+    {{- with $cfg.ray_autoscaling.advanced.upscalingMode }}
+    upscalingMode: {{ . }}
+    {{- end }}
+    {{- /* 0 — валидное значение, но по форме дефолт 60 */ -}}
+    {{- if hasKey $cfg.ray_autoscaling.advanced "idleTimeoutSeconds" }}
+    idleTimeoutSeconds: {{ $cfg.ray_autoscaling.advanced.idleTimeoutSeconds }}
+    {{- end }}
+  {{- else }}
+  enableInTreeAutoscaling: false
+  {{- end }}
+
+  headGroupSpec:
+    {{- with $cfg.head_group.serviceType }}
+    serviceType: {{ . }}
+    {{- end }}
+
+    rayStartParams:
+      {{- $hsp := $cfg.head_group.advanced.rayStartParams }}
+      {{- with $hsp.num_cpus }}
+      num-cpus: {{ . | quote }}
+      {{- end }}
+      {{- with $hsp.dashboard_host }}
+      dashboard-host: {{ . | quote }}
+      {{- end }}
+
+    template:
+      spec:
+        restartPolicy: Never
+        containers:
+          - name: ray-head
+            image: {{ $cfg.head_group.image }}
+            {{- $hres := $cfg.head_group.advanced.resources }}
+            {{- if or $hres.requests $hres.limits }}
+            resources:
+              {{- with $hres.requests }}
+              requests:
+                {{- with .cpu }}
+                cpu: {{ . }}
+                {{- end }}
+                {{- with .memory }}
+                memory: {{ . | int }}Gi
+                {{- end }}
+              {{- end }}
+              {{- with $hres.limits }}
+              limits:
+                {{- with .cpu }}
+                cpu: {{ . }}
+                {{- end }}
+                {{- with .memory }}
+                memory: {{ . | int }}Gi
+                {{- end }}
+              {{- end }}
+            {{- end }}
+            {{ if index .Values "kube-prometheus-stack" "enabled" }}
+            ports:
+              - containerPort: 6379
+                name: gcs
+              - containerPort: 8265
+                name: dashboard
+              - containerPort: 10001
+                name: client
+              - containerPort: 44217
+                name: as-metrics # autoscaler
+              - containerPort: 44227
+                name: dash-metrics # dashboard
+            env:
+              - name: RAY_GRAFANA_IFRAME_HOST
+                value: http://127.0.0.1:3000
+              - name: RAY_GRAFANA_HOST
+                value: http://{{ .Release.Name }}-grafana:80
+              - name: RAY_PROMETHEUS_HOST
+                value: http://{{- printf "%s-%s" .Release.Name "kube-prometheus-stack" | trunc 26 | trimSuffix "-" -}}-prometheus:9090
+            {{- end}}
+
+  {{- $groups := $cfg.workers_group.groups | default list }}
+  {{- if gt (len $groups) 0 }}
+  workerGroupSpecs:
+    {{- range $i, $g := $groups }}
+    - groupName: {{ $g.name }}
+
+      {{- /* ВАЖНО: 0 — валидно, поэтому проверяем наличие ключа, а не truthiness */ -}}
+      {{- if hasKey $g "replicas" }}
+      replicas: {{ $g.replicas }}
+      {{- end }}
+      {{- if hasKey $g "minReplicas" }}
+      minReplicas: {{ $g.minReplicas }}
+      {{- end }}
+      {{- if hasKey $g "maxReplicas" }}
+      maxReplicas: {{ $g.maxReplicas }}
+      {{- end }}
+
+      {{- with $g.advanced.rayStartParams }}
+      rayStartParams:
+        {{- with .num_cpus }}
+        num-cpus: {{ . | quote }}
+        {{- end }}
+        {{- /* строка "0" считается непустой — выводим как есть (OK для Ray) */ -}}
+        {{- with .num_gpus }}
+        {{- if ne . "" }}
+        num-gpus: {{ . | quote }}
+        {{- end }}
+        {{- end }}
+        {{- with .resources }}
+        {{- if and (ne . "") (ne . "0") }}
+        resources: {{ . }}
+        {{- end }}
+        {{- end }}
+      {{- end }}
+
+      template:
+        spec:
+          restartPolicy: Never
+          {{- /* nodeSelector приходит как YAML-фрагмент строкой */ -}}
+          {{- with $g.advanced.resources.nodeSelector }}
+          nodeSelector:
+          {{ . | fromYaml | toYaml | nindent 12 }}
+          {{- end }}
+          containers:
+            - name: ray-worker
+              image: {{ $g.image }}
+              {{- $gres := $g.advanced.resources }}
+              {{- if or $gres.requests $gres.limits }}
+              resources:
+                {{- with $gres.requests }}
+                requests:
+                  {{- with .cpu }}
+                  cpu: {{ . }}
+                  {{- end }}
+                  {{- with .memory }}
+                  memory: {{ . | int }}Gi
+                  {{- end }}
+                  {{- if and (hasKey . "gpu") (gt (int (toString .gpu | default "0")) 0) }}
+                  nvidia.com/gpu: {{ .gpu }}
+                  {{- end }}
+                {{- end }}
+                {{- with $gres.limits }}
+                limits:
+                  {{- with .cpu }}
+                  cpu: {{ . }}
+                  {{- end }}
+                  {{- with .memory }}
+                  memory: {{ . | int }}Gi
+                  {{- end }}
+                  {{- if and (hasKey . "gpu") (gt (int (toString .gpu | default "0")) 0) }}
+                  nvidia.com/gpu: {{ .gpu }}
+                  {{- end }}
+                {{- end }}
+              {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}

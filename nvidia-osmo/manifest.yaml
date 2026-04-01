@@ -1,0 +1,10 @@
+slug: nvidia-osmo
+name: NVIDIA Osmo
+publisherName: Nebius
+ownerName: NVIDIA
+categories: []
+tariff_type: free
+#images:
+#  - nameWithRegistry: image.repository
+#    tag: image.tag
+

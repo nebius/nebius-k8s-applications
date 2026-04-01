@@ -1,0 +1,116 @@
+releaseType: "k8s"
+components:
+  endpoint001:
+    type: "endpoint"
+    spec:
+      refMap:
+        clusterId: "components.cluster001.state.result.id"
+        helmReleaseName: "parameters.releaseName"
+        helmReleaseNamespace: "parameters.releaseNamespace"
+      componentSpec:
+        ports: []
+    dependencies:
+      components:
+        helmchart001:
+
+  helmchart001:
+    type: "helm_chart"
+    spec:
+      refMap:
+        parentId: "parameters.parentId"
+        clusterId: "components.cluster001.state.result.id"
+        releaseName: "parameters.releaseName"
+        releaseNamespace: "parameters.releaseNamespace"
+        values.env.DSTACK_DATABASE_URL: "parameters.envDSTACKDATABASEURL"
+        values.env.DSTACK_SERVER_ADMIN_TOKEN: "parameters.envDSTACKSERVERADMINTOKEN"
+        values.private_key: "parameters.privateKey"
+        values.project_id: "parameters.projectId"
+        values.public_key_id: "parameters.publicKeyId"
+        values.replicaCount: "parameters.replicaCount"
+        values.service_account: "parameters.serviceAccount"
+      componentSpec:
+        productSlug: "nebius/dstack"
+    dependencies:
+      components:
+        cluster001:
+
+  cluster001:
+    type: "mk8s_cluster"
+    spec:
+      refMap:
+        api_spec.metadata.parentId: "parameters.parentId"
+        api_spec.metadata.id: "parameters.clusterId"
+        api_spec.metadata.name: "parameters.clusterName"
+      componentSpec:
+        api_spec:
+          metadata:
+            name: "dstack-cluster"
+          spec:
+            control_plane:
+              # fill in subnetId with default value in the code
+              endpoints:
+                public_endpoint:
+
+
+parameters:
+  "parentId":
+    type: "string"
+    description: "The project ID for the dstack deployment."
+
+  "clusterId":
+    type: "string"
+    description: "Existing mk8s cluster ID for the dstack deployment."
+
+  "clusterName":
+    type: "string"
+    description: "Existing mk8s cluster name for the dstack deployment."
+
+  "releaseName":
+    type: "string"
+    description: "Helm release name."
+
+  "releaseNamespace":
+    type: "string"
+    description: "Helm release namespace."
+
+  "envDSTACKDATABASEURL":
+    type: "string"
+    description: "Value for Helm key 'env.DSTACK_DATABASE_URL'."
+
+  "envDSTACKSERVERADMINTOKEN":
+    type: "string"
+    description: "Value for Helm key 'env.DSTACK_SERVER_ADMIN_TOKEN'."
+
+  "privateKey":
+    type: "string"
+    description: "Value for Helm key 'private_key'."
+
+  "projectId":
+    type: "string"
+    description: "Value for Helm key 'project_id'."
+
+  "publicKeyId":
+    type: "string"
+    description: "Value for Helm key 'public_key_id'."
+
+  "replicaCount":
+    type: "string"
+    description: "Value for Helm key 'replicaCount'."
+
+  "serviceAccount":
+    type: "string"
+    description: "Value for Helm key 'service_account'."
+
+ui:
+  mapping:
+    clusterId: "mk8sCluster.clusterId"
+    clusterName: "mk8sCluster.name"
+    envDSTACKDATABASEURL: 'env.DSTACK_DATABASE_URL'
+    envDSTACKSERVERADMINTOKEN: 'env.DSTACK_SERVER_ADMIN_TOKEN'
+    privateKey: 'private_key'
+    projectId: 'project_id'
+    publicKeyId: 'public_key_id'
+    replicaCount: 'replicaCount'
+    serviceAccount: "serviceAccount"
+    releaseName: "general.appname"
+    releaseNamespace: "general.namespace"

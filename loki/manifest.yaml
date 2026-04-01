@@ -3,7 +3,8 @@ ownerName: Grafana Labs
 publisherName: Nebius
 name: Grafana Loki
 categories:
-  - dev-tools
+  - monitoring
+
 images:
   - registry: promtail.image.registry
     nameWithoutRegistry: promtail.image.repository

@@ -8,4 +8,4 @@ The Nebius team will send a response indicating the next steps in handling your 
 
 ## Learning More About Security in Nebius
 
-To learn more about security in Nebius, please see [this page](https://nebius.ai/docs/security).
+To learn more about security in Nebius, please see [this page](https://nebius.com/trust-center).

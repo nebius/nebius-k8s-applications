@@ -1,0 +1,114 @@
+--- chart/Chart.yaml	2025-05-26 12:52:02.388176292 +0200
++++ chart/Chart.yaml	2025-05-26 12:50:37.955746423 +0200
+@@ -1,11 +1,13 @@
+ apiVersion: v2
+ appVersion: 0.17.2
+ dependencies:
+-- alias: nfd
+-  condition: nfd.enabled,gfd.enabled
+-  name: node-feature-discovery
+-  repository: https://kubernetes-sigs.github.io/node-feature-discovery/charts
+-  version: 0.15.3
++  - name: node-feature-discovery
++    alias: nfd
++    condition: nfd.enabled,gfd.enabled
++    repository: "file://./charts/node-feature-discovery"
++  - name: dcgm-exporter
++    repository: "file://./charts/dcgm-exporter"
++    condition: dcgm-exporter.enabled
+ description: A Helm chart for the nvidia-device-plugin on Kubernetes
+ home: https://github.com/NVIDIA/k8s-device-plugin
+ kubeVersion: '>= 1.10.0-0'
+--- chart/charts/dcgm-exporter/values.yaml	2025-05-26 12:52:03.787166844 +0200
++++ chart/charts/dcgm-exporter/values.yaml	2025-05-26 12:51:58.495202584 +0200
+@@ -127,14 +127,16 @@
+ 
+ tolerations: []
+ #- operator: Exists
+-
+-affinity: {}
+-  #nodeAffinity:
+-  #  requiredDuringSchedulingIgnoredDuringExecution:
+-  #    nodeSelectorTerms:
+-  #    - matchExpressions:
+-  #      - key: nvidia-gpu
+-  #        operator: Exists
++  
++affinity:
++  nodeAffinity:
++    requiredDuringSchedulingIgnoredDuringExecution:
++      nodeSelectorTerms:
++      - matchExpressions:
++        - key: nebius.com/driverful
++          operator: In
++          values:
++          - "true"
+ 
+ extraHostVolumes: []
+ #- name: host-binaries
+--- chart/values.yaml	2025-05-26 12:52:02.389176286 +0200
++++ chart/values.yaml	2025-05-26 12:50:14.954901710 +0200
+@@ -42,14 +42,14 @@
+ namespaceOverride: ""
+ selectorLabelsOverride: {}
+ 
+-allowDefaultNamespace: false
++allowDefaultNamespace: true
+ 
+ imagePullSecrets: []
+ image:
+   repository: nvcr.io/nvidia/k8s-device-plugin
+   pullPolicy: IfNotPresent
+   # Overrides the image tag whose default is the chart appVersion.
+-  tag: ""
++  tag: "v0.17.2"
+ 
+ updateStrategy:
+   type: RollingUpdate
+@@ -65,6 +65,11 @@
+     requiredDuringSchedulingIgnoredDuringExecution:
+       nodeSelectorTerms:
+       - matchExpressions:
++        - key: nebius.com/driverful
++          operator: In
++          values:
++          - "true"
++      - matchExpressions:
+         # On discrete-GPU based systems NFD adds the following label where 10de is the NVIDIA PCI vendor ID
+         - key: feature.node.kubernetes.io/pci-10de.present
+           operator: In
+@@ -100,10 +105,10 @@
+ runtimeClassName: null
+ 
+ devicePlugin:
+-  enabled: true
++  enabled: false
+ 
+ gfd:
+-  enabled: false
++  enabled: true
+   nameOverride: gpu-feature-discovery
+   namespaceOverride: ""
+   noTimestamp: null
+@@ -116,6 +122,9 @@
+ 
+ # Helm dependency
+ nfd:
++  image:
++    repository: registry.k8s.io/nfd/node-feature-discovery
++    tag: v0.17.2
+   nameOverride: node-feature-discovery
+   enableNodeFeatureApi: false
+   master:
+@@ -156,3 +163,10 @@
+   # nvidiaHookPath specifies the path to the nvidia-cdi-hook or nvidia-ctk executables on the host.
+   # This is required to ensure that the generated CDI specification refers to the correct CDI hooks.
+   nvidiaHookPath: null
++
++dcgm-exporter:
++  enabled: false
++  service:
++    annotations:
++      prometheus.io/scrape: "true"
++
+

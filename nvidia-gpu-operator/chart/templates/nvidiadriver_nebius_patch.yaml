@@ -1,0 +1,150 @@
+{{- define "gpu-operator.nvidiadriver.nebius.spec" -}}
+{{- $root := .root -}}
+{{- $profile := .profile -}}
+spec:
+  repository: {{ $root.Values.driver.repository }}
+  image: {{ $root.Values.driver.image }}
+  version: {{ $root.Values.driver.version }}
+  kernelModuleType: {{ $root.Values.driver.kernelModuleType }}
+  usePrecompiled: {{ $root.Values.driver.usePrecompiled }}
+  driverType: {{ $root.Values.driver.nvidiaDriverCRD.driverType | default "gpu" }}
+  {{- if $root.Values.daemonsets.annotations }}
+  annotations: {{ toYaml $root.Values.daemonsets.annotations | nindent 6 }}
+  {{- end }}
+  {{- if $root.Values.daemonsets.labels }}
+  labels: {{ toYaml $root.Values.daemonsets.labels | nindent 6 }}
+  {{- end }}
+  {{- if hasKey $profile "nodeSelector" }}
+  nodeSelector: {{ toYaml (index $profile "nodeSelector") | nindent 6 }}
+  {{- end }}
+  {{- if hasKey $profile "nodeAffinity" }}
+  nodeAffinity: {{ toYaml (index $profile "nodeAffinity") | nindent 6 }}
+  {{- end }}
+  {{- if $root.Values.driver.imagePullSecrets }}
+  imagePullSecrets: {{ toYaml $root.Values.driver.imagePullSecrets | nindent 4 }}
+  {{- end }}
+  {{ if $root.Values.driver.manager }}
+  {{- $manager := deepCopy $root.Values.driver.manager -}}
+  {{- if hasKey $profile "managerEnv" }}
+  {{- $_ := set $manager "env" (index $profile "managerEnv") -}}
+  {{- end }}
+  manager: {{ toYaml $manager | nindent 4 }}
+  {{- end }}
+  {{- if $root.Values.driver.startupProbe }}
+  startupProbe: {{ toYaml $root.Values.driver.startupProbe | nindent 4 }}
+  {{- end }}
+  {{- if $root.Values.driver.livenessProbe }}
+  livenessProbe: {{ toYaml $root.Values.driver.livenessProbe | nindent 4 }}
+  {{- end }}
+  {{- if $root.Values.driver.readinessProbe }}
+  readinessProbe: {{ toYaml $root.Values.driver.readinessProbe | nindent 4 }}
+  {{- end }}
+  rdma:
+    enabled: {{ $root.Values.driver.rdma.enabled }}
+    useHostMofed: {{ $root.Values.driver.rdma.useHostMofed }}
+  {{- if $root.Values.daemonsets.tolerations }}
+  tolerations: {{ toYaml $root.Values.daemonsets.tolerations | nindent 6 }}
+  {{- end }}
+  {{- if $root.Values.driver.repoConfig.configMapName }}
+  repoConfig:
+    name: {{ $root.Values.driver.repoConfig.configMapName }}
+  {{- end }}
+  {{- if $root.Values.driver.certConfig.name }}
+  certConfig:
+    name: {{ $root.Values.driver.certConfig.name }}
+  {{- end }}
+  {{- if $root.Values.driver.licensingConfig.secretName }}
+  licensingConfig:
+    secretName: {{ $root.Values.driver.licensingConfig.secretName }}
+    nlsEnabled: {{ $root.Values.driver.licensingConfig.nlsEnabled | default true }}
+  {{- else if $root.Values.driver.licensingConfig.configMapName }}
+  licensingConfig:
+    name: {{ $root.Values.driver.licensingConfig.configMapName }}
+    nlsEnabled: {{ $root.Values.driver.licensingConfig.nlsEnabled | default true }}
+  {{- end }}
+  {{- if $root.Values.driver.virtualTopology.config }}
+  virtualTopologyConfig:
+    name: {{ $root.Values.driver.virtualTopology.config }}
+  {{- end }}
+  {{- if $root.Values.driver.kernelModuleConfig.name }}
+  kernelModuleConfig:
+    name: {{ $root.Values.driver.kernelModuleConfig.name }}
+  {{- end }}
+  {{- if $root.Values.driver.secretEnv }}
+  secretEnv: {{ $root.Values.driver.secretEnv }}
+  {{- end }}
+  {{- if $root.Values.driver.resources }}
+  resources: {{ toYaml $root.Values.driver.resources | nindent 6 }}
+  {{- end }}
+  {{- if $root.Values.driver.env }}
+  env: {{ toYaml $root.Values.driver.env | nindent 6 }}
+  {{- end }}
+  {{- if $root.Values.driver.args }}
+  args: {{ toYaml $root.Values.driver.args | nindent 6 }}
+  {{- end }}
+  {{- if $root.Values.gds.enabled }}
+  gds:
+    enabled: {{ $root.Values.gds.enabled }}
+    {{- if $root.Values.gds.repository }}
+    repository: {{ $root.Values.gds.repository }}
+    {{- end }}
+    {{- if $root.Values.gds.image }}
+    image: {{ $root.Values.gds.image }}
+    {{- end }}
+    version: {{ $root.Values.gds.version | quote }}
+    {{- if $root.Values.gds.imagePullPolicy }}
+    imagePullPolicy: {{ $root.Values.gds.imagePullPolicy }}
+    {{- end }}
+    {{- if $root.Values.gds.imagePullSecrets }}
+    imagePullSecrets: {{ toYaml $root.Values.gds.imagePullSecrets | nindent 8 }}
+    {{- end }}
+    {{- if $root.Values.gds.env }}
+    env: {{ toYaml $root.Values.gds.env | nindent 6 }}
+    {{- end }}
+    {{- if $root.Values.gds.args }}
+    args: {{ toYaml $root.Values.gds.args | nindent 6 }}
+    {{- end }}
+  {{- end }}
+  {{- if $root.Values.gdrcopy }}
+  gdrcopy:
+    enabled: {{ $root.Values.gdrcopy.enabled | default false  }}
+    {{- if $root.Values.gdrcopy.repository }}
+    repository: {{ $root.Values.gdrcopy.repository }}
+    {{- end }}
+    {{- if $root.Values.gdrcopy.image }}
+    image: {{ $root.Values.gdrcopy.image }}
+    {{- end }}
+    version: {{ $root.Values.gdrcopy.version | quote }}
+    {{- if $root.Values.gdrcopy.imagePullPolicy }}
+    imagePullPolicy: {{ $root.Values.gdrcopy.imagePullPolicy }}
+    {{- end }}
+    {{- if $root.Values.gdrcopy.imagePullSecrets }}
+    imagePullSecrets: {{ toYaml $root.Values.gdrcopy.imagePullSecrets | nindent 8 }}
+    {{- end }}
+    {{- if $root.Values.gdrcopy.env }}
+    env: {{ toYaml $root.Values.gdrcopy.env | nindent 6 }}
+    {{- end }}
+    {{- if $root.Values.gdrcopy.args }}
+    args: {{ toYaml $root.Values.gdrcopy.args | nindent 6 }}
+    {{- end  }}
+  {{- end }}
+{{- end }}
+
+{{- $nebius := default (dict) .Values.nebius -}}
+{{- $patch := default (dict) (index $nebius "nvidiaDriverCRDPatch") -}}
+{{- $profiles := default (list) (index $patch "profiles") -}}
+{{- if and (gt (len $profiles) 0) .Values.driver.nvidiaDriverCRD.enabled (not .Values.driver.nvidiaDriverCRD.deployDefaultCR) }}
+{{- range $idx, $profile := $profiles }}
+{{- if gt $idx 0 }}
+---
+{{- end }}
+{{- $profileName := required "nebius.nvidiaDriverCRDPatch.profiles[].name is required" (index $profile "name") -}}
+{{- $normalized := $profileName | lower | replace "_" "-" | replace "." "-" -}}
+{{- $crName := default $normalized (index $profile "crName") -}}
+apiVersion: nvidia.com/v1alpha1
+kind: NVIDIADriver
+metadata:
+  name: {{ $crName }}
+{{ include "gpu-operator.nvidiadriver.nebius.spec" (dict "root" $ "profile" $profile) }}
+{{- end }}
+{{- end }}

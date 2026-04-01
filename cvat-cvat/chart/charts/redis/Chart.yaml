@@ -8,10 +8,10 @@ annotations:
     - name: redis-sentinel
       image: docker.io/bitnami/redis-sentinel:7.2.3-debian-11-r1
     - name: redis
-      image: docker.io/bitnami/redis:7.2.3-debian-11-r1
+      image: docker.io/bitnami/redis:latest
   licenses: Apache-2.0
 apiVersion: v2
-appVersion: 7.2.3
+appVersion: 7.2.11
 dependencies:
 - name: common
   repository: oci://registry-1.docker.io/bitnamicharts

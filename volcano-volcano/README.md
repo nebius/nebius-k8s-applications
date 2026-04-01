@@ -20,7 +20,7 @@ Volcano enhances Kubernetes with powerful scheduling and resource management for
 
 **To check that Volcano is working:**
 
-   1. [Install kubectl](https://kubernetes.io/docs/tasks/tools/##kubectl), and [configure it to work with the created cluster](https://nebius.ai/docs/managed-kubernetes/operations/connect/##kubectl-connect).
+   1. [Install kubectl](https://kubernetes.io/docs/tasks/tools/##kubectl), and [configure it to work with the created cluster](https://docs.nebius.com/kubernetes/connect).
 
    1. Verify that Volcano components are running:
 

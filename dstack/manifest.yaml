@@ -1,0 +1,14 @@
+# Default manifest for dstack
+# This is a YAML-formatted file.
+# Declare variables to be passed into marketplace product.
+
+slug: dstack
+publisherName: Nebius
+ownerName: dstack
+categories: 
+- Orchestration
+tariff_type: free
+images:
+  - nameWithRegistry: image.repository
+    tag: image.tag
+

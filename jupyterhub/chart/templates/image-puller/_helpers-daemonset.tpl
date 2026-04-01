@@ -25,6 +25,14 @@ metadata:
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
     "helm.sh/hook-weight": "-10"
+    {{- with .Values.prePuller.hook.daemonsetAnnotations }}
+    {{- . | toYaml | nindent 4 }}
+    {{- end }}
+  {{- else }}
+  {{- with .Values.prePuller.continuous.daemonsetAnnotations }}
+  annotations:
+    {{- . | toYaml | nindent 4 }}
+  {{- end }}
   {{- end }}
 spec:
   selector:
@@ -41,6 +49,9 @@ spec:
     metadata:
       labels:
         {{- include "jupyterhub.matchLabelsLegacyAndModern" . | nindent 8 }}
+        {{- with .Values.prePuller.labels }}
+        {{- . | toYaml | nindent 8 }}
+        {{- end }}
       {{- with .Values.prePuller.annotations }}
       annotations:
         {{- . | toYaml | nindent 8 }}
@@ -196,6 +207,9 @@ spec:
         {{- range $k, $v := .Values.prePuller.extraImages }}
         - name: image-pull-{{ $k }}
           image: {{ $v.name }}:{{ $v.tag }}
+          {{- with $v.pullPolicy }}
+          imagePullPolicy: {{ . }}
+          {{- end }}
           command:
             - /bin/sh
             - -c

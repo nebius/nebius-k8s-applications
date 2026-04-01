@@ -3,8 +3,8 @@ publisherName: Nebius
 ownerName: Qdrant
 name: Qdrant
 categories:
-  - vector-databases
-  - k3s-vector-databases
+  - databases
+
 images:
   - tag: image.tag
     nameWithRegistry: image.repository

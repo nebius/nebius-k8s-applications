@@ -1,204 +1,754 @@
 {
-  "defaultValue": {
-    "newBackend": true,
-    "head.resources.limits.cpu": "4",
-    "head.resources.limits.memory": "8Gi",
-    "head.enableInTreeAutoscaling": true,
-    "gpuPlatform": "NVIDIA® H100 NVLink with Intel Sapphire Rapids",
-    "worker.minReplicas": "1",
-    "worker.maxReplicas": "3",
-    "additionalWorkerGroups.cpu.disabled": false,
-    "additionalWorkerGroups.cpu.minReplicas": "0",
-    "additionalWorkerGroups.cpu.maxReplicas": "0",
-    "additionalWorkerGroups.cpu.resources.limits.cpu": "16",
-    "additionalWorkerGroups.cpu.resources.limits.memory": "30Gi",
-    "redis.replica.replicaCount": 2
-  },
   "type": "object",
   "properties": {
-    "newBackend": {
-      "type": "boolean",
+    "mk8sCluster": {
+      "type": "object",
+      "required": true,
       "viewSpec": {
-        "type": "base",
-        "layout": "row",
-        "hidden": "true"
-      },
-      "required": true
-    },
-    "head.resources.limits.cpu": {
-      "type": "string",
-      "viewSpec": {
-        "layoutTitle": "Head pod vCPUs",
-        "layoutDescription":"Enter the number of vCPUs that the head pod will use on its node.\n",
-        "layout": "row",
-        "type": "rangeinputpicker",
-        "inputProps": {
-          "min": 1,
-          "max": 32
-        }
-      },
-      "required": false
-    },
-    "head.resources.limits.memory": {
-      "type": "string",
-      "viewSpec": {
-        "type": "rangeinputpicker",
-        "layout": "row",
-        "layoutTitle": "Head pod RAM",
-        "layoutDescription": "Enter the size of RAM that the head pod will use on its node.\n",
-        "inputProps": {
-          "suffix": "Gi",
-          "min": 1,
-          "max": 64
-        }
-      },
-      "required": false
-    },
-    "head.enableInTreeAutoscaling": {
-      "type": "boolean",
-      "viewSpec": {
-        "layoutTitle": "Enable KubeRay Autoscaling",
-        "layout": "row",
-        "type": "switch",
-        "disabled": true
+        "type": "mk8s_cluster"
       }
     },
-    "gpuPlatform": {
-      "type": "string",
-      "enum": [
-        "NVIDIA® H100 NVLink with Intel Sapphire Rapids"
-      ],
+    "general": {
+      "type": "object",
       "viewSpec": {
-        "layoutTitle": "GPU worker platform",
-        "layoutDescription": "Select the same VM platform as the platform you selected when creating a node group with GPUs.",
-        "layout": "row",
-        "type": "select",
-        "disabled": true
-      },
-      "required": true
-    },
-    "worker.minReplicas": {
-      "type": "string",
-      "viewSpec": {
-        "layoutTitle": "Min. number of GPU workers",
-        "layoutDescription": "Enter the minimum number of worker pods with GPUs. Each worker will use one GPU.\n",
-        "layout": "row",
-        "type": "rangeinputpicker",
-        "inputProps": {
-          "min": 1,
-          "max": 64
-        }
-      },
-      "required": false
-    },
-    "worker.maxReplicas": {
-      "type": "string",
-      "viewSpec": {
-        "layoutTitle": "Max. number of GPU workers",
-        "layoutDescription": "Enter the maximum number of worker pods with GPUs. Each worker will use one GPU.\n",
-        "layout": "row",
-        "type": "rangeinputpicker",
-        "inputProps": {
-          "min": 1,
-          "max": 64
-        }
-      },
-      "required": false
-    },
-    "additionalWorkerGroups.cpu.minReplicas": {
-      "type": "string",
-      "viewSpec": {
-        "layoutTitle": "Min. number of non-GPU workers",
-        "layoutDescription": "Enter the minimum number of worker pods without GPUs\n",
-        "layout": "row",
-        "type": "rangeinputpicker",
-        "inputProps": {
-          "min": 1,
-          "max": 32
-        }
-      },
-      "required": false
-    },
-    "additionalWorkerGroups.cpu.maxReplicas": {
-      "type": "string",
-      "viewSpec": {
-        "layoutTitle": "Max. number of non-GPU workers",
-        "layoutDescription": "Enter the maximum number of worker pods without GPUs.\n",
-        "layout": "row",
-        "type": "rangeinputpicker",
-        "inputProps": {
-          "min": 1,
-          "max": 32
-        }
-      },
-      "required": false
-    },
-    "additionalWorkerGroups.cpu.resources.limits.cpu": {
-      "type": "string",
-      "viewSpec": {
-        "layoutTitle": "Non-GPU worker vCPUs",
-        "layoutDescription": "Enter the number of vCPUs that each worker pod without GPUs will use on its node.\n",
-        "layout": "row",
-        "type": "rangeinputpicker",
-        "inputProps": {
-          "min": 1,
-          "max": 32
-        }
-      },
-      "required": false
-    },
-    "additionalWorkerGroups.cpu.resources.limits.memory": {
-      "type": "string",
-      "viewSpec": {
-        "layoutTitle": "Non-GPU worker RAM",
-        "layoutDescription": "Enter the size of RAM that the each worker pod without GPUs will use on its node.\n",
-        "layout": "row",
-        "type": "rangeinputpicker",
-        "inputProps": {
-          "suffix": "Gi",
-          "min": 1,
-          "max": 64
-        }
-      },
-      "required": false
-    },
-    "redis.replica.replicaCount": {
-      "type": "number",
-      "viewSpec": {
-        "layoutTitle": "Redis replica count",
-        "layout": "row",
-        "type": "base"
-      },
-      "required": false
-    },
-    "customImage": {
-      "type": "string",
-      "viewSpec": {
-        "layoutTitle": "Ray Docker image",
-        "layoutDescription": "Enter the URL of a custom Ray Docker image for the head and worker pods.\nThe image must carry version 2.9.3 of Ray.\nBy default, the official rayproject/ray-ml:2.9.3-gpu image hosted in the Nebius AI container registry is used.\n",
-        "layout": "row",
         "type": "base",
-        "disabled": false
+        "layout": "section",
+        "layoutTitle": "General"
       },
-      "required": false
+      "defaultValue": {},
+      "properties": {
+        "appname": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Application name"
+          },
+          "defaultValue": "ray-cluster"
+        },
+        "namespace": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Namespace"
+          },
+          "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "patternError": "namespace must consist of lower case alphanumeric characters or '-', and must start and end with an alphanumeric character (e.g. 'my-name',  or '123-abc', regex used for validation is ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "defaultValue": "ray-cluster"
+        }
+      }
+    },
+    "kuberay": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "layout": "section",
+        "layoutTitle": "KubeRay operator"
+      },
+      "defaultValue": {},
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "defaultValue": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row_verbose",
+            "layoutTitle": "Install version 1.5.1"
+          }
+        }
+      }
+    },
+    "kube-prometheus-stack": {
+      "type": "object",
+      "defaultValue": {},
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "defaultValue": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row_verbose",
+            "layoutTitle": "Install version 48.2.1"
+          }
+        },
+        "grafana": {
+          "type": "object",
+          "defaultValue": {},
+          "properties": {
+            "adminPassword": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_\\-\\.@]{5,64}$",
+              "patternError": "Password must be 8-64 chars, only letters, digits and _-.@",
+              "defaultValue": "admin",
+              "viewSpec": {
+                "type": "password",
+                "layout": "row_verbose",
+                "layoutTitle": "Grafana admin password"
+              }
+            }
+          },
+          "viewSpec": {
+            "type": "base",
+            "layout": "transparent"
+          }
+        }
+      },
+      "viewSpec": {
+        "type": "base",
+        "layout": "section",
+        "layoutTitle": "Kubernetes Prometheus Stack"
+      }
+    },
+    "configuration": {
+      "type": "object",
+      "properties": {
+        "configure": {
+          "type": "object",
+          "defaultValue": {},
+          "properties": {
+            "ray_version": {
+              "type": "string",
+              "defaultValue": "2.53.0",
+              "required": true,
+              "viewSpec": {
+                "type": "base",
+                "layout": "row_verbose",
+                "layoutTitle": "Ray version",
+                "placeholder": "Ray version"
+              }
+            },
+            "ray_autoscaling": {
+              "type": "object",
+              "defaultValue": {},
+              "properties": {
+                "enable": {
+                  "type": "boolean",
+                  "defaultValue": true,
+                  "viewSpec": {
+                    "type": "base",
+                    "layout": "row_verbose",
+                    "layoutTitle": "Enabled"
+                  }
+                },
+                "advanced": {
+                  "type": "object",
+                  "defaultValue": {},
+                  "required": true,
+                  "properties": {
+                    "version": {
+                      "type": "string",
+                      "defaultValue": "v2",
+                      "viewSpec": {
+                        "type": "base",
+                        "layout": "row",
+                        "layoutTitle": "version"
+                      }
+                    },
+                    "upscalingMode": {
+                      "type": "string",
+                      "defaultValue": "Default",
+                      "enum": [
+                        "Conservative",
+                        "Default",
+                        "Aggressive"
+                      ],
+                      "description": {
+                        "Conservative": "Conservative",
+                        "Default": "Default",
+                        "Aggressive": "Aggressive"
+                      },
+                      "viewSpec": {
+                        "type": "select",
+                        "layout": "row",
+                        "layoutTitle": "upscalingMode",
+                        "selectParams": {
+                          "meta": {
+                            "Conservative": "Upscaling is rate-limited; the number of pending worker Pods is at most the number of worker pods connected to the Ray cluster.",
+                            "Default": "Upscaling isn’t rate-limited.",
+                            "Aggressive": "An alias for Default; upscaling isn’t rate-limited."
+                          }
+                        }
+                      }
+                    },
+                    "idleTimeoutSeconds": {
+                      "type": "number",
+                      "defaultValue": 60,
+                      "minimum": 0,
+                      "viewSpec": {
+                        "type": "base",
+                        "layout": "row",
+                        "layoutTitle": "idleTimeoutSeconds"
+                      }
+                    }
+                  },
+                  "viewSpec": {
+                    "type": "base",
+                    "layout": "card_accordeon",
+                    "layoutTitle": "Advanced",
+                    "order": [
+                      "version",
+                      "upscalingMode",
+                      "idleTimeoutSeconds"
+                    ]
+                  }
+                }
+              },
+              "viewSpec": {
+                "type": "base",
+                "layout": "section",
+                "layoutTitle": "Autoscaling",
+                "order": [
+                  "enable",
+                  "advanced"
+                ]
+              }
+            },
+            "head_group": {
+              "type": "object",
+              "defaultValue": {},
+              "properties": {
+                "image": {
+                  "type": "string",
+                  "required": true,
+                  "defaultValue": "rayproject/ray:2.53.0-py310",
+                  "viewSpec": {
+                    "type": "base",
+                    "layout": "row_verbose",
+                    "layoutTitle": "Image"
+                  }
+                },
+                "serviceType": {
+                  "type": "string",
+                  "enum": [
+                    "ClusterIP",
+                    "LoadBalancer"
+                  ],
+                  "defaultValue": "LoadBalancer",
+                  "description": {
+                    "ClusterIP": "ClusterIP",
+                    "LoadBalancer": "LoadBalancer"
+                  },
+                  "viewSpec": {
+                    "type": "select",
+                    "layout": "row_verbose",
+                    "layoutTitle": "Service type",
+                    "selectParams": {
+                      "meta": {
+                        "ClusterIP": "Access only within the cluster",
+                        "LoadBalancer": "Access from the internet and within the cluster"
+                      }
+                    }
+                  }
+                },
+                "advanced": {
+                  "type": "object",
+                  "defaultValue": {},
+                  "required": true,
+                  "properties": {
+                    "rayStartParams": {
+                      "type": "object",
+                      "defaultValue": {},
+                      "properties": {
+                        "num_cpus": {
+                          "type": "string",
+                          "defaultValue": "0",
+                          "viewSpec": {
+                            "type": "base",
+                            "layout": "row_verbose",
+                            "layoutTitle": "num-cpus",
+                            "layoutDescription": "Setting num-cpus: \"0\" to avoid any Ray actors or tasks being scheduled on the Ray head Pod."
+                          }
+                        },
+                        "dashboard_host": {
+                          "type": "string",
+                          "defaultValue": "0.0.0.0",
+                          "viewSpec": {
+                            "type": "base",
+                            "layout": "row_verbose",
+                            "layoutTitle": "dashboard-host",
+                            "layoutDescription": "When set to 0.0.0.0 then exposes the Ray dashboard outside the Ray cluster"
+                          }
+                        }
+                      },
+                      "viewSpec": {
+                        "type": "base",
+                        "layout": "section",
+                        "layoutTitle": "rayStartParams",
+                        "order": [
+                          "num_cpus",
+                          "dashboard_host"
+                        ]
+                      }
+                    },
+                    "resources": {
+                      "type": "object",
+                      "defaultValue": {},
+                      "properties": {
+                        "requests": {
+                          "type": "object",
+                          "defaultValue": {},
+                          "properties": {
+                            "cpu": {
+                              "type": "number",
+                              "defaultValue": 1,
+                              "viewSpec": {
+                                "type": "base",
+                                "layout": "row_verbose",
+                                "layoutTitle": "CPU"
+                              }
+                            },
+                            "memory": {
+                              "type": "number",
+                              "defaultValue": 2,
+                              "viewSpec": {
+                                "type": "base",
+                                "layout": "row_verbose",
+                                "layoutTitle": "Memory"
+                              }
+                            }
+                          },
+                          "viewSpec": {
+                            "type": "base",
+                            "layout": "section",
+                            "layoutTitle": "Requests",
+                            "order": [
+                              "cpu",
+                              "memory"
+                            ]
+                          }
+                        },
+                        "limits": {
+                          "type": "object",
+                          "defaultValue": {},
+                          "properties": {
+                            "cpu": {
+                              "type": "number",
+                              "defaultValue": 1,
+                              "viewSpec": {
+                                "type": "base",
+                                "layout": "row_verbose",
+                                "layoutTitle": "CPU"
+                              }
+                            },
+                            "memory": {
+                              "type": "number",
+                              "defaultValue": 2,
+                              "viewSpec": {
+                                "type": "base",
+                                "layout": "row_verbose",
+                                "layoutTitle": "Memory"
+                              }
+                            }
+                          },
+                          "viewSpec": {
+                            "type": "base",
+                            "layout": "section",
+                            "layoutTitle": "Limits",
+                            "order": [
+                              "cpu",
+                              "memory"
+                            ]
+                          }
+                        }
+                      },
+                      "viewSpec": {
+                        "type": "base",
+                        "layout": "section",
+                        "layoutTitle": "Resources",
+                        "order": [
+                          "requests",
+                          "limits"
+                        ]
+                      }
+                    }
+                  },
+                  "viewSpec": {
+                    "type": "base",
+                    "layout": "card_accordeon",
+                    "layoutTitle": "Advanced",
+                    "order": [
+                      "rayStartParams",
+                      "resources"
+                    ]
+                  }
+                }
+              },
+              "viewSpec": {
+                "type": "base",
+                "layout": "section",
+                "layoutTitle": "Head node",
+                "order": [
+                  "image",
+                  "serviceType",
+                  "advanced"
+                ]
+              }
+            },
+            "workers_group": {
+              "type": "object",
+              "defaultValue": {},
+              "properties": {
+                "groups": {
+                  "type": "array",
+                  "defaultValue": [
+                    {
+                      "name": "cpu-worker",
+                      "advanced": {
+                        "rayStartParams": {
+                          "num_cpus": "2",
+                          "num_gpus": "",
+                          "resources": ""
+                        },
+                        "resources": {
+                          "requests": {
+                            "cpu": 2,
+                            "memory": 4
+                          },
+                          "limits": {
+                            "cpu": 2,
+                            "memory": 4
+                          }
+                        }
+                      },
+                      "image": "rayproject/ray:2.53.0-py310",
+                      "replicas": 0,
+                      "minReplicas": 0,
+                      "maxReplicas": 10
+                    },
+                    {
+                      "advanced": {
+                        "rayStartParams": {
+                          "num_cpus": "6",
+                          "num_gpus": "1",
+                          "resources": ""
+                        },
+                        "resources": {
+                          "requests": {
+                            "cpu": 6,
+                            "memory": 12,
+                            "gpu": 1
+                          },
+                          "limits": {
+                            "cpu": 6,
+                            "memory": 12,
+                            "gpu": 1
+                          }
+                        }
+                      },
+                      "name": "gpu-worker",
+                      "image": "rayproject/ray:2.53.0-py310-gpu",
+                      "replicas": 0,
+                      "minReplicas": 0,
+                      "maxReplicas": 10
+                    }
+                  ],
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "required": true,
+                        "viewSpec": {
+                          "type": "base",
+                          "layout": "row_verbose",
+                          "layoutTitle": "Name"
+                        }
+                      },
+                      "image": {
+                        "type": "string",
+                        "required": true,
+                        "viewSpec": {
+                          "type": "base",
+                          "layout": "row_verbose",
+                          "layoutTitle": "Image"
+                        }
+                      },
+                      "replicas": {
+                        "type": "number",
+                        "minimum": 0,
+                        "viewSpec": {
+                          "type": "base",
+                          "layout": "row_verbose",
+                          "layoutTitle": "Replicas"
+                        }
+                      },
+                      "minReplicas": {
+                        "type": "number",
+                        "minimum": 0,
+                        "viewSpec": {
+                          "type": "base",
+                          "layout": "row_verbose",
+                          "layoutTitle": "Min Replicas"
+                        }
+                      },
+                      "maxReplicas": {
+                        "type": "number",
+                        "minimum": 0,
+                        "viewSpec": {
+                          "type": "base",
+                          "layout": "row_verbose",
+                          "layoutTitle": "Max Replicas"
+                        }
+                      },
+                      "advanced": {
+                        "type": "object",
+                        "defaultValue": {},
+                        "required": true,
+                        "properties": {
+                          "rayStartParams": {
+                            "type": "object",
+                            "defaultValue": {},
+                            "properties": {
+                              "num_cpus": {
+                                "type": "string",
+                                "defaultValue": "0",
+                                "viewSpec": {
+                                  "type": "base",
+                                  "layout": "row_verbose",
+                                  "layoutTitle": "num-cpus"
+                                }
+                              },
+                              "num_gpus": {
+                                "type": "string",
+                                "defaultValue": "0",
+                                "viewSpec": {
+                                  "type": "base",
+                                  "layout": "row_verbose",
+                                  "layoutTitle": "num-gpus"
+                                }
+                              },
+                              "resources": {
+                                "type": "string",
+                                "defaultValue": "0",
+                                "viewSpec": {
+                                  "type": "base",
+                                  "layout": "row_verbose",
+                                  "layoutTitle": "resources"
+                                }
+                              }
+                            },
+                            "viewSpec": {
+                              "type": "base",
+                              "layout": "section",
+                              "layoutTitle": "rayStartParams",
+                              "order": [
+                                "num_cpus",
+                                "num_gpus",
+                                "resources"
+                              ]
+                            }
+                          },
+                          "resources": {
+                            "type": "object",
+                            "defaultValue": {},
+                            "properties": {
+                              "nodeSelector": {
+                                "type": "string",
+                                "viewSpec": {
+                                  "type": "base",
+                                  "layout": "row_verbose",
+                                  "layoutTitle": "Node selector",
+                                  "layoutDescription": "For example: node.kubernetes.io/instance-type: gpu-l40s-a"
+                                }
+                              },
+                              "requests": {
+                                "type": "object",
+                                "defaultValue": {},
+                                "properties": {
+                                  "cpu": {
+                                    "type": "number",
+                                    "defaultValue": 1,
+                                    "viewSpec": {
+                                      "type": "base",
+                                      "layout": "row_verbose",
+                                      "layoutTitle": "CPU"
+                                    }
+                                  },
+                                  "memory": {
+                                    "type": "number",
+                                    "defaultValue": 2,
+                                    "viewSpec": {
+                                      "type": "base",
+                                      "layout": "row_verbose",
+                                      "layoutTitle": "Memory"
+                                    }
+                                  },
+                                  "gpu": {
+                                    "type": "number",
+                                    "viewSpec": {
+                                      "type": "base",
+                                      "layout": "row_verbose",
+                                      "layoutTitle": "nvidia.com/gpu"
+                                    }
+                                  }
+                                },
+                                "viewSpec": {
+                                  "type": "base",
+                                  "layout": "section",
+                                  "layoutTitle": "Requests",
+                                  "order": [
+                                    "cpu",
+                                    "memory",
+                                    "gpu"
+                                  ]
+                                }
+                              },
+                              "limits": {
+                                "type": "object",
+                                "defaultValue": {},
+                                "properties": {
+                                  "cpu": {
+                                    "type": "number",
+                                    "defaultValue": 1,
+                                    "viewSpec": {
+                                      "type": "base",
+                                      "layout": "row_verbose",
+                                      "layoutTitle": "CPU"
+                                    }
+                                  },
+                                  "memory": {
+                                    "type": "number",
+                                    "defaultValue": 2,
+                                    "viewSpec": {
+                                      "type": "base",
+                                      "layout": "row_verbose",
+                                      "layoutTitle": "Memory"
+                                    }
+                                  },
+                                  "gpu": {
+                                    "type": "number",
+                                    "viewSpec": {
+                                      "type": "base",
+                                      "layout": "row_verbose",
+                                      "layoutTitle": "nvidia.com/gpu"
+                                    }
+                                  }
+                                },
+                                "viewSpec": {
+                                  "type": "base",
+                                  "layout": "section",
+                                  "layoutTitle": "Limits",
+                                  "order": [
+                                    "cpu",
+                                    "memory",
+                                    "gpu"
+                                  ]
+                                }
+                              }
+                            },
+                            "viewSpec": {
+                              "type": "base",
+                              "layout": "section",
+                              "layoutTitle": "Resources",
+                              "order": [
+                                "nodeSelector",
+                                "requests",
+                                "limits"
+                              ]
+                            }
+                          }
+                        },
+                        "viewSpec": {
+                          "type": "base",
+                          "layout": "card_accordeon",
+                          "layoutTitle": "Advanced",
+                          "order": [
+                            "rayStartParams",
+                            "resources"
+                          ]
+                        }
+                      }
+                    },
+                    "defaultValue": {},
+                    "viewSpec": {
+                      "type": "base",
+                      "layout": "section",
+                      "layoutTitle": "Working group",
+                      "order": [
+                        "name",
+                        "image",
+                        "replicas",
+                        "minReplicas",
+                        "maxReplicas",
+                        "advanced"
+                      ]
+                    }
+                  },
+                  "viewSpec": {
+                    "type": "base",
+                    "layout": "transparent",
+                    "layoutOpen": true,
+                    "itemLabel": "Add worker group"
+                  }
+                }
+              },
+              "viewSpec": {
+                "type": "base",
+                "layout": "transparent"
+              }
+            }
+          },
+          "viewSpec": {
+            "type": "base",
+            "order": [
+              "ray_version",
+              "ray_autoscaling",
+              "head_group",
+              "workers_group"
+            ]
+          }
+        },
+        "putspec": {
+          "type": "object",
+          "properties": {
+            "yamlInput": {
+              "type": "string",
+              "defaultValue": "apiVersion: ray.io/v1\nkind: RayCluster\nmetadata:\n  name: release-name\nspec:\n  rayVersion: \"2.53.0\"\n  enableInTreeAutoscaling: true\n  autoscalerOptions:\n    version: v2\n    upscalingMode: Default\n    idleTimeoutSeconds: 60\n\n  headGroupSpec:\n    serviceType: ClusterIP\n\n    rayStartParams:\n      num-cpus: \"0\"\n      dashboard-host: \"0.0.0.0\"\n\n    template:\n      spec:\n        restartPolicy: Never\n        containers:\n          - name: ray-head\n            image: rayproject/ray:2.53.0-py310\n            resources:\n              requests:\n                cpu: 1\n                memory: 2Gi\n              limits:\n                cpu: 1\n                memory: 2Gi\n            ports:\n              - containerPort: 6379\n                name: gcs\n              - containerPort: 8265\n                name: dashboard\n              - containerPort: 10001\n                name: client\n              - containerPort: 44217\n                name: as-metrics # autoscaler\n              - containerPort: 44227\n                name: dash-metrics # dashboard\n            env:\n              - name: RAY_GRAFANA_IFRAME_HOST\n                value: http://127.0.0.1:3000\n              - name: RAY_GRAFANA_HOST\n                value: http://{{ .Release.Name }}-grafana:80\n              - name: RAY_PROMETHEUS_HOST\n                value: http://{{- printf \"%s-%s\" .Release.Name \"kube-prometheus-stack\" | trunc 26 | trimSuffix \"-\" -}}-prometheus:9090\n\n  workerGroupSpecs:\n    - groupName: cpu-worker\n      replicas: 0\n      minReplicas: 0\n      maxReplicas: 10\n      rayStartParams:\n        num-cpus: \"2\"\n\n      template:\n        spec:\n          restartPolicy: Never\n          containers:\n            - name: ray-worker\n              image: rayproject/ray:2.53.0-py310\n              resources:\n                requests:\n                  cpu: 2\n                  memory: 4Gi\n                limits:\n                  cpu: 2\n                  memory: 4Gi\n\n    - groupName: gpu-worker\n      replicas: 0\n      minReplicas: 0\n      maxReplicas: 10\n      rayStartParams:\n        num-cpus: \"6\"\n        num-gpus: \"1\"\n\n      template:\n        spec:\n          restartPolicy: Never\n          containers:\n            - name: ray-worker\n              image: rayproject/ray:2.53.0-py310-gpu",
+              "viewSpec": {
+                "type": "yaml_input",
+                "inputProps": {
+                  "buttonText": "Open editor",
+                  "dialogTitle": "Ray cluster YAML",
+                  "description": "Edit ray cluster YAML"
+                }
+              }
+            }
+          },
+          "defaultValue": {},
+          "viewSpec": {
+            "type": "base"
+          }
+        }
+      },
+      "viewSpec": {
+        "type": "oneof_flat",
+        "layout": "section",
+        "layoutTitle": "Configuration",
+        "order": [
+          "configure",
+          "putspec"
+        ]
+      },
+      "description": {
+        "configure": "Guided configuration",
+        "putspec": "YAML editor"
+      },
+      "defaultValue": {}
     }
   },
   "viewSpec": {
     "type": "base",
-    "layout": "",
     "order": [
-      "newBackend",
-      "head.resources.limits.cpu",
-      "head.resources.limits.memory",
-      "head.enableInTreeAutoscaling",
-      "gpuPlatform",
-      "worker.minReplicas",
-      "worker.maxReplicas",
-      "additionalWorkerGroups.cpu.minReplicas",
-      "additionalWorkerGroups.cpu.maxReplicas",
-      "additionalWorkerGroups.cpu.resources.limits.cpu",
-      "additionalWorkerGroups.cpu.resources.limits.memory",
-      "redis.replica.replicaCount"
-    ]
-  }
+      "mk8sCluster",
+      "general",
+      "kuberay",
+      "kube-prometheus-stack",
+      "configuration"
+    ],
+    "layout": "base"
+  },
+  "defaultValue": {}
 }

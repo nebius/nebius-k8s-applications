@@ -3,7 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.14.0
+    controller-gen.kubebuilder.io/version: v0.16.4
   name: nicclusterpolicies.mellanox.com
 spec:
   group: mellanox.com
@@ -11,6 +11,8 @@ spec:
     kind: NicClusterPolicy
     listKind: NicClusterPolicyList
     plural: nicclusterpolicies
+    shortNames:
+    - ncp
     singular: nicclusterpolicy
   scope: Cluster
   versions:
@@ -44,216 +46,11 @@ spec:
           metadata:
             type: object
           spec:
-            description: NicClusterPolicySpec defines the desired state of NicClusterPolicy
+            description: Defines the desired state of NicClusterPolicy
             properties:
-              docaTelemetryService:
-                description: DOCATelemetryServiceSpec is the configuration for DOCA
-                  Telemetry Service.
-                properties:
-                  config:
-                    description: |-
-                      Config contains custom config for the DOCATelemetryService.
-                      If set no default config will be deployed.
-                    properties:
-                      fromConfigMap:
-                        description: |-
-                          FromConfigMap sets the configMap the DOCATelemetryService gets its configuration from. The ConfigMap must be in
-                          the same namespace as the NICClusterPolicy.
-                        type: string
-                    type: object
-                  containerResources:
-                    items:
-                      description: ResourceRequirements describes the compute resource
-                        requirements.
-                      properties:
-                        limits:
-                          additionalProperties:
-                            anyOf:
-                            - type: integer
-                            - type: string
-                            pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
-                            x-kubernetes-int-or-string: true
-                          description: |-
-                            Limits describes the maximum amount of compute resources allowed.
-                            More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-                          type: object
-                        name:
-                          description: Name of the container the requirements are
-                            set for
-                          type: string
-                        requests:
-                          additionalProperties:
-                            anyOf:
-                            - type: integer
-                            - type: string
-                            pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
-                            x-kubernetes-int-or-string: true
-                          description: |-
-                            Requests describes the minimum amount of compute resources required.
-                            If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
-                            otherwise to an implementation-defined value. Requests cannot exceed Limits.
-                            More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-                          type: object
-                      required:
-                      - name
-                      type: object
-                    type: array
-                  image:
-                    pattern: '[a-zA-Z0-9\-]+'
-                    type: string
-                  imagePullSecrets:
-                    default: []
-                    items:
-                      type: string
-                    type: array
-                  repository:
-                    pattern: '[a-zA-Z0-9\.\-\/]+'
-                    type: string
-                  version:
-                    pattern: '[a-zA-Z0-9\.-]+'
-                    type: string
-                required:
-                - image
-                - repository
-                - version
-                type: object
-              ibKubernetes:
-                description: IBKubernetesSpec describes configuration options for
-                  ib-kubernetes
-                properties:
-                  containerResources:
-                    items:
-                      description: ResourceRequirements describes the compute resource
-                        requirements.
-                      properties:
-                        limits:
-                          additionalProperties:
-                            anyOf:
-                            - type: integer
-                            - type: string
-                            pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
-                            x-kubernetes-int-or-string: true
-                          description: |-
-                            Limits describes the maximum amount of compute resources allowed.
-                            More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-                          type: object
-                        name:
-                          description: Name of the container the requirements are
-                            set for
-                          type: string
-                        requests:
-                          additionalProperties:
-                            anyOf:
-                            - type: integer
-                            - type: string
-                            pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
-                            x-kubernetes-int-or-string: true
-                          description: |-
-                            Requests describes the minimum amount of compute resources required.
-                            If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
-                            otherwise to an implementation-defined value. Requests cannot exceed Limits.
-                            More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-                          type: object
-                      required:
-                      - name
-                      type: object
-                    type: array
-                  image:
-                    pattern: '[a-zA-Z0-9\-]+'
-                    type: string
-                  imagePullSecrets:
-                    default: []
-                    items:
-                      type: string
-                    type: array
-                  pKeyGUIDPoolRangeEnd:
-                    description: The last guid in the pool
-                    type: string
-                  pKeyGUIDPoolRangeStart:
-                    description: The first guid in the pool
-                    type: string
-                  periodicUpdateSeconds:
-                    default: 5
-                    description: Interval of updates in seconds
-                    minimum: 0
-                    type: integer
-                  repository:
-                    pattern: '[a-zA-Z0-9\.\-\/]+'
-                    type: string
-                  ufmSecret:
-                    description: Secret containing credentials to UFM service
-                    type: string
-                  version:
-                    pattern: '[a-zA-Z0-9\.-]+'
-                    type: string
-                required:
-                - image
-                - repository
-                - version
-                type: object
-              nicFeatureDiscovery:
-                description: NICFeatureDiscoverySpec describes configuration options
-                  for nic-feature-discovery
-                properties:
-                  containerResources:
-                    items:
-                      description: ResourceRequirements describes the compute resource
-                        requirements.
-                      properties:
-                        limits:
-                          additionalProperties:
-                            anyOf:
-                            - type: integer
-                            - type: string
-                            pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
-                            x-kubernetes-int-or-string: true
-                          description: |-
-                            Limits describes the maximum amount of compute resources allowed.
-                            More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-                          type: object
-                        name:
-                          description: Name of the container the requirements are
-                            set for
-                          type: string
-                        requests:
-                          additionalProperties:
-                            anyOf:
-                            - type: integer
-                            - type: string
-                            pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
-                            x-kubernetes-int-or-string: true
-                          description: |-
-                            Requests describes the minimum amount of compute resources required.
-                            If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
-                            otherwise to an implementation-defined value. Requests cannot exceed Limits.
-                            More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-                          type: object
-                      required:
-                      - name
-                      type: object
-                    type: array
-                  image:
-                    pattern: '[a-zA-Z0-9\-]+'
-                    type: string
-                  imagePullSecrets:
-                    default: []
-                    items:
-                      type: string
-                    type: array
-                  repository:
-                    pattern: '[a-zA-Z0-9\.\-\/]+'
-                    type: string
-                  version:
-                    pattern: '[a-zA-Z0-9\.-]+'
-                    type: string
-                required:
-                - image
-                - repository
-                - version
-                type: object
-              nodeAffinity:
-                description: Node affinity is a group of node affinity scheduling
-                  rules.
+              deploymentNodeAffinity:
+                description: NodeAffinity rules to inject to the Deployments objects
+                  that are managed by the operator
                 properties:
                   preferredDuringSchedulingIgnoredDuringExecution:
                     description: |-
@@ -302,11 +99,13 @@ spec:
                                     items:
                                       type: string
                                     type: array
+                                    x-kubernetes-list-type: atomic
                                 required:
                                 - key
                                 - operator
                                 type: object
                               type: array
+                              x-kubernetes-list-type: atomic
                             matchFields:
                               description: A list of node selector requirements by
                                 node's fields.
@@ -334,11 +133,13 @@ spec:
                                     items:
                                       type: string
                                     type: array
+                                    x-kubernetes-list-type: atomic
                                 required:
                                 - key
                                 - operator
                                 type: object
                               type: array
+                              x-kubernetes-list-type: atomic
                           type: object
                           x-kubernetes-map-type: atomic
                         weight:
@@ -351,6 +152,7 @@ spec:
                       - weight
                       type: object
                     type: array
+                    x-kubernetes-list-type: atomic
                   requiredDuringSchedulingIgnoredDuringExecution:
                     description: |-
                       If the affinity requirements specified by this field are not met at
@@ -395,11 +197,13 @@ spec:
                                     items:
                                       type: string
                                     type: array
+                                    x-kubernetes-list-type: atomic
                                 required:
                                 - key
                                 - operator
                                 type: object
                               type: array
+                              x-kubernetes-list-type: atomic
                             matchFields:
                               description: A list of node selector requirements by
                                 node's fields.
@@ -427,14 +231,682 @@ spec:
                                     items:
                                       type: string
                                     type: array
+                                    x-kubernetes-list-type: atomic
                                 required:
                                 - key
                                 - operator
                                 type: object
                               type: array
+                              x-kubernetes-list-type: atomic
                           type: object
                           x-kubernetes-map-type: atomic
                         type: array
+                        x-kubernetes-list-type: atomic
+                    required:
+                    - nodeSelectorTerms
+                    type: object
+                    x-kubernetes-map-type: atomic
+                type: object
+              deploymentTolerations:
+                description: Tolerations to inject to the Deployments objects that
+                  are managed by the operator
+                items:
+                  description: |-
+                    The pod this Toleration is attached to tolerates any taint that matches
+                    the triple <key,value,effect> using the matching operator <operator>.
+                  properties:
+                    effect:
+                      description: |-
+                        Effect indicates the taint effect to match. Empty means match all taint effects.
+                        When specified, allowed values are NoSchedule, PreferNoSchedule and NoExecute.
+                      type: string
+                    key:
+                      description: |-
+                        Key is the taint key that the toleration applies to. Empty means match all taint keys.
+                        If the key is empty, operator must be Exists; this combination means to match all values and all keys.
+                      type: string
+                    operator:
+                      description: |-
+                        Operator represents a key's relationship to the value.
+                        Valid operators are Exists and Equal. Defaults to Equal.
+                        Exists is equivalent to wildcard for value, so that a pod can
+                        tolerate all taints of a particular category.
+                      type: string
+                    tolerationSeconds:
+                      description: |-
+                        TolerationSeconds represents the period of time the toleration (which must be
+                        of effect NoExecute, otherwise this field is ignored) tolerates the taint. By default,
+                        it is not set, which means tolerate the taint forever (do not evict). Zero and
+                        negative values will be treated as 0 (evict immediately) by the system.
+                      format: int64
+                      type: integer
+                    value:
+                      description: |-
+                        Value is the taint value the toleration matches to.
+                        If the operator is Exists, the value should be empty, otherwise just a regular string.
+                      type: string
+                  type: object
+                type: array
+              docaTelemetryService:
+                description: |-
+                  DOCATelemetryService exposes telemetry from NVIDIA networking components to prometheus.
+                  See: https://docs.nvidia.com/doca/sdk/doca+telemetry+service+guide/index.html
+                properties:
+                  config:
+                    description: |-
+                      Config contains custom config for the DOCATelemetryService.
+                      If set no default config will be deployed.
+                    properties:
+                      fromConfigMap:
+                        description: |-
+                          FromConfigMap sets the configMap the DOCATelemetryService gets its configuration from. The ConfigMap must be in
+                          the same namespace as the NICClusterPolicy.
+                        type: string
+                    type: object
+                  containerResources:
+                    description: ResourceRequirements describes the compute resource
+                      requirements
+                    items:
+                      description: ResourceRequirements describes the compute resource
+                        requirements.
+                      properties:
+                        limits:
+                          additionalProperties:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                            x-kubernetes-int-or-string: true
+                          description: |-
+                            Limits describes the maximum amount of compute resources allowed.
+                            More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                          type: object
+                        name:
+                          description: Name of the container the requirements are
+                            set for
+                          type: string
+                        requests:
+                          additionalProperties:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                            x-kubernetes-int-or-string: true
+                          description: |-
+                            Requests describes the minimum amount of compute resources required.
+                            If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+                            otherwise to an implementation-defined value. Requests cannot exceed Limits.
+                            More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                          type: object
+                      required:
+                      - name
+                      type: object
+                    type: array
+                  image:
+                    description: Name of the image
+                    pattern: '[a-zA-Z0-9\-]+'
+                    type: string
+                  imagePullSecrets:
+                    default: []
+                    description: |-
+                      ImagePullSecrets is an optional list of references to secrets in the same
+                      namespace to use for pulling the image
+                    items:
+                      type: string
+                    type: array
+                  repository:
+                    description: Address of the registry that stores the image
+                    pattern: '[a-zA-Z0-9\.\-\/]+'
+                    type: string
+                  version:
+                    description: Version of the image to use
+                    type: string
+                required:
+                - image
+                - repository
+                - version
+                type: object
+              ibKubernetes:
+                description: |-
+                  IBKubernetes provides a daemon that works in conjunction with the SR-IOV Network Device Plugin.
+                  It acts on Kubernetes pod object changes and reads the pod's network annotation.
+                  From there it fetches the corresponding network CRD and reads the PKey.
+                  This is done in order to add the newly generated GUID or the predefined GUID in the GUID field of the CRD.
+                  This is then passed in cni-args to that PKey for pods with mellanox.infiniband.app annotation.
+                  See: https://github.com/Mellanox/ib-kubernetes
+                properties:
+                  containerResources:
+                    description: ResourceRequirements describes the compute resource
+                      requirements
+                    items:
+                      description: ResourceRequirements describes the compute resource
+                        requirements.
+                      properties:
+                        limits:
+                          additionalProperties:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                            x-kubernetes-int-or-string: true
+                          description: |-
+                            Limits describes the maximum amount of compute resources allowed.
+                            More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                          type: object
+                        name:
+                          description: Name of the container the requirements are
+                            set for
+                          type: string
+                        requests:
+                          additionalProperties:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                            x-kubernetes-int-or-string: true
+                          description: |-
+                            Requests describes the minimum amount of compute resources required.
+                            If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+                            otherwise to an implementation-defined value. Requests cannot exceed Limits.
+                            More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                          type: object
+                      required:
+                      - name
+                      type: object
+                    type: array
+                  image:
+                    description: Name of the image
+                    pattern: '[a-zA-Z0-9\-]+'
+                    type: string
+                  imagePullSecrets:
+                    default: []
+                    description: |-
+                      ImagePullSecrets is an optional list of references to secrets in the same
+                      namespace to use for pulling the image
+                    items:
+                      type: string
+                    type: array
+                  pKeyGUIDPoolRangeEnd:
+                    description: The last guid in the pool
+                    type: string
+                  pKeyGUIDPoolRangeStart:
+                    description: The first guid in the pool
+                    type: string
+                  periodicUpdateSeconds:
+                    default: 5
+                    description: Interval of updates in seconds
+                    minimum: 0
+                    type: integer
+                  repository:
+                    description: Address of the registry that stores the image
+                    pattern: '[a-zA-Z0-9\.\-\/]+'
+                    type: string
+                  ufmSecret:
+                    description: Secret containing credentials to UFM service
+                    type: string
+                  version:
+                    description: Version of the image to use
+                    type: string
+                required:
+                - image
+                - pKeyGUIDPoolRangeEnd
+                - pKeyGUIDPoolRangeStart
+                - repository
+                - ufmSecret
+                - version
+                type: object
+              nicConfigurationOperator:
+                description: |-
+                  NicConfigurationOperator provides Kubernetes CRD API to allow FW configuration on NVIDIA NICs in a coordinated manner
+                  See: https://github.com/Mellanox/nic-configuration-operator
+                properties:
+                  configurationDaemon:
+                    description: Image information for nic-configuration-daemon
+                    properties:
+                      containerResources:
+                        description: ResourceRequirements describes the compute resource
+                          requirements
+                        items:
+                          description: ResourceRequirements describes the compute
+                            resource requirements.
+                          properties:
+                            limits:
+                              additionalProperties:
+                                anyOf:
+                                - type: integer
+                                - type: string
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              description: |-
+                                Limits describes the maximum amount of compute resources allowed.
+                                More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                              type: object
+                            name:
+                              description: Name of the container the requirements
+                                are set for
+                              type: string
+                            requests:
+                              additionalProperties:
+                                anyOf:
+                                - type: integer
+                                - type: string
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              description: |-
+                                Requests describes the minimum amount of compute resources required.
+                                If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+                                otherwise to an implementation-defined value. Requests cannot exceed Limits.
+                                More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                              type: object
+                          required:
+                          - name
+                          type: object
+                        type: array
+                      image:
+                        description: Name of the image
+                        pattern: '[a-zA-Z0-9\-]+'
+                        type: string
+                      imagePullSecrets:
+                        default: []
+                        description: |-
+                          ImagePullSecrets is an optional list of references to secrets in the same
+                          namespace to use for pulling the image
+                        items:
+                          type: string
+                        type: array
+                      repository:
+                        description: Address of the registry that stores the image
+                        pattern: '[a-zA-Z0-9\.\-\/]+'
+                        type: string
+                      version:
+                        description: Version of the image to use
+                        type: string
+                    required:
+                    - image
+                    - repository
+                    - version
+                    type: object
+                  logLevel:
+                    default: info
+                    description: LogLevel sets the verbosity level of the logs. info|debug
+                    enum:
+                    - info
+                    - debug
+                    type: string
+                  nicFirmwareStorage:
+                    description: NicFirmwareStorage contains configuration for the
+                      NIC firmware storage
+                    properties:
+                      availableStorageSize:
+                        default: 1Gi
+                        description: 'AvailableStorageSize is storage size for the
+                          NIC Configuration Operator to request. Only applies if nicFirmwareStorage.create
+                          == true. Default value: 1Gi'
+                        pattern: ^(\d+)(Ei|Pi|Ti|Gi|Mi|Ki)$
+                        type: string
+                        x-kubernetes-validations:
+                        - message: availableStorageSize is immutable once set. nicFirmwareStorage
+                            should be deleted and created again with a new value.
+                          rule: self == oldSelf
+                      create:
+                        default: true
+                        description: |-
+                          Create specifies whether to create a new PVC or use an existing one
+                          If create == false, the existing PVC should be located in the same namespace as the operator
+                        type: boolean
+                      pvcName:
+                        default: nic-fw-storage-pvc
+                        description: 'PVCName is the name of the PVC to mount as NIC
+                          Firmware storage. Default value: "nic-fw-storage-pvc"'
+                        maxLength: 63
+                        minLength: 1
+                        pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
+                        type: string
+                      storageClassName:
+                        description: |-
+                          StorageClassName is the name of a storage class to be used to store NIC FW binaries during NIC FW upgrade.
+                          If not provided, the cluster-default storage class will be used
+                        maxLength: 63
+                        minLength: 1
+                        pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
+                        type: string
+                        x-kubernetes-validations:
+                        - message: storageClassName is immutable once set. nicFirmwareStorage
+                            should be deleted and created again with a new value.
+                          rule: self == oldSelf
+                    type: object
+                  operator:
+                    description: Image information for nic-configuration-operator
+                    properties:
+                      containerResources:
+                        description: ResourceRequirements describes the compute resource
+                          requirements
+                        items:
+                          description: ResourceRequirements describes the compute
+                            resource requirements.
+                          properties:
+                            limits:
+                              additionalProperties:
+                                anyOf:
+                                - type: integer
+                                - type: string
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              description: |-
+                                Limits describes the maximum amount of compute resources allowed.
+                                More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                              type: object
+                            name:
+                              description: Name of the container the requirements
+                                are set for
+                              type: string
+                            requests:
+                              additionalProperties:
+                                anyOf:
+                                - type: integer
+                                - type: string
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              description: |-
+                                Requests describes the minimum amount of compute resources required.
+                                If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+                                otherwise to an implementation-defined value. Requests cannot exceed Limits.
+                                More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                              type: object
+                          required:
+                          - name
+                          type: object
+                        type: array
+                      image:
+                        description: Name of the image
+                        pattern: '[a-zA-Z0-9\-]+'
+                        type: string
+                      imagePullSecrets:
+                        default: []
+                        description: |-
+                          ImagePullSecrets is an optional list of references to secrets in the same
+                          namespace to use for pulling the image
+                        items:
+                          type: string
+                        type: array
+                      repository:
+                        description: Address of the registry that stores the image
+                        pattern: '[a-zA-Z0-9\.\-\/]+'
+                        type: string
+                      version:
+                        description: Version of the image to use
+                        type: string
+                    required:
+                    - image
+                    - repository
+                    - version
+                    type: object
+                required:
+                - configurationDaemon
+                - operator
+                type: object
+              nicFeatureDiscovery:
+                description: |-
+                  NicFeatureDiscovery works with NodeFeatureDiscovery to expose information about NVIDIA NICs.
+                  https://github.com/Mellanox/nic-feature-discovery
+                properties:
+                  containerResources:
+                    description: ResourceRequirements describes the compute resource
+                      requirements
+                    items:
+                      description: ResourceRequirements describes the compute resource
+                        requirements.
+                      properties:
+                        limits:
+                          additionalProperties:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                            x-kubernetes-int-or-string: true
+                          description: |-
+                            Limits describes the maximum amount of compute resources allowed.
+                            More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                          type: object
+                        name:
+                          description: Name of the container the requirements are
+                            set for
+                          type: string
+                        requests:
+                          additionalProperties:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                            x-kubernetes-int-or-string: true
+                          description: |-
+                            Requests describes the minimum amount of compute resources required.
+                            If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+                            otherwise to an implementation-defined value. Requests cannot exceed Limits.
+                            More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                          type: object
+                      required:
+                      - name
+                      type: object
+                    type: array
+                  image:
+                    description: Name of the image
+                    pattern: '[a-zA-Z0-9\-]+'
+                    type: string
+                  imagePullSecrets:
+                    default: []
+                    description: |-
+                      ImagePullSecrets is an optional list of references to secrets in the same
+                      namespace to use for pulling the image
+                    items:
+                      type: string
+                    type: array
+                  repository:
+                    description: Address of the registry that stores the image
+                    pattern: '[a-zA-Z0-9\.\-\/]+'
+                    type: string
+                  version:
+                    description: Version of the image to use
+                    type: string
+                required:
+                - image
+                - repository
+                - version
+                type: object
+              nodeAffinity:
+                description: NodeAffinity rules to inject to the DaemonSets objects
+                  that are managed by the operator
+                properties:
+                  preferredDuringSchedulingIgnoredDuringExecution:
+                    description: |-
+                      The scheduler will prefer to schedule pods to nodes that satisfy
+                      the affinity expressions specified by this field, but it may choose
+                      a node that violates one or more of the expressions. The node that is
+                      most preferred is the one with the greatest sum of weights, i.e.
+                      for each node that meets all of the scheduling requirements (resource
+                      request, requiredDuringScheduling affinity expressions, etc.),
+                      compute a sum by iterating through the elements of this field and adding
+                      "weight" to the sum if the node matches the corresponding matchExpressions; the
+                      node(s) with the highest sum are the most preferred.
+                    items:
+                      description: |-
+                        An empty preferred scheduling term matches all objects with implicit weight 0
+                        (i.e. it's a no-op). A null preferred scheduling term matches no objects (i.e. is also a no-op).
+                      properties:
+                        preference:
+                          description: A node selector term, associated with the corresponding
+                            weight.
+                          properties:
+                            matchExpressions:
+                              description: A list of node selector requirements by
+                                node's labels.
+                              items:
+                                description: |-
+                                  A node selector requirement is a selector that contains values, a key, and an operator
+                                  that relates the key and values.
+                                properties:
+                                  key:
+                                    description: The label key that the selector applies
+                                      to.
+                                    type: string
+                                  operator:
+                                    description: |-
+                                      Represents a key's relationship to a set of values.
+                                      Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+                                    type: string
+                                  values:
+                                    description: |-
+                                      An array of string values. If the operator is In or NotIn,
+                                      the values array must be non-empty. If the operator is Exists or DoesNotExist,
+                                      the values array must be empty. If the operator is Gt or Lt, the values
+                                      array must have a single element, which will be interpreted as an integer.
+                                      This array is replaced during a strategic merge patch.
+                                    items:
+                                      type: string
+                                    type: array
+                                    x-kubernetes-list-type: atomic
+                                required:
+                                - key
+                                - operator
+                                type: object
+                              type: array
+                              x-kubernetes-list-type: atomic
+                            matchFields:
+                              description: A list of node selector requirements by
+                                node's fields.
+                              items:
+                                description: |-
+                                  A node selector requirement is a selector that contains values, a key, and an operator
+                                  that relates the key and values.
+                                properties:
+                                  key:
+                                    description: The label key that the selector applies
+                                      to.
+                                    type: string
+                                  operator:
+                                    description: |-
+                                      Represents a key's relationship to a set of values.
+                                      Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+                                    type: string
+                                  values:
+                                    description: |-
+                                      An array of string values. If the operator is In or NotIn,
+                                      the values array must be non-empty. If the operator is Exists or DoesNotExist,
+                                      the values array must be empty. If the operator is Gt or Lt, the values
+                                      array must have a single element, which will be interpreted as an integer.
+                                      This array is replaced during a strategic merge patch.
+                                    items:
+                                      type: string
+                                    type: array
+                                    x-kubernetes-list-type: atomic
+                                required:
+                                - key
+                                - operator
+                                type: object
+                              type: array
+                              x-kubernetes-list-type: atomic
+                          type: object
+                          x-kubernetes-map-type: atomic
+                        weight:
+                          description: Weight associated with matching the corresponding
+                            nodeSelectorTerm, in the range 1-100.
+                          format: int32
+                          type: integer
+                      required:
+                      - preference
+                      - weight
+                      type: object
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  requiredDuringSchedulingIgnoredDuringExecution:
+                    description: |-
+                      If the affinity requirements specified by this field are not met at
+                      scheduling time, the pod will not be scheduled onto the node.
+                      If the affinity requirements specified by this field cease to be met
+                      at some point during pod execution (e.g. due to an update), the system
+                      may or may not try to eventually evict the pod from its node.
+                    properties:
+                      nodeSelectorTerms:
+                        description: Required. A list of node selector terms. The
+                          terms are ORed.
+                        items:
+                          description: |-
+                            A null or empty node selector term matches no objects. The requirements of
+                            them are ANDed.
+                            The TopologySelectorTerm type implements a subset of the NodeSelectorTerm.
+                          properties:
+                            matchExpressions:
+                              description: A list of node selector requirements by
+                                node's labels.
+                              items:
+                                description: |-
+                                  A node selector requirement is a selector that contains values, a key, and an operator
+                                  that relates the key and values.
+                                properties:
+                                  key:
+                                    description: The label key that the selector applies
+                                      to.
+                                    type: string
+                                  operator:
+                                    description: |-
+                                      Represents a key's relationship to a set of values.
+                                      Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+                                    type: string
+                                  values:
+                                    description: |-
+                                      An array of string values. If the operator is In or NotIn,
+                                      the values array must be non-empty. If the operator is Exists or DoesNotExist,
+                                      the values array must be empty. If the operator is Gt or Lt, the values
+                                      array must have a single element, which will be interpreted as an integer.
+                                      This array is replaced during a strategic merge patch.
+                                    items:
+                                      type: string
+                                    type: array
+                                    x-kubernetes-list-type: atomic
+                                required:
+                                - key
+                                - operator
+                                type: object
+                              type: array
+                              x-kubernetes-list-type: atomic
+                            matchFields:
+                              description: A list of node selector requirements by
+                                node's fields.
+                              items:
+                                description: |-
+                                  A node selector requirement is a selector that contains values, a key, and an operator
+                                  that relates the key and values.
+                                properties:
+                                  key:
+                                    description: The label key that the selector applies
+                                      to.
+                                    type: string
+                                  operator:
+                                    description: |-
+                                      Represents a key's relationship to a set of values.
+                                      Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+                                    type: string
+                                  values:
+                                    description: |-
+                                      An array of string values. If the operator is In or NotIn,
+                                      the values array must be non-empty. If the operator is Exists or DoesNotExist,
+                                      the values array must be empty. If the operator is Gt or Lt, the values
+                                      array must have a single element, which will be interpreted as an integer.
+                                      This array is replaced during a strategic merge patch.
+                                    items:
+                                      type: string
+                                    type: array
+                                    x-kubernetes-list-type: atomic
+                                required:
+                                - key
+                                - operator
+                                type: object
+                              type: array
+                              x-kubernetes-list-type: atomic
+                          type: object
+                          x-kubernetes-map-type: atomic
+                        type: array
+                        x-kubernetes-list-type: atomic
                     required:
                     - nodeSelectorTerms
                     type: object
@@ -442,11 +914,13 @@ spec:
                 type: object
               nvIpam:
                 description: |-
-                  NVIPAMSpec describes configuration options for nv-ipam
-                  1. Image information for nv-ipam
-                  2. Configuration for nv-ipam
+                  NvIpam is an IPAM provider that dynamically assigns IP addresses with speed and performance in mind.
+                  Note: NvIPam requires certificate management e.g. cert-manager or OpenShift cert management.
+                  See https://github.com/Mellanox/nvidia-k8s-ipam
                 properties:
                   containerResources:
+                    description: ResourceRequirements describes the compute resource
+                      requirements
                     items:
                       description: ResourceRequirements describes the compute resource
                         requirements.
@@ -487,18 +961,23 @@ spec:
                     description: Enable deployment of the validation webhook
                     type: boolean
                   image:
+                    description: Name of the image
                     pattern: '[a-zA-Z0-9\-]+'
                     type: string
                   imagePullSecrets:
                     default: []
+                    description: |-
+                      ImagePullSecrets is an optional list of references to secrets in the same
+                      namespace to use for pulling the image
                     items:
                       type: string
                     type: array
                   repository:
+                    description: Address of the registry that stores the image
                     pattern: '[a-zA-Z0-9\.\-\/]+'
                     type: string
                   version:
-                    pattern: '[a-zA-Z0-9\.-]+'
+                    description: Version of the image to use
                     type: string
                 required:
                 - image
@@ -506,17 +985,21 @@ spec:
                 - version
                 type: object
               ofedDriver:
-                description: OFEDDriverSpec describes configuration options for OFED
-                  driver
+                description: |-
+                  OFEDDriver is a specialized driver for NVIDIA NICs which can replace the inbox driver that comes with an OS.
+                  See https://network.nvidia.com/support/mlnx-ofed-matrix/
                 properties:
                   certConfig:
                     description: 'Optional: Custom TLS certificates configuration
-                      for driver container'
+                      for DOCA-OFED driver container'
                     properties:
                       name:
+                        description: Name of the ConfigMap
                         type: string
                     type: object
                   containerResources:
+                    description: ResourceRequirements describes the compute resource
+                      requirements
                     items:
                       description: ResourceRequirements describes the compute resource
                         requirements.
@@ -554,8 +1037,8 @@ spec:
                       type: object
                     type: array
                   env:
-                    description: List of environment variables to set in the OFED
-                      container.
+                    description: List of environment variables to set in the DOCA-OFED
+                      driver container.
                     items:
                       description: EnvVar represents an environment variable present
                         in a Container.
@@ -587,10 +1070,13 @@ spec:
                                   description: The key to select.
                                   type: string
                                 name:
+                                  default: ""
                                   description: |-
                                     Name of the referent.
+                                    This field is effectively required, but due to backwards compatibility is
+                                    allowed to be empty. Instances of this type with an empty value here are
+                                    almost certainly wrong.
                                     More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-                                    TODO: Add other useful fields. apiVersion, kind, uid?
                                   type: string
                                 optional:
                                   description: Specify whether the ConfigMap or its
@@ -650,10 +1136,13 @@ spec:
                                     be a valid secret key.
                                   type: string
                                 name:
+                                  default: ""
                                   description: |-
                                     Name of the referent.
+                                    This field is effectively required, but due to backwards compatibility is
+                                    allowed to be empty. Instances of this type with an empty value here are
+                                    almost certainly wrong.
                                     More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-                                    TODO: Add other useful fields. apiVersion, kind, uid?
                                   type: string
                                 optional:
                                   description: Specify whether the Secret or its key
@@ -671,15 +1160,19 @@ spec:
                   forcePrecompiled:
                     default: false
                     description: |-
-                      ForcePrecompiled specifies if only MOFED precompiled images are allowed
-                      If set to false and precompiled image does not exists, MOFED drivers will be compiled on Nodes
+                      ForcePrecompiled specifies if only DOCA-OFED driver precompiled images are allowed
+                      If set to false and precompiled image does not exists, DOCA-OFED driver will be compiled on Nodes
                       If set to true and precompiled image does not exists, OFED state will be Error.
                     type: boolean
                   image:
+                    description: Name of the image
                     pattern: '[a-zA-Z0-9\-]+'
                     type: string
                   imagePullSecrets:
                     default: []
+                    description: |-
+                      ImagePullSecrets is an optional list of references to secrets in the same
+                      namespace to use for pulling the image
                     items:
                       type: string
                     type: array
@@ -687,8 +1180,11 @@ spec:
                     description: Pod liveness probe settings
                     properties:
                       initialDelaySeconds:
+                        description: Number of seconds after the container has started
+                          before the probe is initiated
                         type: integer
                       periodSeconds:
+                        description: How often (in seconds) to perform the probe
                         type: integer
                     required:
                     - initialDelaySeconds
@@ -698,8 +1194,11 @@ spec:
                     description: Pod readiness probe settings
                     properties:
                       initialDelaySeconds:
+                        description: Number of seconds after the container has started
+                          before the probe is initiated
                         type: integer
                       periodSeconds:
+                        description: How often (in seconds) to perform the probe
                         type: integer
                     required:
                     - initialDelaySeconds
@@ -707,20 +1206,25 @@ spec:
                     type: object
                   repoConfig:
                     description: 'Optional: Custom package repository configuration
-                      for OFED container'
+                      for DOCA-OFED driver container'
                     properties:
                       name:
+                        description: Name of the ConfigMap
                         type: string
                     type: object
                   repository:
+                    description: Address of the registry that stores the image
                     pattern: '[a-zA-Z0-9\.\-\/]+'
                     type: string
                   startupProbe:
                     description: Pod startup probe settings
                     properties:
                       initialDelaySeconds:
+                        description: Number of seconds after the container has started
+                          before the probe is initiated
                         type: integer
                       periodSeconds:
+                        description: How often (in seconds) to perform the probe
                         type: integer
                     required:
                     - initialDelaySeconds
@@ -730,12 +1234,12 @@ spec:
                     default: 300
                     description: |-
                       TerminationGracePeriodSeconds specifies the length of time in seconds
-                      to wait before killing the OFED pod on termination
+                      to wait before killing the DOCA-OFED driver container pod on termination
                     format: int64
                     minimum: 0
                     type: integer
                   upgradePolicy:
-                    description: Ofed auto-upgrade settings
+                    description: DOCA-OFED driver auto-upgrade settings
                     properties:
                       autoUpgrade:
                         default: false
@@ -744,8 +1248,8 @@ spec:
                           if set to false all other options are ignored
                         type: boolean
                       drain:
-                        description: DrainSpec describes configuration for node drain
-                          during automatic upgrade
+                        description: The configuration for node drain during automatic
+                          upgrade
                         properties:
                           deleteEmptyDir:
                             default: false
@@ -789,8 +1293,7 @@ spec:
                           and drain the node before loading the driver)
                         type: boolean
                       waitForCompletion:
-                        description: WaitForCompletionSpec describes the configuration
-                          for waiting on job completions
+                        description: The configuration for waiting on pods completions
                         properties:
                           podSelector:
                             description: |-
@@ -808,7 +1311,7 @@ spec:
                         type: object
                     type: object
                   version:
-                    pattern: '[a-zA-Z0-9\.-]+'
+                    description: Version of the image to use
                     type: string
                 required:
                 - image
@@ -817,13 +1320,16 @@ spec:
                 type: object
               rdmaSharedDevicePlugin:
                 description: |-
-                  DevicePluginSpec describes configuration options for device plugin
-                  1. Image information for device plugin
-                  2. Device plugin configuration
+                  RdmaSharedDevicePlugin manages support IB and RoCE HCAs through the Kubernetes device plugin framework.
+                  The config field is a json representation of the RDMA shared device plugin configuration.
+                  See https://github.com/Mellanox/k8s-rdma-shared-dev-plugin
                 properties:
                   config:
+                    description: Configuration for the component as a string
                     type: string
                   containerResources:
+                    description: ResourceRequirements describes the compute resource
+                      requirements
                     items:
                       description: ResourceRequirements describes the compute resource
                         requirements.
@@ -861,20 +1367,28 @@ spec:
                       type: object
                     type: array
                   image:
+                    description: Name of the image
                     pattern: '[a-zA-Z0-9\-]+'
                     type: string
                   imagePullSecrets:
                     default: []
+                    description: |-
+                      ImagePullSecrets is an optional list of references to secrets in the same
+                      namespace to use for pulling the image
                     items:
                       type: string
                     type: array
                   repository:
+                    description: Address of the registry that stores the image
                     pattern: '[a-zA-Z0-9\.\-\/]+'
                     type: string
                   useCdi:
+                    description: |-
+                      Enables use of container device interface (CDI)
+                      NOTE: NVIDIA Network Operator does not configure container runtime to enable CDI.
                     type: boolean
                   version:
-                    pattern: '[a-zA-Z0-9\.-]+'
+                    description: Version of the image to use
                     type: string
                 required:
                 - image
@@ -882,13 +1396,20 @@ spec:
                 - version
                 type: object
               secondaryNetwork:
-                description: SecondaryNetworkSpec describes configuration options
-                  for secondary network
+                description: |-
+                  SecondaryNetwork Specifies components to deploy in order to facilitate a secondary network in Kubernetes.
+                  It consists of the following optionally deployed components:
+                  - Multus-CNI: Delegate CNI plugin to support secondary networks in Kubernetes
+                  - CNI plugins: Currently only containernetworking-plugins is supported
+                  - IPAM CNI: Currently only Whereabout IPAM CNI is supported as a part of the secondaryNetwork section.
+                  - IPoIB CNI: Allows the user to create IPoIB child link and move it to the pod
                 properties:
                   cniPlugins:
                     description: Image information for CNI plugins
                     properties:
                       containerResources:
+                        description: ResourceRequirements describes the compute resource
+                          requirements
                         items:
                           description: ResourceRequirements describes the compute
                             resource requirements.
@@ -926,18 +1447,23 @@ spec:
                           type: object
                         type: array
                       image:
+                        description: Name of the image
                         pattern: '[a-zA-Z0-9\-]+'
                         type: string
                       imagePullSecrets:
                         default: []
+                        description: |-
+                          ImagePullSecrets is an optional list of references to secrets in the same
+                          namespace to use for pulling the image
                         items:
                           type: string
                         type: array
                       repository:
+                        description: Address of the registry that stores the image
                         pattern: '[a-zA-Z0-9\.\-\/]+'
                         type: string
                       version:
-                        pattern: '[a-zA-Z0-9\.-]+'
+                        description: Version of the image to use
                         type: string
                     required:
                     - image
@@ -945,9 +1471,13 @@ spec:
                     - version
                     type: object
                   ipamPlugin:
-                    description: Image information for IPAM plugin
+                    description: |-
+                      Image information for IPAM plugin
+                      Deprecated: This field is deprecated and will be removed in a future version. Use 'nvIpam' instead.
                     properties:
                       containerResources:
+                        description: ResourceRequirements describes the compute resource
+                          requirements
                         items:
                           description: ResourceRequirements describes the compute
                             resource requirements.
@@ -985,18 +1515,23 @@ spec:
                           type: object
                         type: array
                       image:
+                        description: Name of the image
                         pattern: '[a-zA-Z0-9\-]+'
                         type: string
                       imagePullSecrets:
                         default: []
+                        description: |-
+                          ImagePullSecrets is an optional list of references to secrets in the same
+                          namespace to use for pulling the image
                         items:
                           type: string
                         type: array
                       repository:
+                        description: Address of the registry that stores the image
                         pattern: '[a-zA-Z0-9\.\-\/]+'
                         type: string
                       version:
-                        pattern: '[a-zA-Z0-9\.-]+'
+                        description: Version of the image to use
                         type: string
                     required:
                     - image
@@ -1007,6 +1542,8 @@ spec:
                     description: Image information for IPoIB CNI
                     properties:
                       containerResources:
+                        description: ResourceRequirements describes the compute resource
+                          requirements
                         items:
                           description: ResourceRequirements describes the compute
                             resource requirements.
@@ -1044,18 +1581,23 @@ spec:
                           type: object
                         type: array
                       image:
+                        description: Name of the image
                         pattern: '[a-zA-Z0-9\-]+'
                         type: string
                       imagePullSecrets:
                         default: []
+                        description: |-
+                          ImagePullSecrets is an optional list of references to secrets in the same
+                          namespace to use for pulling the image
                         items:
                           type: string
                         type: array
                       repository:
+                        description: Address of the registry that stores the image
                         pattern: '[a-zA-Z0-9\.\-\/]+'
                         type: string
                       version:
-                        pattern: '[a-zA-Z0-9\.-]+'
+                        description: Version of the image to use
                         type: string
                     required:
                     - image
@@ -1066,8 +1608,11 @@ spec:
                     description: Image and configuration information for multus
                     properties:
                       config:
+                        description: Configuration for the component as a string
                         type: string
                       containerResources:
+                        description: ResourceRequirements describes the compute resource
+                          requirements
                         items:
                           description: ResourceRequirements describes the compute
                             resource requirements.
@@ -1105,18 +1650,23 @@ spec:
                           type: object
                         type: array
                       image:
+                        description: Name of the image
                         pattern: '[a-zA-Z0-9\-]+'
                         type: string
                       imagePullSecrets:
                         default: []
+                        description: |-
+                          ImagePullSecrets is an optional list of references to secrets in the same
+                          namespace to use for pulling the image
                         items:
                           type: string
                         type: array
                       repository:
+                        description: Address of the registry that stores the image
                         pattern: '[a-zA-Z0-9\.\-\/]+'
                         type: string
                       version:
-                        pattern: '[a-zA-Z0-9\.-]+'
+                        description: Version of the image to use
                         type: string
                     required:
                     - image
@@ -1124,15 +1674,14 @@ spec:
                     - version
                     type: object
                 type: object
-              sriovDevicePlugin:
+              spectrumXOperator:
                 description: |-
-                  DevicePluginSpec describes configuration options for device plugin
-                  1. Image information for device plugin
-                  2. Device plugin configuration
+                  SpectrumXOperator exposes NVIDIA Spectrum-X Operator.
+                  See: https://github.com/Mellanox/spectrum-x-operator/
                 properties:
-                  config:
-                    type: string
                   containerResources:
+                    description: ResourceRequirements describes the compute resource
+                      requirements
                     items:
                       description: ResourceRequirements describes the compute resource
                         requirements.
@@ -1170,20 +1719,100 @@ spec:
                       type: object
                     type: array
                   image:
+                    description: Name of the image
                     pattern: '[a-zA-Z0-9\-]+'
                     type: string
                   imagePullSecrets:
                     default: []
+                    description: |-
+                      ImagePullSecrets is an optional list of references to secrets in the same
+                      namespace to use for pulling the image
                     items:
                       type: string
                     type: array
                   repository:
+                    description: Address of the registry that stores the image
+                    pattern: '[a-zA-Z0-9\.\-\/]+'
+                    type: string
+                  version:
+                    description: Version of the image to use
+                    type: string
+                required:
+                - image
+                - repository
+                - version
+                type: object
+              sriovDevicePlugin:
+                description: |-
+                  SriovDevicePlugin manages SRIOV through the Kubernetes device plugin framework.
+                  The config field is a json representation of the RDMA shared device plugin configuration.
+                  See https://github.com/k8snetworkplumbingwg/sriov-network-device-plugin
+                properties:
+                  config:
+                    description: Configuration for the component as a string
+                    type: string
+                  containerResources:
+                    description: ResourceRequirements describes the compute resource
+                      requirements
+                    items:
+                      description: ResourceRequirements describes the compute resource
+                        requirements.
+                      properties:
+                        limits:
+                          additionalProperties:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                            x-kubernetes-int-or-string: true
+                          description: |-
+                            Limits describes the maximum amount of compute resources allowed.
+                            More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                          type: object
+                        name:
+                          description: Name of the container the requirements are
+                            set for
+                          type: string
+                        requests:
+                          additionalProperties:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                            x-kubernetes-int-or-string: true
+                          description: |-
+                            Requests describes the minimum amount of compute resources required.
+                            If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+                            otherwise to an implementation-defined value. Requests cannot exceed Limits.
+                            More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                          type: object
+                      required:
+                      - name
+                      type: object
+                    type: array
+                  image:
+                    description: Name of the image
+                    pattern: '[a-zA-Z0-9\-]+'
+                    type: string
+                  imagePullSecrets:
+                    default: []
+                    description: |-
+                      ImagePullSecrets is an optional list of references to secrets in the same
+                      namespace to use for pulling the image
+                    items:
+                      type: string
+                    type: array
+                  repository:
+                    description: Address of the registry that stores the image
                     pattern: '[a-zA-Z0-9\.\-\/]+'
                     type: string
                   useCdi:
+                    description: |-
+                      Enables use of container device interface (CDI)
+                      NOTE: NVIDIA Network Operator does not configure container runtime to enable CDI.
                     type: boolean
                   version:
-                    pattern: '[a-zA-Z0-9\.-]+'
+                    description: Version of the image to use
                     type: string
                 required:
                 - image
@@ -1191,6 +1820,8 @@ spec:
                 - version
                 type: object
               tolerations:
+                description: Tolerations to inject to the DaemonSets objects that
+                  are managed by the operator
                 items:
                   description: |-
                     The pod this Toleration is attached to tolerates any taint that matches
@@ -1230,7 +1861,7 @@ spec:
                 type: array
             type: object
           status:
-            description: NicClusterPolicyStatus defines the observed state of NicClusterPolicy
+            description: Defines the observed state of NicClusterPolicy
             properties:
               appliedStates:
                 description: AppliedStates provide a finer view of the observed state
@@ -1238,10 +1869,18 @@ spec:
                   description: AppliedState defines a finer-grained view of the observed
                     state of NicClusterPolicy
                   properties:
+                    message:
+                      description: |-
+                        Message is a human readable message indicating details about why
+                        the state is in this condition
+                      type: string
                     name:
+                      description: Name of the deployed component this state refers
+                        to
                       type: string
                     state:
-                      description: State represents reconcile state of the system.
+                      description: The state of the deployed component. ("ready",
+                        "notReady", "ignore", "error")
                       enum:
                       - ready
                       - notReady

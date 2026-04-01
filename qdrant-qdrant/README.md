@@ -60,7 +60,7 @@ To install the product:
 
 1. To check that Qdrant is working:
 
-   1. [Install kubectl](https://kubernetes.io/docs/tasks/tools/##kubectl), and [configure it to work with the created cluster](https://nebius.ai/docs/managed-kubernetes/operations/connect/##kubectl-connect).
+   1. [Install kubectl](https://kubernetes.io/docs/tasks/tools/##kubectl), and [configure it to work with the created cluster](https://docs.nebius.com/kubernetes/connect).
 
    1. Check the access to its UI:
 

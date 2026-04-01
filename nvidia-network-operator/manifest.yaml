@@ -3,70 +3,45 @@ ownerName: NVIDIA
 publisherName: Nebius
 name: NVIDIA® Network Operator
 categories:
-  - training
+  - gpu-compute
+
 images:
   - full: sriov-network-operator.images.operator
   - full: sriov-network-operator.images.sriovConfigDaemon
   - full: sriov-network-operator.images.sriovCni
   - full: sriov-network-operator.images.ibSriovCni
   - full: sriov-network-operator.images.ovsCni
-  - full: sriov-network-operator.images.rdmaCni
+  # - full: sriov-network-operator.images.rdmaCni
   - full: sriov-network-operator.images.sriovDevicePlugin
   - full: sriov-network-operator.images.resourcesInjector
   - full: sriov-network-operator.images.webhook
-  - full: nebius.images.ulimitFixer
   - tag: node-feature-discovery.image.tag
     nameWithRegistry: node-feature-discovery.image.repository
+
+  - registry: nic-configuration-operator-chart.operator.image.repository
+    tag: nic-configuration-operator-chart.operator.image.tag
+    nameWithoutRegistry: nic-configuration-operator-chart.operator.image.name
+
+  - registry: nic-configuration-operator-chart.configDaemon.image.repository
+    tag: nic-configuration-operator-chart.configDaemon.image.tag
+    nameWithoutRegistry: nic-configuration-operator-chart.configDaemon.image.name
+
+  - registry: maintenance-operator-chart.operator.image.repository
+    tag: maintenance-operator-chart.operator.image.tag
+    nameWithoutRegistry: maintenance-operator-chart.operator.image.name
 
   - registry: operator.repository
     tag: operator.tag
     nameWithoutRegistry: operator.image
 
-  - registry: ofedDriver.repository
-    tag: ofedDriver.versionFake
-    nameWithoutRegistry: ofedDriver.image
-  - full: ofedDriver.full_alternative_image
-  - registry: ofedDriver.initContainer.repository
-    tag: ofedDriver.initContainer.version
-    nameWithoutRegistry: ofedDriver.initContainer.image
+  - registry: operator.ofedDriver.repository
+    tag: operator.ofedDriver.full_version
+    nameWithoutRegistry: operator.ofedDriver.image
 
-  - registry: rdmaSharedDevicePlugin.repository
-    nameWithoutRegistry: rdmaSharedDevicePlugin.image
-    tag: rdmaSharedDevicePlugin.version
+  - registry: operator.ofedDriver.repository
+    tag: operator.ofedDriver.full_version_ubuntu24
+    nameWithoutRegistry: operator.ofedDriver.image
 
-  - registry: sriovDevicePlugin.repository
-    nameWithoutRegistry: sriovDevicePlugin.image
-    tag: sriovDevicePlugin.version
-
-  - registry: ibKubernetes.repository
-    nameWithoutRegistry: ibKubernetes.image
-    tag: ibKubernetes.version
-
-  - registry: nvIpam.repository
-    nameWithoutRegistry: nvIpam.image
-    tag: nvIpam.version
-
-  - registry: secondaryNetwork.cniPlugins.repository
-    nameWithoutRegistry: secondaryNetwork.cniPlugins.image
-    tag: secondaryNetwork.cniPlugins.version
-
-  - registry: secondaryNetwork.multus.repository
-    nameWithoutRegistry: secondaryNetwork.multus.image
-    tag: secondaryNetwork.multus.version
-
-  - registry: secondaryNetwork.ipoib.repository
-    nameWithoutRegistry: secondaryNetwork.ipoib.image
-    tag: secondaryNetwork.ipoib.version
-
-  - registry: secondaryNetwork.ipamPlugin.repository
-    nameWithoutRegistry: secondaryNetwork.ipamPlugin.image
-    tag: secondaryNetwork.ipamPlugin.version
-
-  - registry: nicFeatureDiscovery.repository
-    nameWithoutRegistry: nicFeatureDiscovery.image
-    tag: nicFeatureDiscovery.version
-
-  - registry: docaTelemetryService.repository
-    nameWithoutRegistry: docaTelemetryService.image
-    tag: docaTelemetryService.version
-
+  - registry: operator.ofedDriver.initContainer.repository
+    tag: operator.ofedDriver.initContainer.version
+    nameWithoutRegistry: operator.ofedDriver.initContainer.image

@@ -1,0 +1,7 @@
+repo: https://charts.bitnami.com/bitnami
+chart: nginx
+version: 15.3.2
+values: |
+  service:
+    type: ClusterIP
+    port: 8080

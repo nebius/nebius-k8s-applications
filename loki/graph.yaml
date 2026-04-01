@@ -1,0 +1,103 @@
+releaseType: "k8s"
+components:
+  helmchart001:
+    type: "helm_chart"
+    spec:
+      refMap:
+        parentId: "parameters.parentId"
+        clusterId: "components.cluster001.state.result.id"
+        releaseName: "parameters.releaseName"
+        releaseNamespace: "parameters.releaseNamespace"
+        rawValues: "parameters.rawValues"
+        values.loki.storage.bucketPrefix: "parameters.lokiStorageBucketPrefix"
+        values.loki.storage.s3.accessKeyId: "parameters.lokiStorageS3AccessKeyId"
+        values.loki.storage.s3.region: "parameters.lokiStorageS3Region"
+        values.loki.storage.s3.secretAccessKey: "parameters.lokiStorageS3SecretAccessKey"
+        values.promtail.enabled: "parameters.promtailEnabled"
+        values.replicaFactor: "parameters.replicaFactor"
+      componentSpec:
+        productSlug: "nebius/loki"
+    dependencies:
+      components:
+        cluster001:
+
+  cluster001:
+    type: "mk8s_cluster"
+    spec:
+      refMap:
+        api_spec.metadata.parentId: "parameters.parentId"
+        api_spec.metadata.id: "parameters.clusterId"
+        api_spec.metadata.name: "parameters.clusterName"
+      componentSpec:
+        api_spec:
+          metadata:
+            name: "loki-cluster"
+          spec:
+            control_plane:
+              # fill in subnetId with default value in the code
+              endpoints:
+                public_endpoint:
+
+
+parameters:
+  "parentId":
+    type: "string"
+    description: "The project ID for the Grafana Loki deployment."
+
+  "clusterId":
+    type: "string"
+    description: "Existing mk8s cluster ID for the Grafana Loki deployment."
+
+  "clusterName":
+    type: "string"
+    description: "Existing mk8s cluster name for the Grafana Loki deployment."
+
+  "releaseName":
+    type: "string"
+    description: "Helm release name."
+
+  "releaseNamespace":
+    type: "string"
+    description: "Helm release namespace."
+
+  "lokiStorageBucketPrefix":
+    type: "string"
+    description: "Value for Helm key 'loki.storage.bucketPrefix'."
+
+  "lokiStorageS3AccessKeyId":
+    type: "string"
+    description: "Value for Helm key 'loki.storage.s3.accessKeyId'."
+
+  "lokiStorageS3Region":
+    type: "string"
+    description: "Value for Helm key 'loki.storage.s3.region'."
+
+  "lokiStorageS3SecretAccessKey":
+    type: "string"
+    description: "Value for Helm key 'loki.storage.s3.secretAccessKey'."
+
+  "promtailEnabled":
+    type: "bool"
+    description: "Value for Helm key 'promtail.enabled'."
+
+  "replicaFactor":
+    type: "string"
+    description: "Value for Helm key 'replicaFactor'."
+
+  "rawValues":
+    type: "string"
+    description: "Helm values YAML (compose mode)."
+
+ui:
+  mapping:
+    clusterId: "mk8sCluster.clusterId"
+    clusterName: "mk8sCluster.name"
+    lokiStorageBucketPrefix: 'setup.app_settings.loki.storage.bucketPrefix'
+    lokiStorageS3AccessKeyId: 'setup.app_settings.loki.storage.s3.accessKeyId'
+    lokiStorageS3Region: 'setup.app_settings.loki.storage.s3.region'
+    lokiStorageS3SecretAccessKey: 'setup.app_settings.loki.storage.s3.secretAccessKey'
+    promtailEnabled: 'setup.app_settings.promtail.enabled'
+    replicaFactor: 'setup.app_settings.replicaFactor'
+    releaseName: "general.appname"
+    releaseNamespace: "general.namespace"
+    rawValues: "setup.compose.data"

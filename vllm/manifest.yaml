@@ -3,10 +3,8 @@ ownerName: Vllm project
 publisherName: Nebius
 name: vLLM
 categories:
-  - inference
-  - llm-apps-framework
-  - k3s-inference
-  - k3s-llm-apps-framework
+  - serving
+
 images:
   - tag: image.tag
     nameWithRegistry: image.repository
@@ -14,3 +12,5 @@ images:
     nameWithRegistry: gradio-ui.image.repository
   - tag: kuberay-operator.image.tag
     nameWithRegistry: kuberay-operator.image.repository
+  - tag: curl.image.tag
+    nameWithRegistry: curl.image.repository

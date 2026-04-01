@@ -3,7 +3,8 @@ publisherName: Nebius
 ownerName: Grafana Labs
 name: Grafana and Prometheus
 categories:
-  - dev-tools
+  - monitoring
+
 images:
   - registry: grafana.image.registry
     tag: grafana.image.tag

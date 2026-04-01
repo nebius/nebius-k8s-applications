@@ -1,24 +1,100 @@
 {
   "type": "object",
   "required": true,
-  "viewSpec": { "type": "base", "order": ["h2ogpt"], "layout": "" },
-  "defaultValue": { "h2ogpt": { "storage": { "size": "128Gi" } } },
+  "viewSpec": {
+    "type": "base",
+    "order": [
+      "mk8sCluster",
+      "general",
+      "h2ogpt"
+    ],
+    "layout": ""
+  },
+  "defaultValue": {
+    "h2ogpt": {
+      "storage": {
+        "size": "128Gi"
+      }
+    }
+  },
   "properties": {
+    "mk8sCluster": {
+      "type": "object",
+      "required": true,
+      "viewSpec": {
+        "type": "mk8s_cluster"
+      }
+    },
+    "general": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "layout": "section",
+        "layoutTitle": "General"
+      },
+      "defaultValue": {},
+      "properties": {
+        "appname": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Application name"
+          },
+          "defaultValue": "h2ogpt"
+        },
+        "namespace": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Namespace"
+          },
+          "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "patternError": "namespace must consist of lower case alphanumeric characters or '-', and must start and end with an alphanumeric character (e.g. 'my-name',  or '123-abc', regex used for validation is ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "defaultValue": "h2ogpt"
+        }
+      }
+    },
     "h2ogpt": {
       "type": "object",
-      "viewSpec": { "type": "base", "order": ["storage"], "layout": "" },
-      "defaultValue": { "storage": { "size": "128Gi" } },
+      "viewSpec": {
+        "type": "base",
+        "order": [
+          "storage"
+        ],
+        "layout": ""
+      },
+      "defaultValue": {
+        "storage": {
+          "size": "128Gi"
+        }
+      },
       "properties": {
         "storage": {
           "type": "object",
-          "viewSpec": { "type": "base", "order": ["size"], "layout": "" },
-          "defaultValue": { "size": "128Gi" },
+          "viewSpec": {
+            "type": "base",
+            "order": [
+              "size"
+            ],
+            "layout": ""
+          },
+          "defaultValue": {
+            "size": "128Gi"
+          },
           "properties": {
             "size": {
               "type": "string",
               "viewSpec": {
                 "disabled": false,
-                "inputProps": { "max": 1024, "min": 10, "suffix": "Gi" },
+                "inputProps": {
+                  "max": 1024,
+                  "min": 10,
+                  "suffix": "Gi"
+                },
                 "layout": "row",
                 "layoutDescription": "Enter the size of a persistent volume that h2oGPT will create for cache and other files.",
                 "layoutTitle": "Persistent volume size in Gb",

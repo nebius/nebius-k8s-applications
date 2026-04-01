@@ -48,8 +48,8 @@ If you want to use H2O-3 with GPUs and have them in your node group, install the
 
 Before installing this product:
 
-1. [Create a Kubernetes cluster](https://nebius.ai/docs/managed-kubernetes/operations/kubernetes-cluster/kubernetes-cluster-create) and a [node group](https://nebius.ai/docs/managed-kubernetes/operations/node-group/node-group-create) in it.
-1. [Install kubectl](https://kubernetes.io/docs/tasks/tools/##kubectl), and [configure it to work with the created cluster](https://nebius.ai/docs/managed-kubernetes/operations/connect/##kubectl-connect).
+1. [Create a Kubernetes cluster](https://docs.nebius.com/kubernetes/clusters/manage) and a [node group](https://docs.nebius.com/kubernetes/node-groups/manage) in it.
+1. [Install kubectl](https://kubernetes.io/docs/tasks/tools/##kubectl), and [configure it to work with the created cluster](https://docs.nebius.com/kubernetes/connect).
 
 To install the product:
 
@@ -58,7 +58,7 @@ To install the product:
 
 ## Usage
 
-1. [Install kubectl](https://kubernetes.io/docs/tasks/tools/##kubectl) and [configure it to work with the created cluster](https://nebius.ai/docs/managed-kubernetes/operations/connect/##kubectl-connect)
+1. [Install kubectl](https://kubernetes.io/docs/tasks/tools/##kubectl) and [configure it to work with the created cluster](https://docs.nebius.com/kubernetes/connect).
 1. To check that H2O-3 is working, launch [H2O Flow](https://docs.h2o.ai/h2o/latest-stable/h2o-docs/flow.html), the H2O-3 user interface:
 
     1. Configure port forwarding:

@@ -1,0 +1,85 @@
+diff --git a/marketplace/products/github/litellm/chart/Chart.yaml b/marketplace/products/github/litellm/chart/Chart.yaml
+index ceeb1e2340d..09c8d786465 100644
+--- a/marketplace/products/github/litellm/chart/Chart.yaml
++++ b/marketplace/products/github/litellm/chart/Chart.yaml
+@@ -10,6 +10,6 @@ dependencies:
+   repository: oci://registry-1.docker.io/bitnamicharts
+   version: '>=18.0.0'
+ description: Call all LLM APIs using the OpenAI format
+-name: litellm-helm
++name: LiteLLM
+ type: application
+ version: 0.1.759
+diff --git a/marketplace/products/github/litellm/chart/values.yaml b/marketplace/products/github/litellm/chart/values.yaml
+index f99204cbb4b..c8522844efa 100644
+--- a/marketplace/products/github/litellm/chart/values.yaml
++++ b/marketplace/products/github/litellm/chart/values.yaml
+@@ -10,7 +10,7 @@ image:
+   pullPolicy: Always
+   # Overrides the image tag whose default is the chart appVersion.
+   # tag: "main-latest"
+-  tag: ""
++  tag: "main-v1.75.5-stable"
+ 
+ imagePullSecrets: []
+ nameOverride: "litellm"
+@@ -59,6 +59,8 @@ environmentConfigMaps: []
+ service:
+   type: ClusterIP
+   port: 4000
++  annotations:
++    nebius.com/MarketplaceServiceAccess: title=LiteLLM,ssl=false,type=web,port=http
+   # If service type is `LoadBalancer` you can
+   # optionally specify loadBalancerClass
+   # loadBalancerClass: tailscale
+@@ -97,17 +99,7 @@ masterkeySecretKey: ""
+ #  Examples: https://github.com/BerriAI/litellm/tree/main/litellm/proxy/example_config_yaml
+ #  Reference: https://docs.litellm.ai/docs/proxy/configs
+ proxy_config:
+-  model_list:
+-    # At least one model must exist for the proxy to start.
+-    - model_name: gpt-3.5-turbo
+-      litellm_params:
+-        model: gpt-3.5-turbo
+-        api_key: eXaMpLeOnLy
+-    - model_name: fake-openai-endpoint
+-      litellm_params:
+-        model: openai/fake
+-        api_key: fake-key
+-        api_base: https://exampleopenaiendpoint-production.up.railway.app/
++  model_list: []
+   general_settings:
+     master_key: os.environ/PROXY_MASTER_KEY
+ 
+@@ -175,6 +167,14 @@ db:
+ # Settings for Bitnami postgresql chart (if db.deployStandalone is true, ignored
+ #  otherwise)
+ postgresql:
++  global:
++    security:
++      allowInsecureImages: true
++  image:
++    registry: docker.io
++    repository: bitnami/postgresql
++    tag: 17.6.0-debian-12-r0
++
+   architecture: standalone
+   auth:
+     username: litellm
+@@ -195,8 +195,15 @@ postgresql:
+ # either enable this or pass a secret for REDIS_HOST, REDIS_PORT, REDIS_PASSWORD or REDIS_URL
+ # with cache: true to use existing redis instance
+ redis:
+-  enabled: false
++  enabled: true
++  global:
++    security:
++      allowInsecureImages: true
+   architecture: standalone
++  image:
++    registry: docker.io
++    repository: bitnami/redis
++    tag: latest
+ 
+ # Prisma migration job settings
+ migrationJob:

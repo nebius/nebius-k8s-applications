@@ -1,0 +1,21 @@
+# Default manifest for litellm
+# This is a YAML-formatted file.
+# Declare variables to be passed into marketplace product.
+
+slug: litellm
+publisherName: BerriAI
+ownerName: BerriAI 
+name: LiteLLM
+categories: []
+tariff_type: free
+images:
+  - nameWithRegistry: image.repository
+    tag: image.tag
+
+  - registry: postgresql.image.registry
+    nameWithoutRegistry: postgresql.image.repository
+    tag: postgresql.image.tag
+
+  - registry: redis.image.registry
+    nameWithoutRegistry: redis.image.repository
+    tag: redis.image.tag

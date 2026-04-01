@@ -4,8 +4,8 @@ publisherName: Nebius
 ownerName: Argo Project
 name: Argo CD
 categories:
-  - dev-tools
-  - k3s-dev-tools
+  - infrastructure
+  - orchestration
 images:
   - nameWithRegistry: global.image.repository
     tag: global.image.tag

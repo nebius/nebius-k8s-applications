@@ -19,7 +19,7 @@ Aggregating and storing logs.
 
 ## Legal
 * [AGPLv3](https://github.com/grafana/loki/blob/main/LICENSE "additional-third-party-tos")
-* [Nebius AI Marketplace Terms of Service](https://nebius.ai/docs/legal/marketplace-terms "default-tos")
+* [Terms of Use of Nebius Applications](https://docs.nebius.com/legal/specific-terms/applications "default-tos")
 
 
 ## Tutorial

@@ -1,0 +1,117 @@
+releaseType: "k8s"
+components:
+  helmchart001:
+    type: "helm_chart"
+    spec:
+      refMap:
+        parentId: "parameters.parentId"
+        clusterId: "components.cluster001.state.result.id"
+        releaseName: "parameters.releaseName"
+        releaseNamespace: "parameters.releaseNamespace"
+        values.gradioExampleValues.complexOptionSelector: "parameters.gradioExampleValuesComplexOptionSelector"
+        values.gradioExampleValues.optionSelector: "parameters.gradioExampleValuesOptionSelector"
+        values.gradioExampleValues.password: "parameters.gradioExampleValuesPassword"
+        values.gradioExampleValues.simpleBoolean: "parameters.gradioExampleValuesSimpleBoolean"
+        values.gradioExampleValues.simpleString: "parameters.gradioExampleValuesSimpleString"
+        values.gradioExampleValues.sizeSelector: "parameters.gradioExampleValuesSizeSelector"
+        values.gradioExampleValues.textArea: "parameters.gradioExampleValuesTextArea"
+        values.gradioExampleValues.validatedString: "parameters.gradioExampleValuesValidatedString"
+      componentSpec:
+        productSlug: "nebius/test-nginx-product"
+    dependencies:
+      components:
+        cluster001:
+
+  cluster001:
+    type: "mk8s_cluster"
+    spec:
+      refMap:
+        api_spec.metadata.parentId: "parameters.parentId"
+        api_spec.metadata.id: "parameters.clusterId"
+        api_spec.metadata.name: "parameters.clusterName"
+      componentSpec:
+        api_spec:
+          metadata:
+            name: "test-nginx-product-cluster"
+          spec:
+            control_plane:
+              # fill in subnetId with default value in the code
+              endpoints:
+                public_endpoint:
+
+
+parameters:
+  "parentId":
+    type: "string"
+    description: "The project ID for the test-nginx-product deployment."
+
+  "clusterId":
+    type: "string"
+    description: "Existing mk8s cluster ID for the test-nginx-product deployment."
+
+  "clusterName":
+    type: "string"
+    description: "Existing mk8s cluster name for the test-nginx-product deployment."
+
+  "releaseName":
+    type: "string"
+    description: "Helm release name."
+
+  "releaseNamespace":
+    type: "string"
+    description: "Helm release namespace."
+
+  "gradioExampleValuesComplexOptionSelector":
+    type: "string"
+    description: "Value for Helm key 'gradioExampleValues.complexOptionSelector'."
+
+  "gradioExampleValuesOptionSelector":
+    type: "string"
+    description: "Value for Helm key 'gradioExampleValues.optionSelector'."
+
+  "gradioExampleValuesPassword":
+    type: "string"
+    description: "Value for Helm key 'gradioExampleValues.password'."
+
+  "gradioExampleValuesSimpleBoolean":
+    type: "bool"
+    description: "Value for Helm key 'gradioExampleValues.simpleBoolean'."
+
+  "gradioExampleValuesSimpleString":
+    type: "string"
+    description: "Value for Helm key 'gradioExampleValues.simpleString'."
+
+  "gradioExampleValuesSizeSelector":
+    type: "string"
+    description: "Value for Helm key 'gradioExampleValues.sizeSelector'."
+
+  "gradioExampleValuesTextArea":
+    type: "string"
+    description: "Value for Helm key 'gradioExampleValues.textArea'."
+
+  "gradioExampleValuesValidatedString":
+    type: "string"
+    description: "Value for Helm key 'gradioExampleValues.validatedString'."
+
+ui:
+  mapping:
+    clusterId: "mk8sCluster.clusterId"
+    clusterName: "mk8sCluster.name"
+    # NOTE: use 'gradioExampleValues\\.complexOptionSelector' because the input key name contains a dot.
+    gradioExampleValuesComplexOptionSelector: 'gradioExampleValues\\.complexOptionSelector'
+    # NOTE: use 'gradioExampleValues\\.optionSelector' because the input key name contains a dot.
+    gradioExampleValuesOptionSelector: 'gradioExampleValues\\.optionSelector'
+    # NOTE: use 'gradioExampleValues\\.password' because the input key name contains a dot.
+    gradioExampleValuesPassword: 'gradioExampleValues\\.password'
+    # NOTE: use 'gradioExampleValues\\.simpleBoolean' because the input key name contains a dot.
+    gradioExampleValuesSimpleBoolean: 'gradioExampleValues\\.simpleBoolean'
+    # NOTE: use 'gradioExampleValues\\.simpleString' because the input key name contains a dot.
+    gradioExampleValuesSimpleString: 'gradioExampleValues\\.simpleString'
+    # NOTE: use 'gradioExampleValues\\.sizeSelector' because the input key name contains a dot.
+    gradioExampleValuesSizeSelector: 'gradioExampleValues\\.sizeSelector'
+    # NOTE: use 'gradioExampleValues\\.textArea' because the input key name contains a dot.
+    gradioExampleValuesTextArea: 'gradioExampleValues\\.textArea'
+    # NOTE: use 'gradioExampleValues\\.validatedString' because the input key name contains a dot.
+    gradioExampleValuesValidatedString: 'gradioExampleValues\\.validatedString'
+    releaseName: "general.appname"
+    releaseNamespace: "general.namespace"

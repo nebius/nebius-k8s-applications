@@ -1,0 +1,203 @@
+{
+  "type": "object",
+  "viewSpec": {
+    "type": "base",
+    "order": [
+      "mk8sCluster",
+      "general",
+      "authentication",
+      "modules"
+    ],
+    "layout": ""
+  },
+  "defaultValue": {
+    "authentication": {
+      "apikey": {
+        "allowed_keys": "admin",
+        "users": "admin@example.com"
+      }
+    },
+    "modules": {
+      "text2vec-contextionary": {
+        "enabled": true
+      },
+      "text2vec-gpt4all": {
+        "enabled": true
+      },
+      "text2vec-transformers": {
+        "enabled": true
+      }
+    }
+  },
+  "properties": {
+    "mk8sCluster": {
+      "type": "object",
+      "required": true,
+      "viewSpec": {
+        "type": "mk8s_cluster"
+      }
+    },
+    "general": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "layout": "section",
+        "layoutTitle": "General"
+      },
+      "defaultValue": {},
+      "properties": {
+        "appname": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Application name"
+          },
+          "defaultValue": "weaviate"
+        },
+        "namespace": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Namespace"
+          },
+          "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "patternError": "namespace must consist of lower case alphanumeric characters or '-', and must start and end with an alphanumeric character (e.g. 'my-name',  or '123-abc', regex used for validation is ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "defaultValue": "weaviate"
+        }
+      }
+    },
+    "authentication": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "order": [
+          "apikey"
+        ],
+        "layout": ""
+      },
+      "defaultValue": {},
+      "properties": {
+        "apikey": {
+          "type": "object",
+          "viewSpec": {
+            "type": "base",
+            "order": [
+              "allowed_keys",
+              "users"
+            ],
+            "layout": ""
+          },
+          "defaultValue": {},
+          "properties": {
+            "allowed_keys": {
+              "type": "string",
+              "required": true,
+              "viewSpec": {
+                "type": "base",
+                "layout": "row",
+                "layoutTitle": "User"
+              }
+            },
+            "users": {
+              "type": "string",
+              "required": true,
+              "viewSpec": {
+                "disabled": false,
+                "generateRandomValueButton": true,
+                "layout": "row",
+                "layoutTitle": "Password",
+                "type": "password"
+              },
+              "minLength": 12
+            }
+          }
+        }
+      }
+    },
+    "modules": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "order": [
+          "text2vec-contextionary",
+          "text2vec-transformers",
+          "text2vec-gpt4all"
+        ],
+        "layout": ""
+      },
+      "defaultValue": {},
+      "properties": {
+        "text2vec-contextionary": {
+          "type": "object",
+          "viewSpec": {
+            "type": "base",
+            "order": [
+              "enabled"
+            ],
+            "layout": ""
+          },
+          "defaultValue": {},
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "viewSpec": {
+                "disabled": false,
+                "layout": "row",
+                "layoutTitle": "Enable module text2vec-contextionary",
+                "type": "switch"
+              }
+            }
+          }
+        },
+        "text2vec-gpt4all": {
+          "type": "object",
+          "viewSpec": {
+            "type": "base",
+            "order": [
+              "enabled"
+            ],
+            "layout": ""
+          },
+          "defaultValue": {},
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "viewSpec": {
+                "disabled": false,
+                "layout": "row",
+                "layoutTitle": "Enable module text2vec-gpt4all",
+                "type": "switch"
+              }
+            }
+          }
+        },
+        "text2vec-transformers": {
+          "type": "object",
+          "viewSpec": {
+            "type": "base",
+            "order": [
+              "enabled"
+            ],
+            "layout": ""
+          },
+          "defaultValue": {},
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "viewSpec": {
+                "disabled": false,
+                "layout": "row",
+                "layoutTitle": "Enable module text2vec-transformers",
+                "type": "switch"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

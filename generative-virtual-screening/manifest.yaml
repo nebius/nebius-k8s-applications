@@ -1,0 +1,63 @@
+# Default manifest for bionemo-generative-virtual-screening
+# This is a YAML-formatted file.
+# Declare variables to be passed into marketplace product.
+
+slug: generative-virtual-screening
+name: Nvidia Blueprint Generative Virtual Screening
+publisherName: Nebius
+ownerName: Nvidia
+categories: 
+- development-and-frameworks
+- models
+
+tariff_type: free
+images:
+  - nameWithRegistry: jupyterhub.hub.image.name
+    tag: jupyterhub.hub.image.tag
+
+  - nameWithRegistry: jupyterhub.proxy.chp.image.name
+    tag: jupyterhub.proxy.chp.image.tag
+
+  - nameWithRegistry: jupyterhub.proxy.traefik.image.name
+    tag: jupyterhub.proxy.traefik.image.tag
+
+  - nameWithRegistry: jupyterhub.proxy.secretSync.image.name
+    tag: jupyterhub.proxy.secretSync.image.tag
+
+  - full: jupyterhub.singleuser.profileList.[0].kubespawner_override.image
+
+  - nameWithRegistry: jupyterhub.singleuser.networkTools.image.name
+    tag: jupyterhub.singleuser.networkTools.image.tag
+
+  - nameWithRegistry: jupyterhub.singleuser.image.name
+    tag: jupyterhub.singleuser.image.tag
+
+  - nameWithRegistry: jupyterhub.scheduling.userScheduler.image.name
+    tag: jupyterhub.scheduling.userScheduler.image.tag
+
+  - nameWithRegistry: jupyterhub.scheduling.userPlaceholder.image.name
+    tag: jupyterhub.scheduling.userPlaceholder.image.tag
+
+  - nameWithRegistry: jupyterhub.prePuller.hook.image.name
+    tag: jupyterhub.prePuller.hook.image.tag
+
+  - nameWithRegistry: jupyterhub.prePuller.pause.image.name
+    tag: jupyterhub.prePuller.pause.image.tag
+
+  - full: nfs.image
+
+  - tag: csi-driver-nfs.image.nfs.tag
+    nameWithRegistry: csi-driver-nfs.image.nfs.repository
+  - tag: csi-driver-nfs.image.csiProvisioner.tag
+    nameWithRegistry: csi-driver-nfs.image.csiProvisioner.repository
+  - tag: csi-driver-nfs.image.csiResizer.tag
+    nameWithRegistry: csi-driver-nfs.image.csiResizer.repository
+  - tag: csi-driver-nfs.image.csiSnapshotter.tag
+    nameWithRegistry: csi-driver-nfs.image.csiSnapshotter.repository
+  - tag: csi-driver-nfs.image.livenessProbe.tag
+    nameWithRegistry: csi-driver-nfs.image.livenessProbe.repository
+  - tag: csi-driver-nfs.image.nodeDriverRegistrar.tag
+    nameWithRegistry: csi-driver-nfs.image.nodeDriverRegistrar.repository
+  - tag: csi-driver-nfs.image.externalSnapshotter.tag
+    nameWithRegistry: csi-driver-nfs.image.externalSnapshotter.repository
+

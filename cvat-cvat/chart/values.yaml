@@ -321,9 +321,9 @@ redis:
 #    password: cvat_redis
   # TODO: persistence options
   image:
-    registry: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex
-    repository: nebius/cvat/redis
-    tag: 7.2.3-debian-11-r1
+    registry: docker.io 
+    repository: bitnami/redis
+    tag: latest
   sentinel:
     image:
       registry: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex

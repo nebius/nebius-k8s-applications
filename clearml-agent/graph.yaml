@@ -1,0 +1,122 @@
+releaseType: "k8s"
+components:
+  helmchart001:
+    type: "helm_chart"
+    spec:
+      refMap:
+        parentId: "parameters.parentId"
+        clusterId: "components.cluster001.state.result.id"
+        releaseName: "parameters.releaseName"
+        releaseNamespace: "parameters.releaseNamespace"
+        values.agentk8sglue.apiServerUrlReference: "parameters.agentk8sglueApiServerUrlReference"
+        values.agentk8sglue.basePodTemplate.gpus: "parameters.agentk8sglueBasePodTemplateGpus"
+        values.agentk8sglue.fileServerUrlReference: "parameters.agentk8sglueFileServerUrlReference"
+        values.agentk8sglue.queue: "parameters.agentk8sglueQueue"
+        values.agentk8sglue.webServerUrlReference: "parameters.agentk8sglueWebServerUrlReference"
+        values.clearml.agentk8sglueKey: "parameters.clearmlAgentk8sglueKey"
+        values.clearml.agentk8sglueSecret: "parameters.clearmlAgentk8sglueSecret"
+        values.clearml.clearmlConfig: "parameters.clearmlClearmlConfig"
+      componentSpec:
+        productSlug: "nebius/clearml-agent"
+    dependencies:
+      components:
+        cluster001:
+
+  cluster001:
+    type: "mk8s_cluster"
+    spec:
+      refMap:
+        api_spec.metadata.parentId: "parameters.parentId"
+        api_spec.metadata.id: "parameters.clusterId"
+        api_spec.metadata.name: "parameters.clusterName"
+      componentSpec:
+        api_spec:
+          metadata:
+            name: "clearml-agent-cluster"
+          spec:
+            control_plane:
+              # fill in subnetId with default value in the code
+              endpoints:
+                public_endpoint:
+
+
+parameters:
+  "parentId":
+    type: "string"
+    description: "The project ID for the ClearML Agent deployment."
+
+  "clusterId":
+    type: "string"
+    description: "Existing mk8s cluster ID for the ClearML Agent deployment."
+
+  "clusterName":
+    type: "string"
+    description: "Existing mk8s cluster name for the ClearML Agent deployment."
+
+  "releaseName":
+    type: "string"
+    description: "Helm release name."
+
+  "releaseNamespace":
+    type: "string"
+    description: "Helm release namespace."
+
+  "agentk8sglueApiServerUrlReference":
+    type: "string"
+    description: "Value for Helm key 'agentk8sglue.apiServerUrlReference'."
+
+  "agentk8sglueBasePodTemplateGpus":
+    type: "string"
+    description: "Value for Helm key 'agentk8sglue.basePodTemplate.gpus'."
+
+  "agentk8sglueFileServerUrlReference":
+    type: "string"
+    description: "Value for Helm key 'agentk8sglue.fileServerUrlReference'."
+
+  "agentk8sglueQueue":
+    type: "string"
+    description: "Value for Helm key 'agentk8sglue.queue'."
+
+  "agentk8sglueWebServerUrlReference":
+    type: "string"
+    description: "Value for Helm key 'agentk8sglue.webServerUrlReference'."
+
+  "clearmlAgentk8sglueKey":
+    type: "string"
+    description: "Value for Helm key 'clearml.agentk8sglueKey'."
+
+  "clearmlAgentk8sglueSecret":
+    type: "string"
+    description: "Value for Helm key 'clearml.agentk8sglueSecret'."
+
+  "clearmlClearmlConfig":
+    type: "string"
+    description: "Value for Helm key 'clearml.clearmlConfig'."
+
+  "newBackend":
+    type: "bool"
+    description: "Internal flag for UI/backend routing."
+
+ui:
+  mapping:
+    clusterId: "mk8sCluster.clusterId"
+    clusterName: "mk8sCluster.name"
+    # NOTE: use 'agentk8sglue\\.apiServerUrlReference' because the input key name contains a dot.
+    agentk8sglueApiServerUrlReference: 'agentk8sglue\\.apiServerUrlReference'
+    # NOTE: use 'agentk8sglue\\.basePodTemplate\\.gpus' because the input key name contains a dot.
+    agentk8sglueBasePodTemplateGpus: 'agentk8sglue\\.basePodTemplate\\.gpus'
+    # NOTE: use 'agentk8sglue\\.fileServerUrlReference' because the input key name contains a dot.
+    agentk8sglueFileServerUrlReference: 'agentk8sglue\\.fileServerUrlReference'
+    # NOTE: use 'agentk8sglue\\.queue' because the input key name contains a dot.
+    agentk8sglueQueue: 'agentk8sglue\\.queue'
+    # NOTE: use 'agentk8sglue\\.webServerUrlReference' because the input key name contains a dot.
+    agentk8sglueWebServerUrlReference: 'agentk8sglue\\.webServerUrlReference'
+    # NOTE: use 'clearml\\.agentk8sglueKey' because the input key name contains a dot.
+    clearmlAgentk8sglueKey: 'clearml\\.agentk8sglueKey'
+    # NOTE: use 'clearml\\.agentk8sglueSecret' because the input key name contains a dot.
+    clearmlAgentk8sglueSecret: 'clearml\\.agentk8sglueSecret'
+    # NOTE: use 'clearml\\.clearmlConfig' because the input key name contains a dot.
+    clearmlClearmlConfig: 'clearml\\.clearmlConfig'
+    newBackend: 'newBackend'
+    releaseName: "general.appname"
+    releaseNamespace: "general.namespace"

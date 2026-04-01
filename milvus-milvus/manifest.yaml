@@ -4,11 +4,7 @@ ownerName: Milvus
 name: Milvus
 categories:
   - databases
-  - navigation-infrastructure-network
-  - vector-databases
-  - k3s-databases
-  - k3s-navigation-infrastructure-network
-  - k3s-vector-databases
+
 images:
   - tag: image.all.tag
     nameWithRegistry: image.all.repository

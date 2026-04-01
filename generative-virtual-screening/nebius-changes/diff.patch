@@ -1,0 +1,315 @@
+diff --git a/marketplace/products/github/bionemo-generative-virtual-screening/chart/Chart.yaml b/marketplace/products/github/bionemo-generative-virtual-screening/chart/Chart.yaml
+index 395748a4e89..b74722ab660 100644
+--- a/marketplace/products/github/bionemo-generative-virtual-screening/chart/Chart.yaml
++++ b/marketplace/products/github/bionemo-generative-virtual-screening/chart/Chart.yaml
+@@ -4,3 +4,13 @@ description: A Helm chart for Generative Virtual Screening NIM Workflow
+ type: application
+ version: 0.1.0
+ appVersion: "1.0.0"
++dependencies:
++- name: nfs
++  repository: file://./charts/nfs
++  version: 0.1.0
++- name: csi-driver-nfs
++  repository: file://./charts/csi-driver-nfs
++  version: v4.11.0
++- name: jupyterhub
++  repository: oci://cr.eu-north1.nebius.cloud/marketplace/nebius/jupyterhub/chart
++  version: 4.1.0
+diff --git a/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/_helpers.tpl b/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/_helpers.tpl
+index abf1310a8fb..dc068c0479e 100644
+--- a/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/_helpers.tpl
++++ b/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/_helpers.tpl
+@@ -2,7 +2,7 @@
+ Expand the name of the chart.
+ */}}
+ {{- define "generative-virtual-screening-chart.name" -}}
+-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
++{{- default .Chart.Name .Values.nameOverride | trunc 40 | trimSuffix "-" }}
+ {{- end }}
+ 
+ {{/*
+@@ -12,13 +12,13 @@ If release name contains chart name it will be used as a full name.
+ */}}
+ {{- define "generative-virtual-screening-chart.fullname" -}}
+ {{- if .Values.fullnameOverride }}
+-{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
++{{- .Values.fullnameOverride | trunc 40 | trimSuffix "-" }}
+ {{- else }}
+ {{- $name := default .Chart.Name .Values.nameOverride }}
+ {{- if contains $name .Release.Name }}
+-{{- .Release.Name | trunc 63 | trimSuffix "-" }}
++{{- .Release.Name | trunc 40 | trimSuffix "-" }}
+ {{- else }}
+-{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
++{{- printf "%s-%s" .Release.Name $name | trunc 40 | trimSuffix "-" }}
+ {{- end }}
+ {{- end }}
+ {{- end }}
+@@ -27,7 +27,7 @@ If release name contains chart name it will be used as a full name.
+ Create chart name and version as used by the chart label.
+ */}}
+ {{- define "generative-virtual-screening-chart.chart" -}}
+-{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
++{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 40 | trimSuffix "-" }}
+ {{- end }}
+ 
+ {{/*
+@@ -60,13 +60,8 @@ Create secret to access docker registry
+ {{- $secretKey := .Values.imagePullSecret.secretKey -}}
+ {{- $secretNamespace := .Release.Namespace -}}
+ 
+-{{- $secret := lookup "v1" "Secret" $secretNamespace $secretName -}}
+-{{- if $secret -}}
+-  {{- $password := index $secret.data $secretKey | b64dec -}}
+-  {{- $auth := printf "%s:%s" .Values.imagePullSecret.username $password | b64enc -}}
+-  {{- printf "{\"auths\":{\"%s\":{\"auth\":\"%s\"}}}" $registry $auth | b64enc -}}
+-{{- else -}}
+-  {{- fail (printf "Secret %s not found in namespace %s" $secretName $secretNamespace) -}}
+-{{- end -}}
++{{- $password := .Values.imagePullSecret.password | b64dec -}}
++{{- $auth := printf "%s:%s" .Values.imagePullSecret.username $password | b64enc -}}
++{{- printf "{\"auths\":{\"%s\":{\"username\":\"%s\",\"password\":\"%s\",\"auth\":\"%s\"}}}" $registry .Values.imagePullSecret.username .Values.imagePullSecret.password (printf "%s:%s" .Values.imagePullSecret.username .Values.imagePullSecret.password | b64enc) | b64enc }}
+ {{- end -}}
+ 
+diff --git a/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/deployment_diffdock.yaml b/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/deployment_diffdock.yaml
+index a31bef5c6bf..3be826103f6 100644
+--- a/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/deployment_diffdock.yaml
++++ b/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/deployment_diffdock.yaml
+@@ -25,7 +25,7 @@ spec:
+     spec:
+       {{- if .Values.imagePullSecret }}
+       imagePullSecrets:
+-        - name: {{ .Values.imagePullSecret.name }}
++        - name: {{ include "generative-virtual-screening-chart.fullname" . }}-ngc-registry-docker
+       {{- end }}
+       securityContext:
+         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+@@ -39,7 +39,7 @@ spec:
+             - name: NGC_API_KEY
+               valueFrom:
+                 secretKeyRef:
+-                  name: {{ .Values.imagePullSecret.secretName }}
++                  name: {{ include "generative-virtual-screening-chart.fullname" . }}-ngc-registry
+                   key: {{ .Values.imagePullSecret.secretKey }}
+             - name: NIM_DISABLE_MODEL_DOWNLOAD
+               value: "False"
+diff --git a/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/deployment_genmol.yaml b/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/deployment_genmol.yaml
+index d41d0f83876..b9d0e7cfebf 100644
+--- a/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/deployment_genmol.yaml
++++ b/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/deployment_genmol.yaml
+@@ -25,7 +25,7 @@ spec:
+     spec:
+       {{- if .Values.imagePullSecret }}
+       imagePullSecrets:
+-        - name: {{ .Values.imagePullSecret.name }}
++        - name: {{ include "generative-virtual-screening-chart.fullname" . }}-ngc-registry-docker
+       {{- end }}
+       securityContext:
+         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+@@ -39,7 +39,7 @@ spec:
+             - name: NGC_API_KEY
+               valueFrom:
+                 secretKeyRef:
+-                  name: {{ .Values.imagePullSecret.secretName }}
++                  name: {{ include "generative-virtual-screening-chart.fullname" . }}-ngc-registry
+                   key: {{ .Values.imagePullSecret.secretKey }}
+             - name: NIM_CACHE_PATH
+               value: {{ .Values.genmol.cacheFolder }}
+diff --git a/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/deployment_msa.yaml b/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/deployment_msa.yaml
+index 8b3c73bb135..a152658fbc2 100644
+--- a/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/deployment_msa.yaml
++++ b/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/deployment_msa.yaml
+@@ -25,7 +25,7 @@ spec:
+     spec:
+       {{- if .Values.imagePullSecret }}
+       imagePullSecrets:
+-        - name: {{ .Values.imagePullSecret.name }}
++        - name: {{ include "generative-virtual-screening-chart.fullname" . }}-ngc-registry-docker
+       {{- end }}
+       securityContext:
+         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+@@ -53,7 +53,7 @@ spec:
+             - name: NGC_API_KEY
+               valueFrom:
+                 secretKeyRef:
+-                  name: {{ .Values.imagePullSecret.secretName }}
++                  name: {{ include "generative-virtual-screening-chart.fullname" . }}-ngc-registry
+                   key: {{ .Values.imagePullSecret.secretKey }}
+             - name: NIM_CACHE_PATH
+               value: {{ .Values.msa.cacheFolder | quote }}
+diff --git a/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/deployment_openfold2.yaml b/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/deployment_openfold2.yaml
+index dd4bec87b25..ee6f11b89db 100644
+--- a/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/deployment_openfold2.yaml
++++ b/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/deployment_openfold2.yaml
+@@ -25,7 +25,7 @@ spec:
+     spec:
+       {{- if .Values.imagePullSecret }}
+       imagePullSecrets:
+-        - name: {{ .Values.imagePullSecret.name }}
++        - name: {{ include "generative-virtual-screening-chart.fullname" . }}-ngc-registry-docker
+       {{- end }}
+       securityContext:
+         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+@@ -39,7 +39,7 @@ spec:
+             - name: NGC_API_KEY
+               valueFrom:
+                 secretKeyRef:
+-                  name: {{ .Values.imagePullSecret.secretName }}
++                  name: {{ include "generative-virtual-screening-chart.fullname" . }}-ngc-registry
+                   key: {{ .Values.imagePullSecret.secretKey }}
+             - name: NIM_CACHE_EXTERNAL
+               value: {{ .Values.openfold2.cacheFolder }}
+diff --git a/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/image-pull-secret.yaml b/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/image-pull-secret.yaml
+index e1ffd6533a3..348af57d37d 100644
+--- a/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/image-pull-secret.yaml
++++ b/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/image-pull-secret.yaml
+@@ -2,8 +2,8 @@
+ apiVersion: v1
+ kind: Secret
+ metadata:
+-  name: {{ .Values.imagePullSecret.name }}
++  name: {{ include "generative-virtual-screening-chart.fullname" . }}-ngc-registry-docker
+ type: kubernetes.io/dockerconfigjson
+ data:
+   .dockerconfigjson: {{ template "imagePullSecret" . }}
+-{{- end }}
+\ No newline at end of file
++{{- end }}
+diff --git a/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/pv.yaml b/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/pv.yaml
+deleted file mode 100644
+index 7f51208a002..00000000000
+--- a/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/pv.yaml
++++ /dev/null
+@@ -1,14 +0,0 @@
+-apiVersion: v1
+-kind: PersistentVolume
+-metadata:
+-  name: pv1
+-  labels:
+-    {{- include "generative-virtual-screening-chart.labels" . | nindent 4 }}
+-spec:
+-  capacity:
+-    storage: {{ .Values.persistence.size | quote }}
+-  accessModes:
+-    - {{ .Values.persistence.accessMode | quote }}
+-  storageClassName: {{ .Values.persistence.storageClass }}
+-  hostPath:
+-    path: {{ .Values.persistence.hostPath | quote }}
+diff --git a/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/pvc.yaml b/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/pvc.yaml
+index e612eeb2775..bf8d624a877 100644
+--- a/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/pvc.yaml
++++ b/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/pvc.yaml
+@@ -6,7 +6,6 @@ metadata:
+   labels:
+     {{- include "generative-virtual-screening-chart.labels" . | nindent 4 }}
+ spec:
+-  volumeName: pv1
+   accessModes:
+     - {{ .Values.persistence.accessMode | quote }}
+   storageClassName: {{ .Values.persistence.storageClass }}
+diff --git a/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/service.yaml b/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/service.yaml
+index 9aab3eacc96..7f9866e342e 100644
+--- a/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/service.yaml
++++ b/marketplace/products/github/bionemo-generative-virtual-screening/chart/templates/service.yaml
+@@ -22,4 +22,4 @@ spec:
+   selector:
+     {{- $selectorLabels | nindent 4 }}
+     app.kubernetes.io/component: {{ $serviceName }}
+-{{- end }}
+\ No newline at end of file
++{{- end }}
+diff --git a/marketplace/products/github/bionemo-generative-virtual-screening/chart/values.yaml b/marketplace/products/github/bionemo-generative-virtual-screening/chart/values.yaml
+index 3abaff362e2..f486e1fced3 100644
+--- a/marketplace/products/github/bionemo-generative-virtual-screening/chart/values.yaml
++++ b/marketplace/products/github/bionemo-generative-virtual-screening/chart/values.yaml
+@@ -44,13 +44,13 @@ imagePullSecret:
+   name: "ngc-secret-docker-registry"
+   create: true
+   username: '$oauthtoken'
+-  secretName: ngc-registry-secret
++  password: ""
+   secretKey: NGC_REGISTRY_KEY
+ 
+-# apiSecret:
+-#   name: "ngc-secret-gvs-api"
+-#   secretName: ngc-api-secret
+-#   secretKey: NGC_API_KEY
++apiSecret:
++  name: "ngc-secret-gvs-api"
++  secretName: ngc-api-secret
++  secretKey: NGC_API_KEY
+ 
+ service:
+   type: ClusterIP
+@@ -116,14 +116,67 @@ autoscaling:
+ persistence:
+   enabled: true
+   existingClaim: ""
+-  storageClass: standard
++  storageClass: nfs
+   accessMode: ReadWriteMany
+-  hostPath: /data/nim
+-  size: 1.5Ti
++  size: 1600Gi
+ 
+ nodeSelector: {}
+ 
+ tolerations: []
+ 
+ affinity: {}
++
++jupyterhub:
++  singleuser:
++    storage:
++      extraVolumes:
++        - name: generative-virtual-screening
++          configMap:
++            name: generative-virtual-screening
++      extraVolumeMounts:
++        - name: generative-virtual-screening
++          mountPath: /tmp/jupyterhub/generative-virtual-screening
++          readOnly: false
++
++    # singleuser relates to the configuration of KubeSpawner which runs in the hub
++    # pod, and its spawning of user pods such as jupyter-myusername.
++    profileList:
++      - display_name: "Jupyterhub with Generative Virtual Screening notebook"
++        description: "Default image, runs on any node."
++        kubespawner_override:
++          image: quay.io/jupyter/base-notebook:notebook-7.3.2
++          lifecycle_hooks:
++            postStart:
++              exec:
++                command: ["/bin/sh", "-c", "sudo apt update && sudo apt install -y git curl wget libxrender1;cat /home/jovyan/generative-virtual-screening.ipynb || cp /tmp/jupyterhub/generative-virtual-screening/generative-virtual-screening.ipynb /home/jovyan"]
+  
++nfs:
++  image: itsthenetwork/nfs-server-alpine:latest
++  nfs_pv_size: 1600Gi
++
++csi-driver-nfs:
++  image:
++    nfs:
++        repository: registry.k8s.io/sig-storage/nfsplugin
++        tag: v4.9.0
++        pullPolicy: IfNotPresent
++    csiProvisioner:
++        repository: registry.k8s.io/sig-storage/csi-provisioner
++        tag: v5.0.2
++        pullPolicy: IfNotPresent
++    csiSnapshotter:
++        repository: registry.k8s.io/sig-storage/csi-snapshotter
++        tag: v8.0.1
++        pullPolicy: IfNotPresent
++    livenessProbe:
++        repository: registry.k8s.io/sig-storage/livenessprobe
++        tag: v2.13.1
++        pullPolicy: IfNotPresent
++    nodeDriverRegistrar:
++        repository: registry.k8s.io/sig-storage/csi-node-driver-registrar
++        tag: v2.11.1
++        pullPolicy: IfNotPresent
++    externalSnapshotter:
++        repository: registry.k8s.io/sig-storage/snapshot-controller
++        tag: v8.0.1
++        pullPolicy: IfNotPresent

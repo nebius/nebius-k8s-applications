@@ -1,4 +1,4 @@
-{{- if and .Values.gc.enable (or (and .Values.featureGates.NodeFeatureAPI .Values.enableNodeFeatureApi) .Values.topologyUpdater.enable) -}}
+{{- if and .Values.gc.enable -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -29,30 +29,69 @@ spec:
       {{- end }}
     spec:
       serviceAccountName: {{ include "node-feature-discovery.gc.serviceAccountName" . }}
-      dnsPolicy: ClusterFirstWithHostNet
+      dnsPolicy: {{ .Values.gc.dnsPolicy }}
     {{- with .Values.priorityClassName }}
       priorityClassName: {{ . }}
     {{- end }}
-    {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-    {{- end }}
+      imagePullSecrets: {{ include "node-feature-discovery.imagePullSecrets" . }}
       securityContext:
         {{- toYaml .Values.gc.podSecurityContext | nindent 8 }}
+      hostNetwork: {{ .Values.gc.hostNetwork }}
       containers:
       - name: gc
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
         imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: http
+        {{- with .Values.gc.livenessProbe.initialDelaySeconds }}
+          initialDelaySeconds: {{ . }}
+        {{- end }}
+        {{- with .Values.gc.livenessProbe.failureThreshold }}
+          failureThreshold: {{ . }}
+        {{- end }}
+        {{- with .Values.gc.livenessProbe.periodSeconds }}
+          periodSeconds: {{ . }}
+        {{- end }}
+        {{- with .Values.gc.livenessProbe.timeoutSeconds }}
+          timeoutSeconds: {{ . }}
+        {{- end }}
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: http
+        {{- with .Values.gc.readinessProbe.initialDelaySeconds }}
+          initialDelaySeconds: {{ . }}
+        {{- end }}
+        {{- with .Values.gc.readinessProbe.failureThreshold }}
+          failureThreshold: {{ . }}
+        {{- end }}
+        {{- with .Values.gc.readinessProbe.periodSeconds }}
+          periodSeconds: {{ . }}
+        {{- end }}
+        {{- with .Values.gc.readinessProbe.timeoutSeconds }}
+          timeoutSeconds: {{ . }}
+        {{- end }}
+        {{- with .Values.gc.readinessProbe.successThreshold }}
+          successThreshold: {{ . }}
+        {{- end }}
         env:
         - name: NODE_NAME
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
+      {{- with .Values.gc.extraEnvs }}
+        {{- toYaml . | nindent 8 }}
+      {{- end}}
         command:
           - "nfd-gc"
         args:
           {{- if .Values.gc.interval | empty | not }}
           - "-gc-interval={{ .Values.gc.interval }}"
+          {{- end }}
+          {{- with .Values.gc.extraArgs }}
+          {{- toYaml . | nindent 10 }}
           {{- end }}
         resources:
       {{- toYaml .Values.gc.resources | nindent 12 }}
@@ -63,8 +102,8 @@ spec:
           readOnlyRootFilesystem: true
           runAsNonRoot: true
         ports:
-          - name: metrics
-            containerPort: {{ .Values.gc.metricsPort | default "8081"}}
+          - name: http
+            containerPort: {{ .Values.gc.port | default "8080"}}
 
     {{- with .Values.gc.nodeSelector }}
       nodeSelector:

@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: deleter-job
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": pre-delete
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    spec:
+      serviceAccountName: deleter-sa
+      restartPolicy: Never
+      containers:
+        - name: helm-deleter
+          image: dtzar/helm-kubectl:3.19.0
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              echo "Uninstalling child chart..."
+
+              helm uninstall {{ .Release.Name }}-child --namespace {{ .Release.Namespace }}

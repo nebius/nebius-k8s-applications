@@ -1,0 +1,171 @@
+{
+  "type": "object",
+  "defaultValue": {},
+  "properties": {
+    "mk8sCluster": {
+      "type": "object",
+      "required": true,
+      "viewSpec": {
+        "type": "mk8s_cluster"
+      }
+    },
+    "general": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "layout": "section",
+        "layoutTitle": "General"
+      },
+      "defaultValue": {},
+      "properties": {
+        "appname": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Application name"
+          },
+          "defaultValue": "coder-server"
+        },
+        "namespace": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Namespace"
+          },
+          "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "patternError": "namespace must consist of lower case alphanumeric characters or '-', and must start and end with an alphanumeric character (e.g. 'my-name',  or '123-abc', regex used for validation is ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "defaultValue": "coder-server"
+        }
+      }
+    },
+    "password": {
+      "type": "string",
+      "required": true,
+      "pattern": "^[A-Za-z\\d!@#$%^&*()_+]{8,}$",
+      "patternError": "Use at least 8 characters including letters, numbers, and special characters (!@#$%^&*()_+).",
+      "viewSpec": {
+        "type": "password",
+        "layout": "row",
+        "layoutTitle": "Password"
+      }
+    },
+    "extraPorts": {
+      "type": "array",
+      "defaultValue": [],
+      "required": true,
+      "items": {
+        "type": "object",
+        "defaultValue": {},
+        "properties": {
+          "name": {
+            "type": "string",
+            "required": true,
+            "defaultValue": "",
+            "viewSpec": {
+              "type": "base",
+              "layout": "table_item"
+            }
+          },
+          "port": {
+            "type": "number",
+            "defaultValue": "",
+            "required": true,
+            "format": "int64",
+            "viewSpec": {
+              "type": "base",
+              "layout": "table_item"
+            }
+          }
+        },
+        "viewSpec": {
+          "type": "base",
+          "layout": "row_verbose",
+          "order": [
+            "name",
+            "port"
+          ]
+        }
+      },
+      "viewSpec": {
+        "type": "table",
+        "layout": "card_accordeon",
+        "layoutTitle": "Extra ports",
+        "layoutDescription": "Optional. Use this to expose extra ports from your DevPod, e.g., 25565 for a Minecraft server or 8080 for a web app.",
+        "itemLabel": "Add port",
+        "table": [
+          {
+            "label": "Name",
+            "property": "name"
+          },
+          {
+            "label": "Port",
+            "property": "port"
+          }
+        ]
+      }
+    },
+    "resources": {
+      "type": "object",
+      "defaultValue": {},
+      "required": true,
+      "properties": {
+        "cpu": {
+          "type": "number",
+          "format": "int64",
+          "minimum": 1,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "CPU"
+          }
+        },
+        "gpu": {
+          "type": "number",
+          "format": "int64",
+          "minimum": 1,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "GPU"
+          }
+        },
+        "memory": {
+          "type": "number",
+          "format": "int64",
+          "minimum": 1,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Memory (Gi)"
+          }
+        }
+      },
+      "viewSpec": {
+        "type": "base",
+        "layout": "card_accordeon",
+        "layoutTitle": "Resources",
+        "layoutDescription": "Optional. If left empty, Kubernetes will assign default resources automatically.",
+        "order": [
+          "cpu",
+          "gpu",
+          "memory"
+        ]
+      }
+    }
+  },
+  "viewSpec": {
+    "type": "base",
+    "order": [
+      "mk8sCluster",
+      "general",
+      "password",
+      "extraPorts",
+      "resources"
+    ],
+    "layout": "base"
+  }
+}

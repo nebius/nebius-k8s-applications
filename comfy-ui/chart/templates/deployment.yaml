@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: comfyui
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: comfyui
+  template:
+    metadata:
+      labels:
+        app: comfyui
+    spec:
+      containers:
+        - name: comfyui
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: COMFY_URL
+              value: "{{ .Values.env.COMFY_URL }}"
+            - name: COMFY_TAG
+              value: "{{ .Values.env.COMFY_TAG }}"
+            - name: MANAGER_URL
+              value: "{{ .Values.env.MANAGER_URL }}"
+            - name: MANAGER_TAG
+              value: "{{ .Values.env.MANAGER_TAG }}"
+            - name: COMFY_ARGS
+              value: "{{ if eq (int .Values.resources.gpu_count) 0 }}--cpu --listen 0.0.0.0{{ else }}--listen 0.0.0.0{{ end }}"
+          ports:
+            - containerPort: 8188
+          resources:
+            requests:
+              cpu: {{ .Values.resources.additional.cpu }}
+              memory: {{ .Values.resources.additional.memory }}Gi
+              {{- if gt (int .Values.resources.gpu_count) 0 }}
+              nvidia.com/gpu: {{ .Values.resources.gpu_count }}
+              {{- end }}
+            limits:
+              cpu: {{ .Values.resources.additional.cpu }}
+              memory: {{ .Values.resources.additional.memory }}Gi
+              {{- if gt (int .Values.resources.gpu_count) 0 }}
+              nvidia.com/gpu: {{ .Values.resources.gpu_count }}
+              {{- end }}
+          volumeMounts:
+            - mountPath: /root/comfyui
+              name: comfyui-data
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - test -f /root/comfy/setup-done
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 120
+
+      {{- if gt (int .Values.resources.gpu_count) 0 }}
+        {{- if and .Values.resources.gpu_selector (ne .Values.resources.gpu_selector "any") }}
+      nodeSelector:
+        "node.kubernetes.io/instance-type": {{ .Values.resources.gpu_selector }}
+        {{- end }}
+      {{- end }}
+
+      volumes:
+        - name: comfyui-data
+          persistentVolumeClaim:
+            claimName: comfyui-pvc

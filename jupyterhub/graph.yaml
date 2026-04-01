@@ -1,0 +1,162 @@
+releaseType: "k8s"
+components:
+  cluster001:
+    type: "mk8s_cluster"
+    spec:
+      api_spec:
+        metadata:
+          parentId: "${{ .parameters.parentId }}"
+          id: "${{ .parameters.clusterId }}"
+          name: "${{ .parameters.clusterName }}"
+        spec:
+          control_plane:
+            endpoints:
+              public_endpoint:
+
+  sa001:
+    type: "service_account"
+    spec:
+      api_spec:
+        metadata:
+          parentId: "${{ .parameters.parentId }}"
+          name: "jupyterhub-tunna-sa"
+        spec:
+          description: "Service account for JupyterHub tunnel"
+    dependencies:
+      components:
+        cluster001:
+
+  member001:
+    type: "group_membership"
+    spec:
+      serviceAccountId: "${{ .components.sa001.state.result.id }}"
+      parentId: "${{ .parameters.parentId }}"
+      groups: ["viewers"]
+    dependencies:
+      components:
+        sa001:
+
+  binding001:
+    type: "access_binding"
+    spec:
+      api_spec:
+        metadata:
+          parentId: "${{ .parameters.parentId }}"
+        spec:
+          subjectId: "${{ .components.sa001.state.result.id }}"
+          resourceId: "${{ .parameters.parentId }}"
+          role: "applicationtunnel.agent"
+    dependencies:
+      components:
+        sa001:
+
+  rsakeypair001:
+    type: "rsa_key_pair"
+    spec:
+      bitSize: 4096
+
+  iamauthpubkey001:
+    type: "iam_auth_public_key"
+    spec:
+      parentId: "${{ .parameters.parentId }}"
+      serviceAccountId: "${{ .components.sa001.state.result.id }}"
+      publicKey: "${{ .components.rsakeypair001.state.result.publicKey }}"
+    dependencies:
+      components:
+        sa001:
+        rsakeypair001:
+
+  tunnel001:
+    type: "application_tunnel"
+    spec:
+      parentId: "${{ .parameters.parentId }}"
+      services:
+        - "jupyterhub"
+
+  endpoint001:
+    type: "endpoint"
+    spec:
+      refMap:
+        clusterId: "components.cluster001.state.result.id"
+        helmReleaseName: "parameters.releaseName"
+        helmReleaseNamespace: "parameters.releaseNamespace"
+      componentSpec:
+        ports: []
+    dependencies:
+      components:
+        helmchart001:
+
+  helmchart001:
+    type: "helm_chart"
+    spec:
+      parentId: "${{ .parameters.parentId }}"
+      clusterId: "${{ .components.cluster001.state.result.id }}"
+      releaseName: "${{ .parameters.releaseName }}"
+      releaseNamespace: "${{ .parameters.releaseNamespace }}"
+      productSlug: "nebius/jupyterhub"
+      values:
+        singleuser:
+          storage:
+            capacity: "${{ .parameters.singleuserStorageCapacity }}"
+        tunna-agent:
+          enabled: true
+          config:
+            tunnel_id: "${{ .components.tunnel001.state.result.tunnelId }}"
+            server_addr: "${{ .components.tunnel001.state.result.address }}"
+            iam:
+              domain: "${{ .components.tunnel001.state.result.iamDomain }}"
+              service_account:
+                service_account_id: "${{ .components.sa001.state.result.id }}"
+                public_key_id: "${{ .components.iamauthpubkey001.state.result.publicKeyId }}"
+                private_key_path: "/etc/tunna/agent/sa/private_key.pem"
+            services:
+              - name: "jupyterhub"
+                target: 'proxy-public:80'
+                type: "http"
+          secret:
+            data:
+              sa-private-key: "${{ .components.rsakeypair001.state.result.privateKey }}"
+            items:
+              - key: sa-private-key
+                path: sa/private_key.pem
+    dependencies:
+      components:
+        cluster001:
+        tunnel001:
+        rsakeypair001:
+        iamauthpubkey001:
+        binding001:
+        member001:
+
+parameters:
+  "parentId":
+    type: "string"
+    description: "The project ID for the JupyterHub deployment."
+
+  "clusterId":
+    type: "string"
+    description: "Existing mk8s cluster ID for the JupyterHub deployment."
+
+  "clusterName":
+    type: "string"
+    description: "Existing mk8s cluster name for the JupyterHub deployment."
+
+  "releaseName":
+    type: "string"
+    description: "Helm release name."
+
+  "releaseNamespace":
+    type: "string"
+    description: "Helm release namespace."
+
+  "singleuserStorageCapacity":
+    type: "string"
+    description: "Value for Helm key 'singleuser.storage.capacity'."
+
+ui:
+  mapping:
+    clusterId: "mk8sCluster.clusterId"
+    clusterName: "mk8sCluster.name"
+    singleuserStorageCapacity: 'singleuser.storage.capacity'
+    releaseName: "general.appname"
+    releaseNamespace: "general.namespace"

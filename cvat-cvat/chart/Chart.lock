@@ -27,7 +27,7 @@ dependencies:
   repository: file://charts/csi-driver-nfs
   version: v4.6.0
 - name: gpu-operator
-  repository: oci://cr.nemax.nebius.cloud/yc-marketplace/nebius/nvidia-gpu-operator/chart
-  version: v23.9.0
-digest: sha256:7fd4634a4c3407d33caa8a125918fa00f2504d9c022949f19d74f3bbd6c77fd6
-generated: "2024-06-25T18:21:34.52054093+02:00"
+  repository: oci://cr.eu-north1.nebius.cloud/marketplace/nebius/nvidia-gpu-operator/chart
+  version: v25.3.2
+digest: sha256:b99ca65d87035d135233001d8f24aefe014927adead8864d2b6a0f0d81cd1903
+generated: "2025-08-21T13:40:09.15952885+02:00"

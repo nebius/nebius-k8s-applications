@@ -3,8 +3,8 @@ ownerName: FlowiseAI
 publisherName: Nebius
 name: Flowise
 categories:
-  - llm-apps-framework
-  - k3s-llm-apps-framework
+  - development-and-frameworks
+
 images:
   - registry: image.registry
     tag: image.tag

@@ -1,0 +1,10 @@
+{{- if eq .Values.driver.kernelModuleConfig.name "nebius-kernel-module-params" }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "nebius-kernel-module-params"
+  namespace: {{ .Release.Namespace }}
+data:
+  nvidia-uvm.conf: |
+    uvm_disable_hmm=1
+{{- end }}

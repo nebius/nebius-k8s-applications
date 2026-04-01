@@ -1,0 +1,53 @@
+slug: weaviate
+ownerName: Nebius
+publisherName: Nebius
+name: Weaviate
+categories:
+  - databases
+
+images:
+  - registry: image.registry
+    tag: image.tag
+    nameWithoutRegistry: image.repo
+  - registry: initContainers.sysctlInitContainer.image.registry
+    tag: initContainers.sysctlInitContainer.image.tag
+    nameWithoutRegistry: initContainers.sysctlInitContainer.image.repo
+  - registry: modules.text2vec-contextionary.registry
+    tag: modules.text2vec-contextionary.tag
+    nameWithoutRegistry: modules.text2vec-contextionary.repo
+  - registry: modules.text2vec-transformers.registry
+    tag: modules.text2vec-transformers.tag
+    nameWithoutRegistry: modules.text2vec-transformers.repo
+  - registry: modules.text2vec-transformers.passageQueryServices.passage.registry
+    tag: modules.text2vec-transformers.passageQueryServices.passage.tag
+    nameWithoutRegistry: modules.text2vec-transformers.passageQueryServices.passage.repo
+  - registry: modules.text2vec-transformers.passageQueryServices.query.registry
+    tag: modules.text2vec-transformers.passageQueryServices.query.tag
+    nameWithoutRegistry: modules.text2vec-transformers.passageQueryServices.query.repo
+  - registry: modules.text2vec-gpt4all.registry
+    tag: modules.text2vec-gpt4all.tag
+    nameWithoutRegistry: modules.text2vec-gpt4all.repo
+  - registry: modules.multi2vec-clip.registry
+    tag: modules.multi2vec-clip.tag
+    nameWithoutRegistry: modules.multi2vec-clip.repo
+  - registry: modules.multi2vec-bind.registry
+    tag: modules.multi2vec-bind.tag
+    nameWithoutRegistry: modules.multi2vec-bind.repo
+  - registry: modules.qna-transformers.registry
+    tag: modules.qna-transformers.tag
+    nameWithoutRegistry: modules.qna-transformers.repo
+  - registry: modules.img2vec-neural.registry
+    tag: modules.img2vec-neural.tag
+    nameWithoutRegistry: modules.img2vec-neural.repo
+  - registry: modules.reranker-transformers.registry
+    tag: modules.reranker-transformers.tag
+    nameWithoutRegistry: modules.reranker-transformers.repo
+  - registry: modules.text-spellcheck.registry
+    tag: modules.text-spellcheck.tag
+    nameWithoutRegistry: modules.text-spellcheck.repo
+  - registry: modules.ner-transformers.registry
+    tag: modules.ner-transformers.tag
+    nameWithoutRegistry: modules.ner-transformers.repo
+  - registry: modules.sum-transformers.registry
+    tag: modules.sum-transformers.tag
+    nameWithoutRegistry: modules.sum-transformers.repo

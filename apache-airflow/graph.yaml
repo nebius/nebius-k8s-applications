@@ -1,0 +1,139 @@
+releaseType: "k8s"
+components:
+  helmchart001:
+    type: "helm_chart"
+    spec:
+      refMap:
+        parentId: "parameters.parentId"
+        clusterId: "components.cluster001.state.result.id"
+        releaseName: "parameters.releaseName"
+        releaseNamespace: "parameters.releaseNamespace"
+        values.airflowVersion: "parameters.airflowVersion"
+        values.customAirflowRepository: "parameters.customAirflowRepository"
+        values.dags.gitSync.gitPassword: "parameters.dagsGitSyncGitPassword"
+        values.dags.gitSync.gitUserName: "parameters.dagsGitSyncGitUserName"
+        values.dags.gitSync.ref: "parameters.dagsGitSyncRef"
+        values.dags.gitSync.repo: "parameters.dagsGitSyncRepo"
+        values.dags.gitSync.subPath: "parameters.dagsGitSyncSubPath"
+        values.webserver.defaultUser.password: "parameters.webserverDefaultUserPassword"
+        values.webserverSecretKey: "parameters.webserverSecretKey"
+        values.workers.persistence.size: "parameters.workersPersistenceSize"
+        values.workers.replicas: "parameters.workersReplicas"
+        values.workers.resources.requests.cpu: "parameters.workersResourcesRequestsCpu"
+        values.workers.resources.requests.memory: "parameters.workersResourcesRequestsMemory"
+      componentSpec:
+        productSlug: "nebius/airflow"
+    dependencies:
+      components:
+        cluster001:
+
+  cluster001:
+    type: "mk8s_cluster"
+    spec:
+      refMap:
+        api_spec.metadata.parentId: "parameters.parentId"
+        api_spec.metadata.id: "parameters.clusterId"
+        api_spec.metadata.name: "parameters.clusterName"
+      componentSpec:
+        api_spec:
+          metadata:
+            name: "airflow-cluster"
+          spec:
+            control_plane:
+              # fill in subnetId with default value in the code
+              endpoints:
+                public_endpoint:
+
+
+parameters:
+  "parentId":
+    type: "string"
+    description: "The project ID for the Apache Airflow™ deployment."
+
+  "clusterId":
+    type: "string"
+    description: "Existing mk8s cluster ID for the Apache Airflow™ deployment."
+
+  "clusterName":
+    type: "string"
+    description: "Existing mk8s cluster name for the Apache Airflow™ deployment."
+
+  "releaseName":
+    type: "string"
+    description: "Helm release name."
+
+  "releaseNamespace":
+    type: "string"
+    description: "Helm release namespace."
+
+  "airflowVersion":
+    type: "string"
+    description: "Value for Helm key 'airflowVersion'."
+
+  "customAirflowRepository":
+    type: "string"
+    description: "Value for Helm key 'customAirflowRepository'."
+
+  "dagsGitSyncGitPassword":
+    type: "string"
+    description: "Value for Helm key 'dags.gitSync.gitPassword'."
+
+  "dagsGitSyncGitUserName":
+    type: "string"
+    description: "Value for Helm key 'dags.gitSync.gitUserName'."
+
+  "dagsGitSyncRef":
+    type: "string"
+    description: "Value for Helm key 'dags.gitSync.ref'."
+
+  "dagsGitSyncRepo":
+    type: "string"
+    description: "Value for Helm key 'dags.gitSync.repo'."
+
+  "dagsGitSyncSubPath":
+    type: "string"
+    description: "Value for Helm key 'dags.gitSync.subPath'."
+
+  "webserverDefaultUserPassword":
+    type: "string"
+    description: "Value for Helm key 'webserver.defaultUser.password'."
+
+  "webserverSecretKey":
+    type: "string"
+    description: "Value for Helm key 'webserverSecretKey'."
+
+  "workersPersistenceSize":
+    type: "string"
+    description: "Value for Helm key 'workers.persistence.size'."
+
+  "workersReplicas":
+    type: "string"
+    description: "Value for Helm key 'workers.replicas'."
+
+  "workersResourcesRequestsCpu":
+    type: "string"
+    description: "Value for Helm key 'workers.resources.requests.cpu'."
+
+  "workersResourcesRequestsMemory":
+    type: "string"
+    description: "Value for Helm key 'workers.resources.requests.memory'."
+
+ui:
+  mapping:
+    clusterId: "mk8sCluster.clusterId"
+    clusterName: "mk8sCluster.name"
+    airflowVersion: 'airflowVersion'
+    customAirflowRepository: 'customAirflowRepository'
+    dagsGitSyncGitPassword: 'dags.gitSync.gitPassword'
+    dagsGitSyncGitUserName: 'dags.gitSync.gitUserName'
+    dagsGitSyncRef: 'dags.gitSync.ref'
+    dagsGitSyncRepo: 'dags.gitSync.repo'
+    dagsGitSyncSubPath: 'dags.gitSync.subPath'
+    webserverDefaultUserPassword: 'webserver.defaultUser.password'
+    webserverSecretKey: 'webserverSecretKey'
+    workersPersistenceSize: 'workers.persistence.size'
+    workersReplicas: 'workers.replicas'
+    workersResourcesRequestsCpu: 'workers.resources.requests.cpu'
+    workersResourcesRequestsMemory: 'workers.resources.requests.memory'
+    releaseName: "general.appname"
+    releaseNamespace: "general.namespace"

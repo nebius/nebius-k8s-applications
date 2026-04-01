@@ -1,0 +1,1073 @@
+{
+  "type": "object",
+  "defaultValue": {},
+  "properties": {
+    "mk8sCluster": {
+      "type": "object",
+      "required": true,
+      "viewSpec": {
+        "type": "mk8s_cluster"
+      }
+    },
+    "general": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "layout": "section",
+        "layoutTitle": "General"
+      },
+      "defaultValue": {},
+      "properties": {
+        "appname": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Application name"
+          },
+          "defaultValue": "custom-docker"
+        },
+        "namespace": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Namespace"
+          },
+          "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "patternError": "namespace must consist of lower case alphanumeric characters or '-', and must start and end with an alphanumeric character (e.g. 'my-name',  or '123-abc', regex used for validation is ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "defaultValue": "custom-docker"
+        }
+      }
+    },
+    "containers": {
+      "type": "object",
+      "defaultValue": {},
+      "properties": {
+        "containers": {
+          "type": "array",
+          "defaultValue": [
+            {
+              "image": "main"
+            }
+          ],
+          "items": {
+            "type": "object",
+            "defaultValue": {},
+            "properties": {
+              "imageGroup": {
+                "type": "object",
+                "defaultValue": {},
+                "viewSpec": {
+                  "type": "base",
+                  "layout": "section",
+                  "order": [
+                    "name",
+                    "credentials",
+                    "runOptions"
+                  ]
+                },
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "defaultValue": "",
+                    "required": true,
+                    "viewSpec": {
+                      "type": "base",
+                      "layout": "row_verbose",
+                      "layoutTitle": "Image"
+                    }
+                  },
+                  "credentials": {
+                    "type": "object",
+                    "defaultValue": {},
+                    "required": true,
+                    "viewSpec": {
+                      "type": "base",
+                      "layout": "card",
+                      "layoutTitle": "Credentials",
+                      "layoutDescription": "If you specify a private repository, don’t forget to provide your login and password"
+                    },
+                    "properties": {
+                      "login": {
+                        "type": "string",
+                        "defaultValue": "",
+                        "viewSpec": {
+                          "type": "base",
+                          "layout": "row_verbose",
+                          "layoutTitle": "Login"
+                        }
+                      },
+                      "password": {
+                        "type": "string",
+                        "defaultValue": "",
+                        "viewSpec": {
+                          "type": "password",
+                          "layout": "row_verbose",
+                          "layoutTitle": "Password"
+                        }
+                      }
+                    }
+                  },
+                  "runOptions": {
+                    "type": "object",
+                    "defaultValue": {},
+                    "required": true,
+                    "properties": {
+                      "commands": {
+                        "type": "object",
+                        "defaultValue": {},
+                        "required": true,
+                        "properties": {
+                          "command": {
+                            "type": "array",
+                            "defaultValue": [],
+                            "items": {
+                              "type": "string",
+                              "defaultValue": "",
+                              "viewSpec": {
+                                "type": "base",
+                                "layout": "row_verbose",
+                                "layoutTitle": "Command"
+                              }
+                            },
+                            "viewSpec": {
+                              "type": "base",
+                              "layout": "transparent",
+                              "itemLabel": "Add command"
+                            }
+                          }
+                        },
+                        "viewSpec": {
+                          "type": "base",
+                          "layout": "section",
+                          "layoutTitle": "Commands"
+                        }
+                      },
+                      "args": {
+                        "type": "object",
+                        "defaultValue": {},
+                        "required": true,
+                        "properties": {
+                          "arg": {
+                            "type": "array",
+                            "defaultValue": [],
+                            "items": {
+                              "type": "string",
+                              "defaultValue": "",
+                              "viewSpec": {
+                                "type": "base",
+                                "layout": "row_verbose",
+                                "layoutTitle": "Arg"
+                              }
+                            },
+                            "viewSpec": {
+                              "type": "base",
+                              "layout": "transparent",
+                              "itemLabel": "Add arg"
+                            }
+                          }
+                        },
+                        "viewSpec": {
+                          "type": "base",
+                          "layout": "section",
+                          "layoutTitle": "Args"
+                        }
+                      },
+                      "envs": {
+                        "type": "object",
+                        "defaultValue": {},
+                        "required": true,
+                        "properties": {
+                          "env": {
+                            "type": "array",
+                            "defaultValue": [],
+                            "items": {
+                              "type": "object",
+                              "defaultValue": {},
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "required": true,
+                                  "defaultValue": "",
+                                  "viewSpec": {
+                                    "type": "base",
+                                    "layout": "table_item"
+                                  }
+                                },
+                                "value": {
+                                  "type": "string",
+                                  "defaultValue": "",
+                                  "viewSpec": {
+                                    "type": "base",
+                                    "layout": "table_item"
+                                  }
+                                }
+                              },
+                              "viewSpec": {
+                                "type": "base",
+                                "layout": "row_verbose",
+                                "order": [
+                                  "name",
+                                  "value"
+                                ]
+                              }
+                            },
+                            "viewSpec": {
+                              "type": "table",
+                              "layout": "transparent",
+                              "itemLabel": "Add env",
+                              "table": [
+                                {
+                                  "label": "Name",
+                                  "property": "name"
+                                },
+                                {
+                                  "label": "Value",
+                                  "property": "value"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "viewSpec": {
+                          "type": "base",
+                          "layout": "section",
+                          "layoutTitle": "Envs"
+                        }
+                      }
+                    },
+                    "viewSpec": {
+                      "type": "base",
+                      "layout": "card_accordeon",
+                      "layoutTitle": "Run options",
+                      "layoutDescription": "Configure how your container starts. Specify the command to run, its arguments, and environment variables.",
+                      "order": [
+                        "commands",
+                        "args",
+                        "envs"
+                      ]
+                    }
+                  }
+                }
+              },
+              "resources": {
+                "type": "object",
+                "defaultValue": {},
+                "required": true,
+                "properties": {
+                  "nodeSelector": {
+                    "type": "string",
+                    "viewSpec": {
+                      "type": "base",
+                      "layout": "row_verbose",
+                      "layoutTitle": "Node selector",
+                      "layoutDescription": "For example: node.kubernetes.io/instance-type: gpu-l40s-a"
+                    }
+                  },
+                  "requests": {
+                    "type": "object",
+                    "defaultValue": {},
+                    "properties": {
+                      "cpu": {
+                        "type": "number",
+                        "viewSpec": {
+                          "type": "base",
+                          "layout": "row_verbose",
+                          "layoutTitle": "CPU"
+                        }
+                      },
+                      "memory": {
+                        "type": "number",
+                        "viewSpec": {
+                          "type": "base",
+                          "layout": "row_verbose",
+                          "layoutTitle": "Memory (Gi)"
+                        }
+                      },
+                      "gpu": {
+                        "type": "number",
+                        "viewSpec": {
+                          "type": "base",
+                          "layout": "row_verbose",
+                          "layoutTitle": "nvidia.com/gpu"
+                        }
+                      }
+                    },
+                    "viewSpec": {
+                      "type": "base",
+                      "layout": "section",
+                      "layoutTitle": "Requests",
+                      "order": [
+                        "cpu",
+                        "memory",
+                        "gpu"
+                      ]
+                    }
+                  },
+                  "limits": {
+                    "type": "object",
+                    "defaultValue": {},
+                    "properties": {
+                      "cpu": {
+                        "type": "number",
+                        "viewSpec": {
+                          "type": "base",
+                          "layout": "row_verbose",
+                          "layoutTitle": "CPU"
+                        }
+                      },
+                      "memory": {
+                        "type": "number",
+                        "viewSpec": {
+                          "type": "base",
+                          "layout": "row_verbose",
+                          "layoutTitle": "Memory (Gi)"
+                        }
+                      },
+                      "gpu": {
+                        "type": "number",
+                        "viewSpec": {
+                          "type": "base",
+                          "layout": "row_verbose",
+                          "layoutTitle": "nvidia.com/gpu"
+                        }
+                      }
+                    },
+                    "viewSpec": {
+                      "type": "base",
+                      "layout": "section",
+                      "layoutTitle": "Limits",
+                      "order": [
+                        "cpu",
+                        "memory",
+                        "gpu"
+                      ]
+                    }
+                  }
+                },
+                "viewSpec": {
+                  "type": "base",
+                  "layout": "card_accordeon",
+                  "layoutTitle": "Resources",
+                  "layoutDescription": "Optional, but recommended. Specifies how much CPU, memory, and GPU your container requests and limits. Helps Kubernetes schedule your Container efficiently and ensures fair usage of cluster resources",
+                  "order": [
+                    "requests",
+                    "limits"
+                  ]
+                }
+              },
+              "ports": {
+                "type": "object",
+                "defaultValue": {},
+                "required": true,
+                "properties": {
+                  "port": {
+                    "type": "array",
+                    "defaultValue": [],
+                    "items": {
+                      "type": "object",
+                      "defaultValue": {},
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "required": true,
+                          "defaultValue": "",
+                          "viewSpec": {
+                            "type": "base",
+                            "layout": "table_item"
+                          }
+                        },
+                        "containerPort": {
+                          "type": "number",
+                          "defaultValue": "",
+                          "required": true,
+                          "format": "int64",
+                          "viewSpec": {
+                            "type": "base",
+                            "layout": "table_item"
+                          }
+                        },
+                        "serviceType": {
+                          "type": "string",
+                          "enum": [
+                            "ClusterIP",
+                            "LoadBalancer"
+                          ],
+                          "defaultValue": "LoadBalancer",
+                          "description": {
+                            "ClusterIP": "ClusterIP",
+                            "LoadBalancer": "LoadBalancer"
+                          },
+                          "viewSpec": {
+                            "type": "select",
+                            "layout": "table_item",
+                            "layoutTitle": "Service type",
+                            "selectParams": {
+                              "meta": {
+                                "ClusterIP": "Access only within the cluster",
+                                "LoadBalancer": "Access from the internet and within the cluster"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "viewSpec": {
+                        "type": "base",
+                        "layout": "row_verbose",
+                        "order": [
+                          "name",
+                          "containerPort",
+                          "serviceType"
+                        ]
+                      }
+                    },
+                    "viewSpec": {
+                      "type": "table",
+                      "layout": "transparent",
+                      "itemLabel": "Add port",
+                      "table": [
+                        {
+                          "label": "Name",
+                          "property": "name"
+                        },
+                        {
+                          "label": "Container port",
+                          "property": "containerPort"
+                        },
+                        {
+                          "label": "Service Type",
+                          "property": "serviceType"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "viewSpec": {
+                  "type": "base",
+                  "layout": "card_accordeon",
+                  "layoutTitle": "Ports",
+                  "layoutDescription": "Define the ports your container listens on. A Kubernetes Service will be created to expose the specified ports to the cluster (and optionally externally)"
+                }
+              }
+            },
+            "viewSpec": {
+              "type": "base",
+              "layout": "section",
+              "layoutTitle": "Container",
+              "order": [
+                "imageGroup",
+                "resources",
+                "ports"
+              ]
+            }
+          },
+          "viewSpec": {
+            "type": "base",
+            "layout": "transparent",
+            "layoutOpen": true,
+            "itemLabel": "Add container"
+          }
+        }
+      },
+      "viewSpec": {
+        "type": "base",
+        "layout": "transparent",
+        "layoutTitle": "Containers"
+      }
+    },
+    "initContainers": {
+      "type": "object",
+      "defaultValue": {},
+      "properties": {
+        "containers": {
+          "type": "array",
+          "defaultValue": [],
+          "items": {
+            "type": "object",
+            "defaultValue": {},
+            "properties": {
+              "imageGroup": {
+                "type": "object",
+                "defaultValue": {},
+                "viewSpec": {
+                  "type": "base",
+                  "layout": "section",
+                  "order": [
+                    "name",
+                    "credentials",
+                    "runOptions"
+                  ]
+                },
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "defaultValue": "",
+                    "required": true,
+                    "viewSpec": {
+                      "type": "base",
+                      "layout": "row_verbose",
+                      "layoutTitle": "Image"
+                    }
+                  },
+                  "credentials": {
+                    "type": "object",
+                    "defaultValue": {},
+                    "required": true,
+                    "viewSpec": {
+                      "type": "base",
+                      "layout": "card",
+                      "layoutTitle": "Credentials",
+                      "layoutDescription": "If you specify a private repository, don’t forget to provide your login and password"
+                    },
+                    "properties": {
+                      "login": {
+                        "type": "string",
+                        "defaultValue": "",
+                        "viewSpec": {
+                          "type": "base",
+                          "layout": "row_verbose",
+                          "layoutTitle": "Login"
+                        }
+                      },
+                      "password": {
+                        "type": "string",
+                        "defaultValue": "",
+                        "viewSpec": {
+                          "type": "password",
+                          "layout": "row_verbose",
+                          "layoutTitle": "Password"
+                        }
+                      }
+                    }
+                  },
+                  "runOptions": {
+                    "type": "object",
+                    "defaultValue": {},
+                    "required": true,
+                    "properties": {
+                      "commands": {
+                        "type": "object",
+                        "defaultValue": {},
+                        "required": true,
+                        "properties": {
+                          "command": {
+                            "type": "array",
+                            "defaultValue": [],
+                            "items": {
+                              "type": "string",
+                              "defaultValue": "",
+                              "viewSpec": {
+                                "type": "base",
+                                "layout": "row_verbose",
+                                "layoutTitle": "Command"
+                              }
+                            },
+                            "viewSpec": {
+                              "type": "base",
+                              "layout": "transparent",
+                              "itemLabel": "Add command"
+                            }
+                          }
+                        },
+                        "viewSpec": {
+                          "type": "base",
+                          "layout": "section",
+                          "layoutTitle": "Commands"
+                        }
+                      },
+                      "args": {
+                        "type": "object",
+                        "defaultValue": {},
+                        "required": true,
+                        "properties": {
+                          "arg": {
+                            "type": "array",
+                            "defaultValue": [],
+                            "items": {
+                              "type": "string",
+                              "defaultValue": "",
+                              "viewSpec": {
+                                "type": "base",
+                                "layout": "row_verbose",
+                                "layoutTitle": "Arg"
+                              }
+                            },
+                            "viewSpec": {
+                              "type": "base",
+                              "layout": "transparent",
+                              "itemLabel": "Add arg"
+                            }
+                          }
+                        },
+                        "viewSpec": {
+                          "type": "base",
+                          "layout": "section",
+                          "layoutTitle": "Args"
+                        }
+                      },
+                      "envs": {
+                        "type": "object",
+                        "defaultValue": {},
+                        "required": true,
+                        "properties": {
+                          "env": {
+                            "type": "array",
+                            "defaultValue": [],
+                            "items": {
+                              "type": "object",
+                              "defaultValue": {},
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "required": true,
+                                  "defaultValue": "",
+                                  "viewSpec": {
+                                    "type": "base",
+                                    "layout": "table_item"
+                                  }
+                                },
+                                "value": {
+                                  "type": "string",
+                                  "defaultValue": "",
+                                  "viewSpec": {
+                                    "type": "base",
+                                    "layout": "table_item"
+                                  }
+                                }
+                              },
+                              "viewSpec": {
+                                "type": "base",
+                                "layout": "row_verbose",
+                                "order": [
+                                  "name",
+                                  "value"
+                                ]
+                              }
+                            },
+                            "viewSpec": {
+                              "type": "table",
+                              "layout": "transparent",
+                              "itemLabel": "Add env",
+                              "table": [
+                                {
+                                  "label": "Name",
+                                  "property": "name"
+                                },
+                                {
+                                  "label": "Value",
+                                  "property": "value"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "viewSpec": {
+                          "type": "base",
+                          "layout": "section",
+                          "layoutTitle": "Envs"
+                        }
+                      }
+                    },
+                    "viewSpec": {
+                      "type": "base",
+                      "layout": "card_accordeon",
+                      "layoutTitle": "Run options",
+                      "layoutDescription": "Configure how your container starts. Specify the command to run, its arguments, and environment variables.",
+                      "order": [
+                        "commands",
+                        "args",
+                        "envs"
+                      ]
+                    }
+                  }
+                }
+              },
+              "resources": {
+                "type": "object",
+                "defaultValue": {},
+                "required": true,
+                "properties": {
+                  "nodeSelector": {
+                    "type": "string",
+                    "viewSpec": {
+                      "type": "base",
+                      "layout": "row_verbose",
+                      "layoutTitle": "Node selector",
+                      "layoutDescription": "For example: node.kubernetes.io/instance-type: gpu-l40s-a"
+                    }
+                  },
+                  "requests": {
+                    "type": "object",
+                    "defaultValue": {},
+                    "properties": {
+                      "cpu": {
+                        "type": "number",
+                        "viewSpec": {
+                          "type": "base",
+                          "layout": "row_verbose",
+                          "layoutTitle": "CPU"
+                        }
+                      },
+                      "memory": {
+                        "type": "number",
+                        "viewSpec": {
+                          "type": "base",
+                          "layout": "row_verbose",
+                          "layoutTitle": "Memory (Gi)"
+                        }
+                      },
+                      "gpu": {
+                        "type": "number",
+                        "viewSpec": {
+                          "type": "base",
+                          "layout": "row_verbose",
+                          "layoutTitle": "nvidia.com/gpu"
+                        }
+                      }
+                    },
+                    "viewSpec": {
+                      "type": "base",
+                      "layout": "section",
+                      "layoutTitle": "Requests",
+                      "order": [
+                        "cpu",
+                        "memory",
+                        "gpu"
+                      ]
+                    }
+                  },
+                  "limits": {
+                    "type": "object",
+                    "defaultValue": {},
+                    "properties": {
+                      "cpu": {
+                        "type": "number",
+                        "viewSpec": {
+                          "type": "base",
+                          "layout": "row_verbose",
+                          "layoutTitle": "CPU"
+                        }
+                      },
+                      "memory": {
+                        "type": "number",
+                        "viewSpec": {
+                          "type": "base",
+                          "layout": "row_verbose",
+                          "layoutTitle": "Memory (Gi)"
+                        }
+                      },
+                      "gpu": {
+                        "type": "number",
+                        "viewSpec": {
+                          "type": "base",
+                          "layout": "row_verbose",
+                          "layoutTitle": "nvidia.com/gpu"
+                        }
+                      }
+                    },
+                    "viewSpec": {
+                      "type": "base",
+                      "layout": "section",
+                      "layoutTitle": "Limits",
+                      "order": [
+                        "cpu",
+                        "memory",
+                        "gpu"
+                      ]
+                    }
+                  }
+                },
+                "viewSpec": {
+                  "type": "base",
+                  "layout": "card_accordeon",
+                  "layoutTitle": "Resources",
+                  "layoutDescription": "Optional, but recommended. Specifies how much CPU, memory, and GPU your container requests and limits. Helps Kubernetes schedule your Container efficiently and ensures fair usage of cluster resources",
+                  "order": [
+                    "requests",
+                    "limits"
+                  ]
+                }
+              }
+            },
+            "viewSpec": {
+              "type": "base",
+              "layout": "section",
+              "layoutTitle": "Init Container",
+              "order": [
+                "imageGroup",
+                "resources",
+                "ports"
+              ]
+            }
+          },
+          "viewSpec": {
+            "type": "base",
+            "layout": "transparent",
+            "layoutOpen": true,
+            "itemLabel": "Add init container"
+          }
+        }
+      },
+      "viewSpec": {
+        "type": "base",
+        "layout": "section",
+        "layoutTitle": "Init containers",
+        "layoutDescription": "Run one-time setup tasks before your main containers start. Can have their own commands, arguments, environment variables, and resource requests/limits."
+      }
+    },
+    "storages": {
+      "type": "object",
+      "defaultValue": {},
+      "properties": {
+        "storage": {
+          "type": "array",
+          "defaultValue": [],
+          "items": {
+            "type": "object",
+            "defaultValue": {},
+            "properties": {
+              "name": {
+                "type": "string",
+                "defaultValue": "",
+                "required": true,
+                "viewSpec": {
+                  "type": "base",
+                  "layout": "row_verbose",
+                  "layoutTitle": "Name"
+                }
+              },
+              "type": {
+                "type": "string",
+                "defaultValue": "emptyDir",
+                "enum": [
+                  "pvc",
+                  "emptyDir"
+                ],
+                "description": {
+                  "pvc": "PVC",
+                  "emptyDir": "EmptyDir"
+                },
+                "viewSpec": {
+                  "type": "select",
+                  "layout": "row_verbose",
+                  "layoutTitle": "Type",
+                  "selectParams": {
+                    "meta": {
+                      "pvc": "Persistent volume claim",
+                      "emptyDir": "Temporary folder"
+                    }
+                  }
+                }
+              },
+              "size": {
+                "type": "number",
+                "defaultValue": 50,
+                "required": true,
+                "format": "int64",
+                "viewSpec": {
+                  "type": "base",
+                  "layout": "row_verbose",
+                  "layoutTitle": "Size (Gb)"
+                }
+              },
+              "mountPath": {
+                "type": "string",
+                "defaultValue": "",
+                "required": true,
+                "viewSpec": {
+                  "type": "base",
+                  "layout": "row_verbose",
+                  "layoutTitle": "Mount path"
+                }
+              },
+              "files": {
+                "type": "array",
+                "defaultValue": [],
+                "required": true,
+                "items": {
+                  "type": "object",
+                  "defaultValue": {},
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "defaultValue": "",
+                      "required": true,
+                      "viewSpec": {
+                        "type": "base",
+                        "layout": "row_verbose",
+                        "layoutTitle": "Path"
+                      }
+                    },
+                    "content": {
+                      "type": "string",
+                      "viewSpec": {
+                        "type": "yaml_input",
+                        "layout": "row_verbose",
+                        "layoutTitle": "Files",
+                        "inputProps": {
+                          "buttonText": "Edit content",
+                          "dialogTitle": "Edit file content",
+                          "description": "Put your file content"
+                        }
+                      }
+                    }
+                  },
+                  "viewSpec": {
+                    "type": "base",
+                    "layout": "transparent",
+                    "layoutTitle": "Files",
+                    "order": [
+                      "path",
+                      "content"
+                    ]
+                  }
+                },
+                "viewSpec": {
+                  "type": "base",
+                  "layout": "card_accordeon",
+                  "layoutTitle": "Files",
+                  "itemLabel": "Add file"
+                }
+              }
+            },
+            "viewSpec": {
+              "type": "base",
+              "layout": "section",
+              "layoutTitle": "Storage",
+              "order": [
+                "name",
+                "type",
+                "size",
+                "mountPath",
+                "files"
+              ]
+            }
+          },
+          "viewSpec": {
+            "type": "base",
+            "itemLabel": "Add storage"
+          }
+        }
+      },
+      "viewSpec": {
+        "type": "base",
+        "layout": "section",
+        "layoutTitle": "Storages and files",
+        "layoutDescription": "Define storage for your containers. You can choose PersistentVolumeClaim (PVC) to keep data after Pods are deleted, or EmptyDir for temporary storage that is cleared when the Pod stops. You can also specify files with content to be placed into the storage when the Pod starts."
+      }
+    },
+    "autoRemove": {
+      "type": "object",
+      "defaultValue": {},
+      "required": true,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "defaultValue": false,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row_verbose",
+            "layoutTitle": "Enabled"
+          }
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "scale",
+            "delete"
+          ],
+          "description": {
+            "scale": "Downscale",
+            "delete": "Delete"
+          },
+          "defaultValue": "scale",
+          "viewSpec": {
+            "type": "select",
+            "layout": "row_verbose",
+            "layoutTitle": "Mode",
+            "selectParams": {
+              "meta": {
+                "scale": "Scales the deployment down to zero replicas after the specified time, keeping all persistent volumes",
+                "delete": "Deletes the deployment after the specified time, but keeps all persistent volumes"
+              }
+            }
+          }
+        },
+        "applyAfter": {
+          "type": "number",
+          "defaultValue": 10,
+          "minimum": 1,
+          "format": "int64",
+          "viewSpec": {
+            "type": "base",
+            "layout": "row_verbose",
+            "layoutTitle": "Apply after (hours)"
+          }
+        }
+      },
+      "viewSpec": {
+        "type": "base",
+        "layout": "card_accordeon",
+        "layoutTitle": "Auto Shutdown",
+        "layoutDescription": "Automatic scale-down or deletion of workloads after a specified time",
+        "order": [
+          "enabled",
+          "mode",
+          "applyAfter"
+        ]
+      }
+    },
+    "other": {
+      "type": "object",
+      "defaultValue": {},
+      "required": true,
+      "properties": {
+        "replicas": {
+          "type": "number",
+          "defaultValue": 1,
+          "minimum": 1,
+          "format": "int64",
+          "viewSpec": {
+            "type": "base",
+            "layout": "row_verbose",
+            "layoutTitle": "Replicas count"
+          }
+        },
+        "nodeSelector": {
+          "type": "string",
+          "viewSpec": {
+            "type": "base",
+            "layout": "row_verbose",
+            "layoutTitle": "Node selector"
+          }
+        }
+      },
+      "viewSpec": {
+        "type": "base",
+        "layout": "card_accordeon",
+        "layoutTitle": "Others",
+        "order": [
+          "replicas",
+          "nodeSelector",
+          "autoRemove"
+        ]
+      }
+    }
+  },
+  "viewSpec": {
+    "type": "base",
+    "layout": "transparent",
+    "order": [
+      "mk8sCluster",
+      "general",
+      "containers",
+      "initContainers",
+      "storages",
+      "autoRemove",
+      "other"
+    ]
+  }
+}

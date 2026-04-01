@@ -1,0 +1,155 @@
+{
+  "type": "object",
+  "required": true,
+  "viewSpec": {
+    "type": "base",
+    "order": [
+      "mk8sCluster",
+      "general",
+      "project_id",
+      "serviceAccount",
+      "public_key_id",
+      "private_key",
+      "env",
+      "replicaCount"
+    ],
+    "layout": ""
+  },
+  "defaultValue": {
+    "replicaCount": 1
+  },
+  "properties": {
+    "mk8sCluster": {
+      "type": "object",
+      "required": true,
+      "viewSpec": {
+        "type": "mk8s_cluster"
+      }
+    },
+    "general": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "layout": "section",
+        "layoutTitle": "General"
+      },
+      "defaultValue": {},
+      "properties": {
+        "appname": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Application name"
+          },
+          "defaultValue": "dstack"
+        },
+        "namespace": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Namespace"
+          },
+          "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "patternError": "namespace must consist of lower case alphanumeric characters or '-', and must start and end with an alphanumeric character (e.g. 'my-name',  or '123-abc', regex used for validation is ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "defaultValue": "dstack"
+        }
+      }
+    },
+    "project_id": {
+      "nebiusType": "ProjectID",
+      "type": "string",
+      "required": true,
+      "viewSpec": {
+        "type": "base",
+        "layout": "row",
+        "layoutTitle": "Nebius project ID"
+      }
+    },
+    "serviceAccount": {
+      "type": "string",
+      "required": true,
+      "viewSpec": {
+        "type": "service_account_select",
+        "layout": "row",
+        "layoutTitle": "Service account"
+      }
+    },
+    "public_key_id": {
+      "type": "string",
+      "required": true,
+      "viewSpec": {
+        "disabled": false,
+        "type": "base",
+        "layout": "row",
+        "layoutTitle": "Public Key ID",
+        "placeholder": "publickey-xxxxxxxxxxxxxxxxxxx"
+      }
+    },
+    "private_key": {
+      "type": "string",
+      "required": true,
+      "viewSpec": {
+        "disabled": false,
+        "type": "textarea",
+        "layout": "row",
+        "layoutTitle": "Private Key",
+        "layoutDescription": "",
+        "placeholder": "-----BEGIN PRIVATE KEY-----\n[...]\n-----END PRIVATE KEY-----"
+      }
+    },
+    "env": {
+      "type": "object",
+      "required": true,
+      "viewSpec": {
+        "type": "base",
+        "order": [
+          "DSTACK_SERVER_ADMIN_TOKEN",
+          "DSTACK_DATABASE_URL"
+        ],
+        "layout": ""
+      },
+      "properties": {
+        "DSTACK_SERVER_ADMIN_TOKEN": {
+          "type": "string",
+          "required": true,
+          "pattern": "^[A-Za-z0-9*.$^\\d]{16,}$",
+          "viewSpec": {
+            "type": "password_generator",
+            "layout": "row",
+            "layoutTitle": "Admin token",
+            "generateRandomValueButton": true
+          }
+        },
+        "DSTACK_DATABASE_URL": {
+          "type": "string",
+          "required": false,
+          "viewSpec": {
+            "disabled": false,
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "PostgreSQL database URL",
+            "layoutDescription": "Optional for testing environment, highly recommended for production",
+            "placeholder": "postgresql+asyncpg://myuser:mypassword@localhost:5432/mydatabase"
+          }
+        }
+      }
+    },
+    "replicaCount": {
+      "type": "string",
+      "viewSpec": {
+        "inputProps": {
+          "max": 5,
+          "min": 1
+        },
+        "layout": "row",
+        "layoutDescription": "1 for testing environment, more than one in production and when using Managed PostgreSQL",
+        "layoutTitle": "Dstack Replica Count",
+        "type": "rangeinputpicker"
+      }
+    }
+  }
+}

@@ -1,0 +1,179 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "myapp.fullname" . }}
+spec:
+  replicas: {{ .Values.other.replicas }}
+  selector:
+    matchLabels:
+      app: {{ include "myapp.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "myapp.name" . }}
+    spec:
+      {{- if .Values.other.nodeSelector }}
+      nodeSelector:
+        {{ .Values.other.nodeSelector | nindent 8 }}
+      {{- end }}
+
+
+      initContainers:
+      {{- with .Values.initContainers.containers }}
+        {{- range . }}
+        - name: {{ .imageGroup.name | splitList ":" | first | splitList "/" | last | lower | trunc 59 }}{{ randAlphaNum 4 | lower }}
+          image: {{ .imageGroup.name }}
+          {{- with .imageGroup.runOptions.commands.command }}
+          command:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .imageGroup.runOptions.args.arg }}
+          args:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .imageGroup.runOptions.envs.env }}
+          env:
+            {{- range . }}
+            - name: {{ .name }}
+              value: {{ .value | quote }}
+            {{- end }}
+          {{- end }}
+          {{- with .resources }}
+          resources:
+            {{- with .requests }}
+            requests:
+              {{ if .cpu }}cpu: {{ .cpu }}{{ end }}
+              {{ if .memory }}memory: "{{ .memory }}Gi"{{ end }}
+              {{ if .gpu }}nvidia.com/gpu: {{ .gpu }}{{ end }}
+            {{- end }}
+            {{- with .limits }}
+            limits:
+              {{ if .cpu }}cpu: {{ .cpu }}{{ end }}
+              {{ if .memory }}memory: "{{ .memory }}Gi"{{ end }}
+              {{ if .gpu }}nvidia.com/gpu: {{ .gpu }}{{ end }}
+            {{- end }}
+          {{- end }}
+          {{- with $.Values.storages.storage }}
+          volumeMounts:
+            {{- range . }}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+      {{- end }}
+
+        - name: copy-files{{ randAlphaNum 4 | lower }}
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              {{- range $sidx, $storage := $.Values.storages.storage }}
+                {{- $volName := default (printf "storage-%d" $sidx) $storage.name }}
+                {{- range $fidx, $file := $storage.files }}
+              SRC="/config/{{ printf "%s-%d-%d" $volName $sidx $fidx }}"
+              TARGET="{{ $storage.mountPath | trimSuffix "/" }}/{{ $file.path | trimPrefix "/" }}"
+              echo "Copying $SRC to $TARGET"
+              mkdir -p "$(dirname "$TARGET")"
+              cp "$SRC" "$TARGET"
+                {{- end }}
+              {{- end }}
+          {{- with $.Values.storages.storage }}
+          volumeMounts:
+            - name: files-config
+              mountPath: /config
+            {{- range . }}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+            {{- end }}
+          {{- end }}
+
+      containers:
+        {{- range .Values.containers.containers }}
+        - name: {{ .imageGroup.name | splitList ":" | first | splitList "/" | last | lower | trunc 59 }}{{ randAlphaNum 4 | lower }}
+          image: {{ .imageGroup.name }}
+          {{- with .imageGroup.runOptions.commands.command }}
+          command:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .imageGroup.runOptions.args.arg }}
+          args:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .imageGroup.runOptions.envs.env }}
+          env:
+            {{- range . }}
+            - name: {{ .name }}
+              value: {{ .value | quote }}
+            {{- end }}
+          {{- end }}
+          {{- with .resources }}
+          resources:
+            {{- with .requests }}
+            requests:
+              {{ if .cpu }}cpu: {{ .cpu }}{{ end }}
+              {{ if .memory }}memory: "{{ .memory }}Gi"{{ end }}
+              {{ if .gpu }}nvidia.com/gpu: {{ .gpu }}{{ end }}
+            {{- end }}
+            {{- with .limits }}
+            limits:
+              {{ if .cpu }}cpu: {{ .cpu }}{{ end }}
+              {{ if .memory }}memory: "{{ .memory }}Gi"{{ end }}
+              {{ if .gpu }}nvidia.com/gpu: {{ .gpu }}{{ end }}
+            {{- end }}
+          {{- end }}
+          {{- with .ports.port }}
+          ports:
+            {{- range . }}
+            - containerPort: {{ .containerPort }}
+              name: {{ .name }}
+            {{- end }}
+          {{- end }}
+          {{- with $.Values.storages.storage }}
+          volumeMounts:
+            {{- range . }}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+
+      {{- $useRegistrySecret := false }}
+      {{- /* Проверяем основные контейнеры */}}
+      {{- range .Values.containers.containers }}
+        {{- if and .imageGroup.credentials.login .imageGroup.credentials.password }}
+          {{- $useRegistrySecret = true }}
+        {{- end }}
+      {{- end }}
+
+      {{- /* Проверяем init-контейнеры */}}
+      {{- range .Values.initContainers.containers }}
+        {{- if and .imageGroup.credentials.login .imageGroup.credentials.password }}
+          {{- $useRegistrySecret = true }}
+        {{- end }}
+      {{- end }}
+
+      {{- if $useRegistrySecret }}
+      imagePullSecrets:
+        - name: {{ include "myapp.fullname" . }}-registry-secret
+      {{- end }}
+
+
+      {{- $root := . }}
+      {{- with .Values.storages.storage }}
+      volumes:
+        {{- range . }}
+        - name: {{ .name }}
+          {{- if eq .type "pvc" }}
+          persistentVolumeClaim:
+            claimName: {{ .name }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        {{- end }}
+        - name: files-config
+          configMap:
+            name: {{ include "myapp.fullname" $root }}-files
+      {{- end }}

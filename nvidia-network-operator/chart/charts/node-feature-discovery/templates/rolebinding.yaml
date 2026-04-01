@@ -15,4 +15,3 @@ subjects:
   name: {{ include "node-feature-discovery.worker.serviceAccountName" . }}
   namespace: {{ include "node-feature-discovery.namespace" .  }}
 {{- end }}
-

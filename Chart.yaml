@@ -9,51 +9,110 @@ dependencies:
 - name: airflow
   version: "1.13.1"
   repository: "https://airflow.apache.org"
+  # dir: apache-airflow
 - name: argo-cd
   version: "7.7.5"
   repository: "https://argoproj.github.io/argo-helm"
-- name: cvat
-  version: "0.14.3"
-  # repository: "./cvat-cvat" https://github.com/cvat-ai/cvat/blob/develop/helm-chart/Chart.yaml
-- name: flowise
+  # dir: argo-project-argo-cd
+- name: clearml-agent
+  version: "5.2.2"
+  # repository: https://github.com/allegroai/clearml-helm-charts
+- name: code-server
+  version: "3.30.2"
+  # dir: coder-server
+- name: comfyui
   version: "0.1.0"
+  # dir: comfy-ui
+- name: custom-helm
+  version: "0.1.0"
+- name: cvat
+  version: "0.12.0"
+  # dir: cvat-cvat
+- name: docker-runner
+  version: "0.1.0"
+  # dir: docker-deployment
+- name: dstack
+  version: "0.1.0"
+- name: flowise
+  version: "2.5.0"
   repository: "https://cowboysysop.github.io/charts/"
+- name: generative-virtual-screening-chart
+  version: "0.1.0"
+  # dir: generative-virtual-screening
+- name: o11y
+  version: "1.0.0"
+  # dir: grafana-and-prometheus
 - name: h2o-3
   version: "44.0.3"
-  # repository: "https://charts.h2o.ai" https://github.com/h2oai/h2o-3/blob/master/h2o-helm/Chart.yaml
-- name: h2ogtp
+  # repository: "https://charts.h2o.ai"
+- name: h2ogpt
   version: "0.1.0-109"
-  # repository: "./h2oai-h2ogpt"  https://github.com/h2oai/h2ogpt/blob/main/helm/h2ogpt-chart/Chart.yaml
+  # dir: h2oai-h2ogpt
 - name: jupyterhub
-  version: "4.1.0"
+  version: "4.3.3"
   repository: "https://hub.jupyter.org/helm-chart"
+- name: kubernetes-dashboard-readonly
+  version: "1.0.0"
+  # dir: kubernetes-dashboard
+- name: litellm
+  version: "0.1.759"
+- name: loki
+  version: "6.25.1"
+  repository: "https://grafana.github.io/helm-charts"
 - name: milvus
   version: "4.1.11"
   repository: "https://zilliztech.github.io/milvus-helm/"
+  # dir: milvus-milvus
 - name: mlflow
   version: "1.0.4"
-  repository: "oci://registry-1.docker.io/bitnamicharts/mlflow"
+  repository: "oci://registry-1.docker.io/bitnamicharts"
+  # dir: ml-flow
+- name: nebius-grafana
+  version: "1.0.0"
+- name: nebius-observability-agent-helm
+  version: "1.0.5"
+  # dir: nebius-observability-agent
+- name: nvidia-device-plugin
+  version: "0.17.2"
+  repository: "https://helm.ngc.nvidia.com/nvidia"
 - name: gpu-operator
-  version: "v24.6.2"
+  version: "v25.10.0"
   repository: "https://helm.ngc.nvidia.com/nvidia"
+  # dir: nvidia-gpu-operator
 - name: network-operator
-  version: "24.4.0"
-  repository: "https://helm.ngc.nvidia.com/nvidia"
-- name: qdrant
-  version: "0.7.6"
-  repository: "https://qdrant.github.io/qdrant-helm"
-- name: ray-cluster
-  version: "1.2.1"
-  repository: "https://ray-project.github.io/kuberay-helm/"
-- name: stable-diffusion-webui
-  version: "0.3.0"
-  # need to find the repository
-- name: vllm-chart
-  version: "0.3.0"
-  # need to find the repository
-- name: volcano
-  version: "1.11.0"
-  repository: "https://volcano-sh.github.io/helm-charts"
+  version: "25.7.0"
+  repository: "https://mellanox.github.io/network-operator"
+  # dir: nvidia-network-operator
+- name: osmo
+  version: "0.1.0"
+  # dir: nvidia-osmo
 - name: ollama
   version: "1.5.0"
   repository: "https://otwld.github.io/ollama-helm/"
+- name: qdrant
+  version: "0.7.6"
+  repository: "https://qdrant.github.io/qdrant-helm"
+  # dir: qdrant-qdrant
+- name: ray-cluster
+  version: "0.1.0"
+  # Note: chart version is 0.1.0 (custom wrapper), not upstream kuberay
+- name: ray-serve
+  version: "1.2.1"
+  repository: "https://ray-project.github.io/kuberay-helm/"
+  # Note: ray-serve chart name is "ray-cluster" in Chart.yaml
+- name: stable-diffusion
+  version: "0.3.0"
+  # dir: stable-diffusion-webui
+- name: vllm
+  version: "1.0.0"
+- name: volcano
+  version: "1.11.0"
+  repository: "https://volcano-sh.github.io/charts/"
+  # dir: volcano-volcano
+- name: weaviate
+  version: "16.8.1"
+  repository: "https://github.com/weaviate/weaviate"
+- name: clickhouse
+  version: "9.4.4"
+  repository: "oci://registry-1.docker.io/bitnamicharts"
+  # Note: images moved from bitnami/ to bitnamilegacy/ on Docker Hub

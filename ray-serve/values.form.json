@@ -1,0 +1,401 @@
+{
+  "type": "object",
+  "viewSpec": {
+    "type": "base",
+    "order": [
+      "mk8sCluster",
+      "general",
+      "serveConfigV2",
+      "head",
+      "gpuPlatform",
+      "gpuPerWorker",
+      "worker",
+      "additionalWorkerGroups",
+      "redis",
+      "customImage"
+    ],
+    "layout": ""
+  },
+  "defaultValue": {
+    "additionalWorkerGroups": {
+      "cpu": {
+        "maxReplicas": "0",
+        "minReplicas": "0",
+        "resources": {
+          "limits": {
+            "cpu": "16",
+            "memory": "30Gi"
+          }
+        }
+      }
+    },
+    "gpuPerWorker": "1",
+    "gpuPlatform": "NVIDIA® H100 NVLink with Intel Sapphire Rapids",
+    "head": {
+      "enableInTreeAutoscaling": true,
+      "resources": {
+        "limits": {
+          "cpu": "4",
+          "memory": "8Gi"
+        }
+      }
+    },
+    "redis": {
+      "replica": {
+        "replicaCount": 2
+      }
+    },
+    "serveConfigV2": "applications:\r\n- name: stable_diffusion\r\n  import_path: stable_diffusion.stable_diffusion:entrypoint\r\n  runtime_env:\r\n    working_dir: \"https://github.com/ray-project/serve_config_examples/archive/b8af221bc0e5d6cc7daa0dd071295fd9e456e671.zip\"\r\n    pip: [\"diffusers==0.32.2\", \"transformers==4.48.2\"]",
+    "worker": {
+      "maxReplicas": "3",
+      "minReplicas": "1"
+    }
+  },
+  "properties": {
+    "mk8sCluster": {
+      "type": "object",
+      "required": true,
+      "viewSpec": {
+        "type": "mk8s_cluster"
+      }
+    },
+    "general": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "layout": "section",
+        "layoutTitle": "General"
+      },
+      "defaultValue": {},
+      "properties": {
+        "appname": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Application name"
+          },
+          "defaultValue": "ray-serve"
+        },
+        "namespace": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Namespace"
+          },
+          "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "patternError": "namespace must consist of lower case alphanumeric characters or '-', and must start and end with an alphanumeric character (e.g. 'my-name',  or '123-abc', regex used for validation is ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "defaultValue": "ray-serve"
+        }
+      }
+    },
+    "additionalWorkerGroups": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "order": [
+          "cpu"
+        ],
+        "layout": ""
+      },
+      "defaultValue": {},
+      "properties": {
+        "cpu": {
+          "type": "object",
+          "viewSpec": {
+            "type": "base",
+            "order": [
+              "minReplicas",
+              "maxReplicas",
+              "resources"
+            ],
+            "layout": ""
+          },
+          "defaultValue": {},
+          "properties": {
+            "maxReplicas": {
+              "type": "string",
+              "viewSpec": {
+                "inputProps": {
+                  "max": 32,
+                  "min": 1
+                },
+                "layout": "row",
+                "layoutDescription": "Enter the maximum number of worker pods without GPUs.\n",
+                "layoutTitle": "Maximum number of non-GPU workers",
+                "type": "rangeinputpicker"
+              }
+            },
+            "minReplicas": {
+              "type": "string",
+              "viewSpec": {
+                "inputProps": {
+                  "max": 32,
+                  "min": 1
+                },
+                "layout": "row",
+                "layoutDescription": "Enter the minimum number of worker pods without GPUs\n",
+                "layoutTitle": "Minimum number of non-GPU workers",
+                "type": "rangeinputpicker"
+              }
+            },
+            "resources": {
+              "type": "object",
+              "viewSpec": {
+                "type": "base",
+                "order": [
+                  "limits"
+                ],
+                "layout": ""
+              },
+              "defaultValue": {},
+              "properties": {
+                "limits": {
+                  "type": "object",
+                  "viewSpec": {
+                    "type": "base",
+                    "order": [
+                      "cpu",
+                      "memory"
+                    ],
+                    "layout": ""
+                  },
+                  "defaultValue": {},
+                  "properties": {
+                    "cpu": {
+                      "type": "string",
+                      "viewSpec": {
+                        "inputProps": {
+                          "max": 32,
+                          "min": 1
+                        },
+                        "layout": "row",
+                        "layoutDescription": "Enter the number of vCPUs that each worker pod without GPUs will use on its node.\n",
+                        "layoutTitle": "Non-GPU worker vCPUs",
+                        "type": "rangeinputpicker"
+                      }
+                    },
+                    "memory": {
+                      "type": "string",
+                      "viewSpec": {
+                        "inputProps": {
+                          "max": 64,
+                          "min": 1,
+                          "suffix": "Gi"
+                        },
+                        "layout": "row",
+                        "layoutDescription": "Enter the size of RAM that the each worker pod without GPUs will use on its node.\n",
+                        "layoutTitle": "Non-GPU worker RAM",
+                        "type": "rangeinputpicker"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "customImage": {
+      "type": "string",
+      "viewSpec": {
+        "type": "base",
+        "layout": "row",
+        "layoutTitle": "Ray Docker image",
+        "layoutDescription": "Enter the URL of a custom Ray Docker image for the head and worker pods.\nThe image must carry version 2.9.3 of Ray.\nBy default, the official rayproject/ray-ml:2.9.3-gpu image hosted in the Nebius AI container registry is used.\n"
+      }
+    },
+    "gpuPerWorker": {
+      "type": "string",
+      "viewSpec": {
+        "inputProps": {
+          "max": 8,
+          "min": 1
+        },
+        "layout": "row",
+        "layoutDescription": "Enter the number of GPU per each worker.\n",
+        "layoutTitle": "GPU per each worker",
+        "type": "rangeinputpicker"
+      }
+    },
+    "gpuPlatform": {
+      "type": "string",
+      "required": true,
+      "viewSpec": {
+        "type": "select",
+        "layout": "row",
+        "layoutTitle": "GPU worker platform",
+        "layoutDescription": "Select the same VM platform as the platform you selected when creating a node group with GPUs."
+      },
+      "enum": [
+        "NVIDIA® H100 NVLink with Intel Sapphire Rapids",
+        "NVIDIA® H200 NVLink with Intel Sapphire Rapids",
+        "NVIDIA® B200 NVLink with Intel Emerald Rapids"
+      ]
+    },
+    "head": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "order": [
+          "resources",
+          "enableInTreeAutoscaling"
+        ],
+        "layout": ""
+      },
+      "defaultValue": {},
+      "properties": {
+        "enableInTreeAutoscaling": {
+          "type": "boolean",
+          "viewSpec": {
+            "disabled": true,
+            "layout": "row",
+            "layoutTitle": "Enable KubeRay Autoscaling",
+            "type": "switch"
+          }
+        },
+        "resources": {
+          "type": "object",
+          "viewSpec": {
+            "type": "base",
+            "order": [
+              "limits"
+            ],
+            "layout": ""
+          },
+          "defaultValue": {},
+          "properties": {
+            "limits": {
+              "type": "object",
+              "viewSpec": {
+                "type": "base",
+                "order": [
+                  "cpu",
+                  "memory"
+                ],
+                "layout": ""
+              },
+              "defaultValue": {},
+              "properties": {
+                "cpu": {
+                  "type": "string",
+                  "viewSpec": {
+                    "inputProps": {
+                      "max": 32,
+                      "min": 1
+                    },
+                    "layout": "row",
+                    "layoutDescription": "Enter the number of vCPUs that the head pod will use on its node.\n",
+                    "layoutTitle": "Head pod vCPUs",
+                    "type": "rangeinputpicker"
+                  }
+                },
+                "memory": {
+                  "type": "string",
+                  "viewSpec": {
+                    "inputProps": {
+                      "max": 64,
+                      "min": 1,
+                      "suffix": "Gi"
+                    },
+                    "layout": "row",
+                    "layoutDescription": "Enter the size of RAM that the head pod will use on its node.\n",
+                    "layoutTitle": "Head pod RAM",
+                    "type": "rangeinputpicker"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "redis": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "order": [
+          "replica"
+        ],
+        "layout": ""
+      },
+      "defaultValue": {},
+      "properties": {
+        "replica": {
+          "type": "object",
+          "viewSpec": {
+            "type": "base",
+            "order": [
+              "replicaCount"
+            ],
+            "layout": ""
+          },
+          "defaultValue": {},
+          "properties": {
+            "replicaCount": {
+              "type": "number",
+              "viewSpec": {
+                "type": "base",
+                "layout": "row",
+                "layoutTitle": "Redis replica count"
+              }
+            }
+          }
+        }
+      }
+    },
+    "serveConfigV2": {
+      "type": "string",
+      "required": true,
+      "viewSpec": {
+        "layout": "row",
+        "layoutTitle": "Ray Serve configuration",
+        "type": "textarea"
+      }
+    },
+    "worker": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "order": [
+          "minReplicas",
+          "maxReplicas"
+        ],
+        "layout": ""
+      },
+      "defaultValue": {},
+      "properties": {
+        "maxReplicas": {
+          "type": "string",
+          "viewSpec": {
+            "inputProps": {
+              "max": 64,
+              "min": 1
+            },
+            "layout": "row",
+            "layoutDescription": "Enter the maximum number of worker pods with GPUs. Each worker will use one GPU.\n",
+            "layoutTitle": "Maximum number of GPU workers",
+            "type": "rangeinputpicker"
+          }
+        },
+        "minReplicas": {
+          "type": "string",
+          "viewSpec": {
+            "inputProps": {
+              "max": 64,
+              "min": 1
+            },
+            "layout": "row",
+            "layoutDescription": "Enter the minimum number of worker pods with GPUs. Each worker will use one GPU.\n",
+            "layoutTitle": "Minimum number of GPU workers",
+            "type": "rangeinputpicker"
+          }
+        }
+      }
+    }
+  }
+}

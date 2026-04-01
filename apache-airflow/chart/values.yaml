@@ -65,11 +65,11 @@ containerLifecycleHooks: {}
 airflowHome: /opt/airflow
 
 # Default airflow repository -- overridden by all the specific images below
-defaultAirflowRepository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/airflow/airflow
+defaultAirflowRepository: apache/airflow 
 customAirflowRepository: ~
 
 # Default airflow tag to deploy
-defaultAirflowTag: "2.9.1"
+defaultAirflowTag: "3.1.7"
 
 # Default airflow digest. If specified, it takes precedence over tag
 defaultAirflowDigest: ~
@@ -77,12 +77,12 @@ defaultAirflowDigest: ~
 airflowTagOverride: "{{ .Values.airflowVersion | default .Values.defaultAirflowTag }}"
 
 # Airflow version (Used to make some decisions based on Airflow Version being deployed)
-airflowVersion: "2.9.1"
+airflowVersion: "3.1.7"
 
 # Images
 images:
   airflow:
-    repository: ~
+    ########repository: ~
     tag: ~
     # Specifying digest takes precedence over tag.
     digest: ~

@@ -40,61 +40,24 @@ By using the application, you agree to their terms and conditions: [the helm-cha
 
 Each node in the group should have at least 8 GB of RAM.
 
-To use GPU create GPU node group and install [NVIDIA® GPU Operator](https://console.eu.nebius.com/applications/overview/nebius/nvidia-gpu-operator)
+If you want to use JupyterHub with GPUs and have them in your node group, install the [NVIDIA® GPU Operator](https://console.eu.nebius.com/applications/overview/nebius/nvidia-gpu-operator) on the cluster.
 
 {% endnote %}
 
 **Install and configure the product:**
 
-1. Configure the application:
-
-    1. **JupyterHub accessibility**: Select a way to access the JupyterHub cluster:
-
-        * **ClusterIP** for access by port-forwarding.
-        * **LoadBalancer** for access from the Internet by IP or by port-forwarding.
-
-      {% note warning %}
-
-      LoadBalancer uses one IP address from the [Number of public IP addresses per cloud](https://nebius.ai/docs/overview/concepts/quotas-limits#vpc-quotas) quota.
-
-      {% endnote %}
+1. Configure the application: select a Kubernetes cluster, set the application name, namespace, and storage size.
 
 1. Click **Install**.
 1. Wait for the application to change its status to `Deployed`.
 
-{% note warning %}
-
-If you want to use JupyterHub with GPUs and have them in your node group, install the [NVIDIA® GPU Operator](https://console.eu.nebius.com/applications/overview/nebius/nvidia-gpu-operator) on the cluster.
-
-{% endnote %}
-
 ## Usage
 
-Depending on the way to access the cluster you have chosen while configuring the application, get the IP or use port-forwarding to access the JupyterHub UI:
+JupyterHub is accessed through a secure Tunna tunnel. After the application is deployed, the tunnel address is automatically created.
 
-{% list tabs %}
-
-* LoadBalancer
-
-    1. [Install](https://kubernetes.io/docs/tasks/tools/#kubectl) and [configure](https://nebius.ai/docs/managed-kubernetes/operations/connect/#kubectl-connect) `kubectl`, to get the IP using the following command:
-
-    ```bash
-    kubectl describe svc proxy-public -n <namespace> | grep "LoadBalancer Ingress:"
-    ```
-
-    1. Go to `http://<ip>` in your browser. On the login screen, specify the user as `admin` and enter a password that will be saved as the `admin`'s password.
-
-* ClusterIP
-
-    1. Set up port forwarding (you will need to [install](https://kubernetes.io/docs/tasks/tools/#kubectl) and [configure](https://nebius.ai/docs/managed-kubernetes/operations/connect/#kubectl-connect) `kubectl` for that):
-
-       ```bash
-       kubectl --namespace=<namespace> port-forward service/proxy-public 8080:http
-       ```
-
-    1. Go to <http://localhost:8080> in your browser. On the login screen, specify the user as `admin` and enter a password that will be saved as the `admin`'s password.
-
-{% endlist %}
+1. Find the tunnel address in the application release details — it will look like `jupyterhub-<id>.tunnel-testing.applications.eu-north1.nebius.cloud`.
+1. Go to `https://<tunnel-address>` in your browser.
+1. On the login screen, specify the user as `admin` and enter a password that will be saved as the `admin`'s password.
 
 To create and manage users in JupyterHub:
 

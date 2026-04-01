@@ -1,0 +1,85 @@
+releaseType: "k8s"
+components:
+  helmchart001:
+    type: "helm_chart"
+    spec:
+      refMap:
+        parentId: "parameters.parentId"
+        clusterId: "components.cluster001.state.result.id"
+        releaseName: "parameters.releaseName"
+        releaseNamespace: "parameters.releaseNamespace"
+        values.config.password: "parameters.configPassword"
+        values.config.username: "parameters.configUsername"
+        values.mariadb.enabled: "parameters.mariadbEnabled"
+        values.postgresql.enabled: "parameters.postgresqlEnabled"
+      componentSpec:
+        productSlug: "nebius/flowise"
+    dependencies:
+      components:
+        cluster001:
+
+  cluster001:
+    type: "mk8s_cluster"
+    spec:
+      refMap:
+        api_spec.metadata.parentId: "parameters.parentId"
+        api_spec.metadata.id: "parameters.clusterId"
+        api_spec.metadata.name: "parameters.clusterName"
+      componentSpec:
+        api_spec:
+          metadata:
+            name: "flowise-cluster"
+          spec:
+            control_plane:
+              # fill in subnetId with default value in the code
+              endpoints:
+                public_endpoint:
+
+
+parameters:
+  "parentId":
+    type: "string"
+    description: "The project ID for the Flowise deployment."
+
+  "clusterId":
+    type: "string"
+    description: "Existing mk8s cluster ID for the Flowise deployment."
+
+  "clusterName":
+    type: "string"
+    description: "Existing mk8s cluster name for the Flowise deployment."
+
+  "releaseName":
+    type: "string"
+    description: "Helm release name."
+
+  "releaseNamespace":
+    type: "string"
+    description: "Helm release namespace."
+
+  "configPassword":
+    type: "string"
+    description: "Value for Helm key 'config.password'."
+
+  "configUsername":
+    type: "string"
+    description: "Value for Helm key 'config.username'."
+
+  "mariadbEnabled":
+    type: "bool"
+    description: "Value for Helm key 'mariadb.enabled'."
+
+  "postgresqlEnabled":
+    type: "bool"
+    description: "Value for Helm key 'postgresql.enabled'."
+
+ui:
+  mapping:
+    clusterId: "mk8sCluster.clusterId"
+    clusterName: "mk8sCluster.name"
+    configPassword: 'config.password'
+    configUsername: 'config.username'
+    mariadbEnabled: 'mariadb.enabled'
+    postgresqlEnabled: 'postgresql.enabled'
+    releaseName: "general.appname"
+    releaseNamespace: "general.namespace"

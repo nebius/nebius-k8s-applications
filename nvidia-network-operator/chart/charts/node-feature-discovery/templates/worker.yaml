@@ -12,6 +12,11 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
+  revisionHistoryLimit: {{ .Values.worker.revisionHistoryLimit }}
+  {{- with .Values.worker.updateStrategy }}
+  updateStrategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end}}
   selector:
     matchLabels:
       {{- include "node-feature-discovery.selectorLabels" . | nindent 6 }}
@@ -21,22 +26,21 @@ spec:
       labels:
         {{- include "node-feature-discovery.selectorLabels" . | nindent 8 }}
         role: worker
-      {{- with .Values.worker.annotations }}
       annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/nfd-worker-conf.yaml") . | sha256sum }}
+        {{- with .Values.worker.annotations }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
     spec:
-      dnsPolicy: ClusterFirstWithHostNet
+      dnsPolicy: {{ .Values.worker.dnsPolicy }}
     {{- with .Values.priorityClassName }}
       priorityClassName: {{ . }}
     {{- end }}
-    {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-    {{- end }}
+      imagePullSecrets: {{ include "node-feature-discovery.imagePullSecrets" . }}
       serviceAccountName: {{ include "node-feature-discovery.worker.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.worker.podSecurityContext | nindent 8 }}
+      hostNetwork: {{ .Values.worker.hostNetwork }}
       containers:
       - name: worker
         securityContext:
@@ -44,16 +48,40 @@ spec:
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         livenessProbe:
-          grpc:
-            port: 8082
-          initialDelaySeconds: 10
-          periodSeconds: 10
+          httpGet:
+            path: /healthz
+            port: http
+        {{- with .Values.worker.livenessProbe.initialDelaySeconds }}
+          initialDelaySeconds: {{ . }}
+        {{- end }}
+        {{- with .Values.worker.livenessProbe.failureThreshold }}
+          failureThreshold: {{ . }}
+        {{- end }}
+        {{- with .Values.worker.livenessProbe.periodSeconds }}
+          periodSeconds: {{ . }}
+        {{- end }}
+        {{- with .Values.worker.livenessProbe.timeoutSeconds }}
+          timeoutSeconds: {{ . }}
+        {{- end }}
         readinessProbe:
-          grpc:
-            port: 8082
-          initialDelaySeconds: 5
-          periodSeconds: 10
-          failureThreshold: 10
+          httpGet:
+            path: /healthz
+            port: http
+        {{- with .Values.worker.readinessProbe.initialDelaySeconds }}
+          initialDelaySeconds: {{ . }}
+        {{- end }}
+        {{- with .Values.worker.readinessProbe.failureThreshold }}
+          failureThreshold: {{ . }}
+        {{- end }}
+        {{- with .Values.worker.readinessProbe.periodSeconds }}
+          periodSeconds: {{ . }}
+        {{- end }}
+        {{- with .Values.worker.readinessProbe.timeoutSeconds }}
+          timeoutSeconds: {{ . }}
+        {{- end }}
+        {{- with .Values.worker.readinessProbe.successThreshold }}
+          successThreshold: {{ . }}
+        {{- end }}
         env:
         - name: NODE_NAME
           valueFrom:
@@ -67,27 +95,25 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.uid
+      {{- with .Values.worker.extraEnvs }}
+        {{- toYaml . | nindent 8 }}
+      {{- end}}
         resources:
         {{- toYaml .Values.worker.resources | nindent 12 }}
         command:
         - "nfd-worker"
         args:
-{{- if not (and .Values.featureGates.NodeFeatureAPI .Values.enableNodeFeatureApi)   }}
-        - "-server={{ include "node-feature-discovery.fullname" . }}-master:{{ .Values.master.service.port }}"
-{{- end }}
-{{- if .Values.tls.enable }}
-        - "-ca-file=/etc/kubernetes/node-feature-discovery/certs/ca.crt"
-        - "-key-file=/etc/kubernetes/node-feature-discovery/certs/tls.key"
-        - "-cert-file=/etc/kubernetes/node-feature-discovery/certs/tls.crt"
-{{- end }}
-# Go over featureGate and add the feature-gate flag
-{{- range $key, $value := .Values.featureGates }}
+        # Go over featureGate and add the feature-gate flag
+        {{- range $key, $value := .Values.featureGates }}
         - "-feature-gates={{ $key }}={{ $value }}"
-{{- end }}
-        - "-metrics={{ .Values.worker.metricsPort | default "8081"}}"
+        {{- end }}
+        - "-port={{ .Values.worker.port | default "8080"}}"
+        {{- with .Values.worker.extraArgs }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         ports:
-          - name: metrics
-            containerPort: {{ .Values.worker.metricsPort | default "8081"}}
+          - containerPort: {{ .Values.worker.port | default "8080"}}
+            name: http
         volumeMounts:
         - name: host-boot
           mountPath: "/host-boot"
@@ -112,20 +138,12 @@ spec:
           mountPath: "/host-usr/src"
           readOnly: true
         {{- end }}
-        - name: source-d
-          mountPath: "/etc/kubernetes/node-feature-discovery/source.d/"
-          readOnly: true
         - name: features-d
           mountPath: "/etc/kubernetes/node-feature-discovery/features.d/"
           readOnly: true
         - name: nfd-worker-conf
           mountPath: "/etc/kubernetes/node-feature-discovery"
           readOnly: true
-{{- if .Values.tls.enable }}
-        - name: nfd-worker-cert
-          mountPath: "/etc/kubernetes/node-feature-discovery/certs"
-          readOnly: true
-{{- end }}
       volumes:
         - name: host-boot
           hostPath:
@@ -150,9 +168,6 @@ spec:
           hostPath:
             path: "/usr/src"
         {{- end }}
-        - name: source-d
-          hostPath:
-            path: "/etc/kubernetes/node-feature-discovery/source.d/"
         - name: features-d
           hostPath:
             path: "/etc/kubernetes/node-feature-discovery/features.d/"
@@ -162,12 +177,7 @@ spec:
             items:
               - key: nfd-worker.conf
                 path: nfd-worker.conf
-{{- if .Values.tls.enable }}
-        - name: nfd-worker-cert
-          secret:
-            secretName: nfd-worker-cert
-{{- end }}
-    {{- with .Values.worker.nodeSelector }}
+      {{- with .Values.worker.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}

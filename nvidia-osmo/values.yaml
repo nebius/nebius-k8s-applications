@@ -1,0 +1,23 @@
+osmo:
+  mek: tlf0Xw/0Dw8q9gVuLhUV/PbJUxQauQpjf8klR0zm9o0=
+  dbPassword: secret
+  redisPassword: secret
+
+service:
+  services:
+    service:
+      hostname: osmo.nebo-apps.com
+
+web-ui:
+  services:
+    ui:
+      hostname: osmo.nebo-apps.com
+
+router:
+  services:
+    service:
+      hostname: osmo.nebo-apps.com
+
+backend-operator:
+  global:
+    serviceUrl: http://osmo-agent.default

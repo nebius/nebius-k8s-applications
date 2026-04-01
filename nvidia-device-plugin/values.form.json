@@ -1,0 +1,82 @@
+{
+  "type": "object",
+  "required": true,
+  "viewSpec": {
+    "type": "base",
+    "order": [
+      "mk8sCluster",
+      "general",
+      "dcgm-exporter"
+    ],
+    "layout": ""
+  },
+  "defaultValue": {
+    "dcgm-exporter": {
+      "enabled": false
+    }
+  },
+  "properties": {
+    "mk8sCluster": {
+      "type": "object",
+      "required": true,
+      "viewSpec": {
+        "type": "mk8s_cluster"
+      }
+    },
+    "general": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "layout": "section",
+        "layoutTitle": "General"
+      },
+      "defaultValue": {},
+      "properties": {
+        "appname": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Application name"
+          },
+          "defaultValue": "nvidia-device-plugin"
+        },
+        "namespace": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Namespace"
+          },
+          "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "patternError": "namespace must consist of lower case alphanumeric characters or '-', and must start and end with an alphanumeric character (e.g. 'my-name',  or '123-abc', regex used for validation is ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "defaultValue": "nvidia-device-plugin"
+        }
+      }
+    },
+    "dcgm-exporter": {
+      "type": "object",
+      "viewSpec": {
+        "type": "base",
+        "order": [
+          "enabled"
+        ],
+        "layout": ""
+      },
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "viewSpec": {
+            "disabled": false,
+            "layout": "row",
+            "layoutTitle": "Enable GPU metrics monitoring",
+            "layoutDescription": "Make sure Grafana and Prometheus application is installed first",
+            "type": "switch"
+          }
+        }
+      }
+    }
+  }
+}

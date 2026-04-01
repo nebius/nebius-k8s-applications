@@ -1276,9 +1276,9 @@ redis:
   ## Redis image
   image:
     # -- Redis repository
-    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/argo-cd/redis
+    repository: public.ecr.aws/docker/library/redis
     # -- Redis tag
-    tag: 7.4.1-alpine
+    tag: 7.4.6-alpine
     # -- Redis image pull policy
     # @default -- `""` (defaults to global.image.imagePullPolicy)
     imagePullPolicy: ""
@@ -1562,9 +1562,9 @@ redis-ha:
   ## Redis image
   image:
     # -- Redis repository
-    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/argo-cd/redis
+    repository: public.ecr.aws/docker/library/redis
     # -- Redis tag
-    tag: 7.4.1-alpine
+    tag: 7.4.6-alpine
   ## Prometheus redis-exporter sidecar
   exporter:
     # -- Enable Prometheus redis-exporter sidecar

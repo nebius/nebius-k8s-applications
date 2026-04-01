@@ -1,0 +1,133 @@
+releaseType: "k8s"
+components:
+  helmchart001:
+    type: "helm_chart"
+    spec:
+      refMap:
+        parentId: "parameters.parentId"
+        clusterId: "components.cluster001.state.result.id"
+        releaseName: "parameters.releaseName"
+        releaseNamespace: "parameters.releaseNamespace"
+        values.global.model: "parameters.globalModel"
+        values.gpuPerWorker: "parameters.gpuPerWorker"
+        values.gpuPlatform: "parameters.gpuPlatform"
+        values.gradio-ui.enablePublicIP: "parameters.gradioUiEnablePublicIP"
+        values.gradio-ui.enabled: "parameters.gradioUiEnabled"
+        values.gradio-ui.secret.env.AUTH_PASSWORD: "parameters.gradioUiSecretEnvAUTHPASSWORD"
+        values.gradio-ui.secret.env.AUTH_USER: "parameters.gradioUiSecretEnvAUTHUSER"
+        values.vllm.config.max-model-len: "parameters.vllmConfigMaxModelLen"
+        values.vllm.config.pipeline-parallel-size: "parameters.vllmConfigPipelineParallelSize"
+        values.vllm.env.HF_TOKEN: "parameters.vllmEnvHFTOKEN"
+        values.vllm.hfCache.enabled: "parameters.vllmHfCacheEnabled"
+        values.vllm.replicas: "parameters.vllmReplicas"
+      componentSpec:
+        productSlug: "nebius/vllm"
+    dependencies:
+      components:
+        cluster001:
+
+  cluster001:
+    type: "mk8s_cluster"
+    spec:
+      refMap:
+        api_spec.metadata.parentId: "parameters.parentId"
+        api_spec.metadata.id: "parameters.clusterId"
+        api_spec.metadata.name: "parameters.clusterName"
+      componentSpec:
+        api_spec:
+          metadata:
+            name: "vllm-cluster"
+          spec:
+            control_plane:
+              # fill in subnetId with default value in the code
+              endpoints:
+                public_endpoint:
+
+
+parameters:
+  "parentId":
+    type: "string"
+    description: "The project ID for the vLLM deployment."
+
+  "clusterId":
+    type: "string"
+    description: "Existing mk8s cluster ID for the vLLM deployment."
+
+  "clusterName":
+    type: "string"
+    description: "Existing mk8s cluster name for the vLLM deployment."
+
+  "releaseName":
+    type: "string"
+    description: "Helm release name."
+
+  "releaseNamespace":
+    type: "string"
+    description: "Helm release namespace."
+
+  "globalModel":
+    type: "string"
+    description: "Value for Helm key 'global.model'."
+
+  "gpuPerWorker":
+    type: "string"
+    description: "Value for Helm key 'gpuPerWorker'."
+
+  "gpuPlatform":
+    type: "string"
+    description: "Value for Helm key 'gpuPlatform'."
+
+  "gradioUiEnablePublicIP":
+    type: "bool"
+    description: "Value for Helm key 'gradio-ui.enablePublicIP'."
+
+  "gradioUiEnabled":
+    type: "bool"
+    description: "Value for Helm key 'gradio-ui.enabled'."
+
+  "gradioUiSecretEnvAUTHPASSWORD":
+    type: "string"
+    description: "Value for Helm key 'gradio-ui.secret.env.AUTH_PASSWORD'."
+
+  "gradioUiSecretEnvAUTHUSER":
+    type: "string"
+    description: "Value for Helm key 'gradio-ui.secret.env.AUTH_USER'."
+
+  "vllmConfigMaxModelLen":
+    type: "number"
+    description: "Value for Helm key 'vllm.config.max-model-len'."
+
+  "vllmConfigPipelineParallelSize":
+    type: "number"
+    description: "Value for Helm key 'vllm.config.pipeline-parallel-size'."
+
+  "vllmEnvHFTOKEN":
+    type: "string"
+    description: "Value for Helm key 'vllm.env.HF_TOKEN'."
+
+  "vllmHfCacheEnabled":
+    type: "bool"
+    description: "Value for Helm key 'vllm.hfCache.enabled'."
+
+  "vllmReplicas":
+    type: "number"
+    description: "Value for Helm key 'vllm.replicas'."
+
+ui:
+  mapping:
+    clusterId: "mk8sCluster.clusterId"
+    clusterName: "mk8sCluster.name"
+    globalModel: 'global.model'
+    gpuPerWorker: 'gpuPerWorker'
+    gpuPlatform: 'gpuPlatform'
+    gradioUiEnablePublicIP: 'gradio-ui.enablePublicIP'
+    gradioUiEnabled: 'gradio-ui.enabled'
+    gradioUiSecretEnvAUTHPASSWORD: 'gradio-ui.secret.env.AUTH_PASSWORD'
+    gradioUiSecretEnvAUTHUSER: 'gradio-ui.secret.env.AUTH_USER'
+    vllmConfigMaxModelLen: 'vllm.config.max-model-len'
+    vllmConfigPipelineParallelSize: 'vllm.config.pipeline-parallel-size'
+    vllmEnvHFTOKEN: 'vllm.env.HF_TOKEN'
+    vllmHfCacheEnabled: 'vllm.hfCache.enabled'
+    vllmReplicas: 'vllm.replicas'
+    releaseName: "general.appname"
+    releaseNamespace: "general.namespace"

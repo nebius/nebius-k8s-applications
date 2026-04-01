@@ -8,4 +8,3 @@ metadata:
     {{- include "gpu-operator.labels" . | nindent 4 }}
 data: {{ toYaml .Values.devicePlugin.config.data | nindent 2 }}
 {{- end }}
-  
