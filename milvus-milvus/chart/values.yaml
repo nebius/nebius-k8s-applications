@@ -1,68 +1,19 @@
+## Expand the name of the chart
+nameOverride: ""
+
+## Default fully qualified app name
+fullnameOverride: ""
+
 ## Enable or disable Milvus Cluster mode
-gpu_number: 0
 cluster:
   enabled: false
 
-gpu-operator:
-  enabled: false
-
-internal_images:
-  bitnami-shell:
-    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/bitnami-shell
-    tag: 10-debian-10-r147
-  bitnami-shell-r372:
-    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/bitnami-shell
-    tag: 10-debian-10-r372
-  jmx-exporter:
-    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/bitnami-shell
-    tag: 10-debian-10-r372
-  etcd:
-    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/etcd
-    tag: 3.5.0-debian-10-r38
-  etcd_r38:
-    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/etcd
-    tag: 3.5.0-debian-10-r38
-  kafka_r52:
-    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/kafka
-    tag: 3.1.0-debian-10-r52
-  kubectl_r1:
-    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/kubectl
-    tag: 1.23.5-debian-10-r1
-  kafka-exporter_r182:
-    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/kafka-exporter
-    tag: 1.4.2-debian-10-r182
-  jmx-exporter_r245:
-    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/jmx-exporter
-    tag: 0.16.1-debian-10-r245
-  minio_33Z:
-    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/minio
-    tag: RELEASE.2021-02-14T04-01-33Z
-  mc_06Z:
-    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/mc
-    tag: RELEASE.2021-02-14T04-28-06Z
-  helm-kubectl-jq_310:
-    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/helm-kubectl-jq
-    tag: 3.1.0
-  pulsar-all_274:
-    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/pulsar-all
-    tag: 2.7.4
-  pulsar-dashboard_latest:
-    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/pulsar-dashboard
-    tag: latest_pinned
-  pulsar-manager_v010:
-    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/pulsar-manager
-    tag: v0.1.0
-  prometheus_v2172:
-    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/prometheus
-    tag: v2.17.2
-  apache-pulsar-grafana-dashboard-k8s_0010:
-    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/apache-pulsar-grafana-dashboard-k8s
-    tag: 0.0.10
+gpu_number: 0
 
 image:
   all:
     repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/milvus
-    tag: v2.3.4
+    tag: v2.6.13
     pullPolicy: IfNotPresent
     ## Optionally specify an array of imagePullSecrets.
     ## Secrets must be manually created in the namespace.
@@ -70,10 +21,6 @@ image:
     ##
     # pullSecrets:
     #   - myRegistryKeySecretName
-  tools:
-    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/milvus-config-tool
-    tag: v0.1.2
-    pullPolicy: IfNotPresent
 
 # Global node selector
 # If set, this will apply to all milvus components
@@ -90,10 +37,54 @@ tolerations: []
 # Individual components can be set to a different affinity
 affinity: {}
 
+# Global securityContext
+# If set, this will apply to all milvus components
+# Individual components can be set to a different securityContext
+containerSecurityContext: {}
+securityContext: {}
+  # runAsUser: 1000
+  # runAsGroup: 1000
+  # fsGroup: 1000
+  # runAsNonRoot: true
+
+# Global topologySpreadConstraints
+# If set, this will apply to all milvus components
+# Individual components can be set to different topologySpreadConstraints
+# ref: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
+topologySpreadConstraints: []
+# - maxSkew: 1
+#   topologyKey: topology.kubernetes.io/zone
+#   whenUnsatisfiable: DoNotSchedule
+#   labelSelector:
+#     matchLabels:
+#       app.kubernetes.io/name: milvus
+
 # Global labels and annotations
 # If set, this will apply to all milvus components
 labels: {}
 annotations: {}
+
+# Global Volumes & volumeMounts
+# If set, this will apply to all milvus components
+# ref: https://kubernetes.io/docs/concepts/storage/volumes/
+volumes: []
+volumeMounts: []
+
+# Streaming node
+# Default config for 2.6.0 or later.
+streaming:
+  enabled: true
+  woodpecker:
+    embedded: true
+    storage:
+      type: minio
+
+##
+## If set, the whole config will be mounted from this custom ConfigMap.
+## The ConfigMap should have a key named `milvus.yaml` which contains the full Milvus config.
+## extraConfigFiles will be ignored if this variable is set.
+##
+customConfigMap: ""
 
 # Extra configs for milvus.yaml
 # If set, this config will merge into milvus.yaml
@@ -107,6 +98,8 @@ extraConfigFiles:
     #    proxy:
     #      http:
     #        enabled: true
+    #      maxUserNum: 100
+    #      maxRoleNum: 10
     ##  Enable tlsMode and set the tls cert and key
     #  tls:
     #    serverPemPath: /etc/milvus/certs/tls.crt
@@ -136,17 +129,18 @@ service:
   # LoadBalancerSourcesRange is a list of allowed CIDR values, which are combined with ServicePort to
   # set allowed inbound rules on the security group assigned to the master load balancer
   loadBalancerSourceRanges:
-    - 0.0.0.0/0
+  - 0.0.0.0/0
   # Optionally assign a known public LB IP
   # loadBalancerIP: 1.2.3.4
 
 ingress:
   enabled: false
+  ingressClassName: ""
   annotations:
     # Annotation example: set nginx ingress type
     # kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/backend-protocol: GRPC
-    nginx.ingress.kubernetes.io/listen-ports-ssl: "[19530]"
+    nginx.ingress.kubernetes.io/listen-ports-ssl: '[19530]'
     nginx.ingress.kubernetes.io/proxy-body-size: 4m
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
   labels: {}
@@ -198,10 +192,10 @@ readinessProbe:
 log:
   level: "info"
   file:
-    maxSize: 300 # MB
-    maxAge: 10 # day
+    maxSize: 300    # MB
+    maxAge: 10    # day
     maxBackups: 20
-  format: "text" # text/json
+  format: "text"    # text/json
 
   persistence:
     mountPath: "/milvus/logs"
@@ -235,27 +229,31 @@ heaptrack:
     pullPolicy: IfNotPresent
 
 standalone:
-  replicas: 1 # Run standalone mode with replication disabled
+  replicas: 1  # Run standalone mode with replication disabled
   resources: {}
   # Set local storage size in resources
-  # limits:
-  #    ephemeral-storage: 100Gi
+  # resources:
+  #   limits:
+  #     ephemeral-storage: 100Gi
   nodeSelector: {}
   affinity: {}
   tolerations: []
+  securityContext: {}
+  containerSecurityContext: {}
+  topologySpreadConstraints: []  # Component specific topologySpreadConstraints
   extraEnv: []
   heaptrack:
     enabled: false
   disk:
     enabled: true
     size:
-      enabled: false # Enable local storage size limit
+      enabled: false  # Enable local storage size limit
   profiling:
-    enabled: false # Enable live profiling
+    enabled: false  # Enable live profiling
 
   ## Default message queue for milvus standalone
-  ## Supported value: rocksmq, natsmq, pulsar and kafka
-  messageQueue: rocksmq
+  ## Supported value: rocksmq, natsmq, pulsar, kafka and woodpecker
+  messageQueue: woodpecker
   persistence:
     mountPath: "/var/lib/milvus"
     ## If true, alertmanager will create/use a Persistent Volume Claim
@@ -285,13 +283,16 @@ proxy:
   nodeSelector: {}
   affinity: {}
   tolerations: []
+  securityContext: {}
+  containerSecurityContext: {}
+  topologySpreadConstraints: []  # Component specific topologySpreadConstraints
   extraEnv: []
   heaptrack:
     enabled: false
   profiling:
-    enabled: false # Enable live profiling
+    enabled: false  # Enable live profiling
   http:
-    enabled: true # whether to enable http rest server
+    enabled: true  # whether to enable http rest server
     debugMode:
       enabled: false
   # Mount a TLS secret into proxy pod
@@ -310,22 +311,38 @@ proxy:
 #  volumeMounts:
 #  - mountPath: /etc/milvus/certs/
 #    name: milvus-tls
+  # Deployment strategy, default is RollingUpdate
+  # Ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-update-deployment
+  strategy: {}
+  annotations: {}
+  hpa:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 5
+    cpuUtilization: 40
 
 rootCoordinator:
-  enabled: true
+  enabled: false
   # You can set the number of replicas greater than 1, only if enable active standby
-  replicas: 1 # Run Root Coordinator mode with replication disabled
+  replicas: 1  # Run Root Coordinator mode with replication disabled
   resources: {}
   nodeSelector: {}
   affinity: {}
   tolerations: []
+  securityContext: {}
+  containerSecurityContext: {}
+  topologySpreadConstraints: []  # Component specific topologySpreadConstraints
   extraEnv: []
   heaptrack:
     enabled: false
   profiling:
-    enabled: false # Enable live profiling
+    enabled: false  # Enable live profiling
   activeStandby:
-    enabled: false # Enable active-standby when you set multiple replicas for root coordinator
+    enabled: false  # Enable active-standby when you set multiple replicas for root coordinator
+  # Deployment strategy, default is RollingUpdate
+  # Ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-update-deployment
+  strategy: {}
+  annotations: {}
 
   service:
     port: 53100
@@ -334,20 +351,27 @@ rootCoordinator:
     clusterIP: ""
 
 queryCoordinator:
-  enabled: true
+  enabled: false
   # You can set the number of replicas greater than 1, only if enable active standby
-  replicas: 1 # Run Query Coordinator mode with replication disabled
+  replicas: 1  # Run Query Coordinator mode with replication disabled
   resources: {}
   nodeSelector: {}
   affinity: {}
   tolerations: []
+  securityContext: {}
+  containerSecurityContext: {}
+  topologySpreadConstraints: []  # Component specific topologySpreadConstraints
   extraEnv: []
   heaptrack:
     enabled: false
   profiling:
-    enabled: false # Enable live profiling
+    enabled: false  # Enable live profiling
   activeStandby:
-    enabled: false # Enable active-standby when you set multiple replicas for query coordinator
+    enabled: false  # Enable active-standby when you set multiple replicas for query coordinator
+  # Deployment strategy, default is RollingUpdate
+  # Ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-update-deployment
+  strategy: {}
+  annotations: {}
 
   service:
     port: 19531
@@ -361,36 +385,59 @@ queryNode:
   replicas: 1
   resources: {}
   # Set local storage size in resources
-  # limits:
-  #    ephemeral-storage: 100Gi
+  # resources:
+  #   limits:
+  #     ephemeral-storage: 100Gi
+  # Set below when using other runtimes than default like nvidia for example
+  runtimeClassName: ""
   nodeSelector: {}
   affinity: {}
   tolerations: []
+  securityContext: {}
+  containerSecurityContext: {}
+  topologySpreadConstraints: []  # Component specific topologySpreadConstraints
   extraEnv: []
   heaptrack:
     enabled: false
   disk:
-    enabled: true # Enable querynode load disk index, and search on disk index
+    enabled: true  # Enable querynode load disk index, and search on disk index
     size:
-      enabled: false # Enable local storage size limit
+      enabled: false  # Enable local storage size limit
   profiling:
-    enabled: false # Enable live profiling
+    enabled: false  # Enable live profiling
+  # Deployment strategy, default is RollingUpdate
+  # Ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-update-deployment
+  strategy: {}
+  annotations: {}
+  hpa:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 5
+    cpuUtilization: 40
+    memoryUtilization: 60
 
 indexCoordinator:
-  enabled: true
+  enabled: false
   # You can set the number of replicas greater than 1, only if enable active standby
-  replicas: 1 # Run Index Coordinator mode with replication disabled
+  replicas: 1   # Run Index Coordinator mode with replication disabled
   resources: {}
   nodeSelector: {}
   affinity: {}
   tolerations: []
+  securityContext: {}
+  containerSecurityContext: {}
+  topologySpreadConstraints: []  # Component specific topologySpreadConstraints
   extraEnv: []
   heaptrack:
     enabled: false
   profiling:
-    enabled: false # Enable live profiling
+    enabled: false  # Enable live profiling
   activeStandby:
-    enabled: false # Enable active-standby when you set multiple replicas for index coordinator
+    enabled: false  # Enable active-standby when you set multiple replicas for index coordinator
+  # Deployment strategy, default is RollingUpdate
+  # Ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-update-deployment
+  strategy: {}
+  annotations: {}
 
   service:
     port: 31000
@@ -399,41 +446,62 @@ indexCoordinator:
     clusterIP: ""
 
 indexNode:
-  enabled: true
+  enabled: false
   # You can set the number of replicas to -1 to remove the replicas field in case you want to use HPA
   replicas: 1
   resources: {}
   # Set local storage size in resources
   # limits:
   #    ephemeral-storage: 100Gi
+  # Set below when using other runtimes than default like nvidia for example
+  runtimeClassName: ""
   nodeSelector: {}
   affinity: {}
   tolerations: []
+  securityContext: {}
+  containerSecurityContext: {}
+  topologySpreadConstraints: []  # Component specific topologySpreadConstraints
   extraEnv: []
   heaptrack:
     enabled: false
   profiling:
-    enabled: false # Enable live profiling
+    enabled: false  # Enable live profiling
   disk:
-    enabled: true # Enable index node build disk vector index
+    enabled: true  # Enable index node build disk vector index
     size:
-      enabled: false # Enable local storage size limit
+      enabled: false  # Enable local storage size limit
+  # Deployment strategy, default is RollingUpdate
+  # Ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-update-deployment
+  strategy: {}
+  annotations: {}
+  hpa:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 5
+    cpuUtilization: 40
 
 dataCoordinator:
-  enabled: true
+  enabled: false
   # You can set the number of replicas greater than 1, only if enable active standby
-  replicas: 1 # Run Data Coordinator mode with replication disabled
+  replicas: 1           # Run Data Coordinator mode with replication disabled
   resources: {}
   nodeSelector: {}
   affinity: {}
   tolerations: []
+  securityContext: {}
+  containerSecurityContext: {}
+  topologySpreadConstraints: []  # Component specific topologySpreadConstraints
   extraEnv: []
   heaptrack:
     enabled: false
   profiling:
-    enabled: false # Enable live profiling
+    enabled: false  # Enable live profiling
   activeStandby:
-    enabled: false # Enable active-standby when you set multiple replicas for data coordinator
+    enabled: false  # Enable active-standby when you set multiple replicas for data coordinator
+  # Deployment strategy, default is RollingUpdate
+  # Ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-update-deployment
+  strategy: {}
+  annotations: {}
 
   service:
     port: 13333
@@ -449,41 +517,93 @@ dataNode:
   nodeSelector: {}
   affinity: {}
   tolerations: []
+  securityContext: {}
+  containerSecurityContext: {}
+  topologySpreadConstraints: []  # Component specific topologySpreadConstraints
   extraEnv: []
   heaptrack:
     enabled: false
   profiling:
-    enabled: false # Enable live profiling
+    enabled: false  # Enable live profiling
+  # Deployment strategy, default is RollingUpdate
+  # Ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-update-deployment
+  strategy: {}
+  annotations: {}
+  hpa:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 5
+    cpuUtilization: 40
 
 ## mixCoordinator contains all coord
 ## If you want to use mixcoord, enable this and disable all of other coords
 mixCoordinator:
-  enabled: false
+  enabled: true
   # You can set the number of replicas greater than 1, only if enable active standby
-  replicas: 1 # Run Mixture Coordinator mode with replication disabled
+  replicas: 1           # Run Mixture Coordinator mode with replication disabled
   resources: {}
   nodeSelector: {}
   affinity: {}
   tolerations: []
+  securityContext: {}
+  containerSecurityContext: {}
+  topologySpreadConstraints: []  # Component specific topologySpreadConstraints
   extraEnv: []
   heaptrack:
     enabled: false
   profiling:
-    enabled: false # Enable live profiling
+    enabled: false  # Enable live profiling
   activeStandby:
-    enabled: false # Enable active-standby when you set multiple replicas for Mixture coordinator
+    enabled: false  # Enable active-standby when you set multiple replicas for Mixture coordinator
+  # Deployment strategy, default is RollingUpdate
+  # Ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-update-deployment
+  strategy: {}
+  annotations: {}
 
   service:
     annotations: {}
     labels: {}
     clusterIP: ""
 
+streamingNode:
+  replicas: 1
+  resources: {}
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+  securityContext: {}
+  containerSecurityContext: {}
+  extraEnv: []
+  heaptrack:
+    enabled: false
+  profiling:
+    enabled: false  # Enable live profiling
+  strategy: {}
+
+cdc:
+  enabled: false
+  replicas: 1   # Currently, CDC only supports one replica
+  resources: {}
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+  securityContext: {}
+  containerSecurityContext: {}
+  topologySpreadConstraints: []  # Component specific topologySpreadConstraints
+  extraEnv: []
+  heaptrack:
+    enabled: false
+  profiling:
+    enabled: false  # Enable live profiling
+  strategy: {}
+  annotations: {}
+
 attu:
   enabled: false
   name: attu
   image:
     repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/attu
-    tag: v2.2.8
+    tag: v2.5.3
     pullPolicy: IfNotPresent
   service:
     annotations: {}
@@ -492,9 +612,13 @@ attu:
     port: 3000
     # loadBalancerIP: ""
   resources: {}
+  securityContext: {}
+  containerSecurityContext: {}
   podLabels: {}
+  annotations: {}
   ingress:
     enabled: false
+    ingressClassName: ""
     annotations: {}
     # Annotation example: set nginx ingress type
     # kubernetes.io/ingress.class: nginx
@@ -505,19 +629,36 @@ attu:
     #  - secretName: chart-attu-tls
     #    hosts:
     #      - milvus-attu.local
+  
+  route:
+    enabled: false
+    host: ""
+    annotations: {}
+    labels: {}
+    tls:
+      termination: edge  # edge, passthrough, or reencrypt
+      insecureEdgeTerminationPolicy: Redirect  # None, Redirect, or Allow
+      # certificate: ""
+      # key: ""
+      # caCertificate: ""
+      # destinationCACertificate: ""
+
 
 ## Configuration values for the minio dependency
-## ref: https://github.com/minio/charts/blob/master/README.md
+## ref: https://github.com/zilliztech/milvus-helm/blob/master/charts/minio/README.md
 ##
 
 minio:
   enabled: true
   name: minio
-  mode: standalone
+  mode: distributed
   image:
     repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/minio
-    tag: RELEASE.2021-02-14T04-01-33Z
+    tag: "RELEASE.2024-12-18T13-15-44Z"
     pullPolicy: IfNotPresent
+  mcImage:
+    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/mc
+    tag: RELEASE.2021-02-14T04-28-06Z
   accessKey: minioadmin
   secretKey: minioadmin
   existingSecret: ""
@@ -532,12 +673,6 @@ minio:
   resources:
     requests:
       memory: 2Gi
-
-  gcsgateway:
-    enabled: false
-    replicas: 1
-    gcsKeyJson: "/etc/credentials/gcs_key.json"
-    projectId: ""
 
   service:
     type: ClusterIP
@@ -581,12 +716,12 @@ minio:
 etcd:
   enabled: true
   name: etcd
-  replicaCount: 1
+  replicaCount: 3
   pdb:
     create: false
   image:
     repository: "cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/etcd"
-    tag: "3.5.5-r2"
+    tag: "3.5.25-r1"
     pullPolicy: IfNotPresent
 
   service:
@@ -596,6 +731,9 @@ etcd:
 
   auth:
     rbac:
+      enabled: false
+      create: false
+    token:
       enabled: false
 
   persistence:
@@ -623,17 +761,275 @@ etcd:
   ## Increase default quota to 4G
   ##
   extraEnvVars:
-    - name: ETCD_QUOTA_BACKEND_BYTES
-      value: "4294967296"
-    - name: ETCD_HEARTBEAT_INTERVAL
-      value: "500"
-    - name: ETCD_ELECTION_TIMEOUT
-      value: "2500"
+  - name: ETCD_QUOTA_BACKEND_BYTES
+    value: "4294967296"
+  - name: ETCD_HEARTBEAT_INTERVAL
+    value: "500"
+  - name: ETCD_ELECTION_TIMEOUT
+    value: "2500"
 
 ## Configuration values for the pulsar dependency
 ## ref: https://github.com/apache/pulsar-helm-chart
 ##
 
+# default values for pulsar v3
+pulsarv3:
+  name: "pulsarv3" # note: nameOveride should be kept the same as the name field
+  nameOverride: "pulsarv3"
+  enabled: true
+  persistence: true
+  extra: {}
+  monitoring: {}
+  volumes:
+    persistence: true
+    local_storage: false
+
+  components:
+    # zookeeper
+    zookeeper: true
+    # bookkeeper
+    bookkeeper: true
+    # bookkeeper - autorecovery
+    autorecovery: true
+    # broker
+    broker: true
+    # functions
+    functions: false
+    # proxy
+    proxy: true
+    # toolset
+    toolset: false
+    # pulsar manager
+    pulsar_manager: false
+
+  images:
+    zookeeper:
+      repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/pulsar
+      tag: 3.0.7
+      pullPolicy: IfNotPresent
+    bookie:
+      repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/pulsar
+      tag: 3.0.7
+      pullPolicy: IfNotPresent
+    autorecovery:
+      repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/pulsar
+      tag: 3.0.7
+      pullPolicy: IfNotPresent
+    broker:
+      repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/pulsar
+      tag: 3.0.7
+      pullPolicy: IfNotPresent
+    proxy:
+      repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/pulsar
+      tag: 3.0.7
+      pullPolicy: IfNotPresent
+
+  zookeeper:
+    pdb:
+      usePolicy: false
+    affinity:
+      anti_affinity: false
+    component: zookeeper
+    replicaCount: 3
+    updateStrategy:
+      type: RollingUpdate
+    podManagementPolicy: Parallel
+    podMonitor:
+      enabled: false
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 0.2
+    volumes:
+      # use a persistent volume or emptyDir
+      persistence: true
+      data:
+        name: data
+        size: 20Gi
+        local_storage: false
+    configData:
+      PULSAR_MEM: >
+        -Xms256m -Xmx256m
+      PULSAR_GC: >
+        -XX:+UseG1GC
+        -XX:MaxGCPauseMillis=10
+        -Dcom.sun.management.jmxremote
+        -Djute.maxbuffer=10485760
+        -XX:+ParallelRefProcEnabled
+        -XX:+UnlockExperimentalVMOptions
+        -XX:+DoEscapeAnalysis
+        -XX:+DisableExplicitGC
+        -XX:+ExitOnOutOfMemoryError
+        -XX:+PerfDisableSharedMem
+
+  bookkeeper:
+    pdb:
+      usePolicy: false
+    affinity:
+      anti_affinity: false
+    component: bookie
+    replicaCount: 3
+    updateStrategy:
+      type: RollingUpdate
+    podManagementPolicy: Parallel
+    podMonitor:
+      enabled: false
+    resources:
+      requests:
+        memory: 2048Mi
+        cpu: 0.5
+    volumes:
+      # use a persistent volume or emptyDir
+      persistence: true
+      journal:
+        name: journal
+        size: 100Gi
+        local_storage: false
+      ledgers:
+        name: ledgers
+        size: 200Gi
+        local_storage: false
+    configData:
+      PULSAR_MEM: >
+        -Xms4096m
+        -Xmx4096m
+        -XX:MaxDirectMemorySize=8192m
+      PULSAR_GC: >
+        -XX:+UseG1GC
+        -XX:MaxGCPauseMillis=10
+        -XX:+ParallelRefProcEnabled
+        -XX:+UnlockExperimentalVMOptions
+        -XX:+DoEscapeAnalysis
+        -XX:ParallelGCThreads=4
+        -XX:ConcGCThreads=4
+        -XX:G1NewSizePercent=50
+        -XX:+DisableExplicitGC
+        -XX:-ResizePLAB
+        -XX:+ExitOnOutOfMemoryError
+        -XX:+PerfDisableSharedMem
+      nettyMaxFrameSizeBytes: "104867840"
+  autorecovery:
+    affinity:
+      anti_affinity: false
+    component: recovery
+    replicaCount: 1
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 0.1
+    podMonitor:
+      enabled: false
+    configData:
+      BOOKIE_MEM: >
+        -Xms128m -Xmx128m
+      PULSAR_PREFIX_useV2WireProtocol: "true"
+  pulsar_metadata:
+    component: pulsar-init
+    image:
+      repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/pulsar
+      tag: 3.0.7
+      pullPolicy: IfNotPresent
+
+  broker:
+    pdb:
+      usePolicy: false
+    affinity:
+      anti_affinity: false
+    component: broker
+    replicaCount: 2
+    autoscaling:
+      enabled: false
+    podMonitor:
+      enabled: false
+    resources:
+      requests:
+        memory: 2048Mi
+        cpu: 0.5
+    configData:
+      PULSAR_MEM: >
+        -Xms4096m -Xmx4096m -XX:MaxDirectMemorySize=8192m
+      PULSAR_GC: >
+        -XX:+UseG1GC
+        -XX:MaxGCPauseMillis=10
+        -Dio.netty.leakDetectionLevel=disabled
+        -Dio.netty.recycler.linkCapacity=1024
+        -XX:+ParallelRefProcEnabled
+        -XX:+UnlockExperimentalVMOptions
+        -XX:+DoEscapeAnalysis
+        -XX:ParallelGCThreads=4
+        -XX:ConcGCThreads=4
+        -XX:G1NewSizePercent=50
+        -XX:+DisableExplicitGC
+        -XX:-ResizePLAB
+        -XX:+ExitOnOutOfMemoryError
+        -XX:+PerfDisableSharedMem
+      managedLedgerDefaultEnsembleSize: "2"
+      managedLedgerDefaultWriteQuorum: "2"
+      managedLedgerDefaultAckQuorum: "2"
+      maxMessageSize: "104857600"
+      defaultRetentionTimeInMinutes: "10080"
+      defaultRetentionSizeInMB: "-1"
+      backlogQuotaDefaultLimitGB: "8"
+      ttlDurationDefaultInSeconds: "259200"
+      subscriptionExpirationTimeMinutes: "3"
+      backlogQuotaDefaultRetentionPolicy: producer_request_hold
+
+  proxy:
+    pdb:
+      usePolicy: false
+    affinity:
+      anti_affinity: false
+    component: proxy
+    replicaCount: 2
+    autoscaling:
+      enabled: false
+    podMonitor:
+      enabled: false
+    resources:
+      requests:
+        memory: 1024Mi
+        cpu: 0.5
+    configData:
+      PULSAR_MEM: >
+        -Xms512m -Xmx512m -XX:MaxDirectMemorySize=2048m
+      PULSAR_GC: >
+        -XX:+UseG1GC
+        -XX:MaxGCPauseMillis=10
+        -Dio.netty.leakDetectionLevel=disabled
+        -Dio.netty.recycler.linkCapacity=1024
+        -XX:+ParallelRefProcEnabled
+        -XX:+UnlockExperimentalVMOptions
+        -XX:+DoEscapeAnalysis
+        -XX:ParallelGCThreads=4
+        -XX:ConcGCThreads=4
+        -XX:G1NewSizePercent=50
+        -XX:+DisableExplicitGC
+        -XX:-ResizePLAB
+        -XX:+ExitOnOutOfMemoryError
+        -XX:+PerfDisableSharedMem
+      httpNumThreads: "8"
+    ports:
+      http: 80
+      https: 443
+      pulsar: 6650
+      pulsarssl: 6651
+      containerPorts:
+        http: 8080
+        https: 8443
+    service:
+      annotations: {}
+      type: ClusterIP
+
+  kube-prometheus-stack:
+    crds:
+      enabled: false
+    enabled: false
+    prometheus:
+      enabled: false
+    grafana:
+      enabled: false
+
+# default values for pulsar v2
 pulsar:
   enabled: false
   name: pulsar
@@ -641,7 +1037,7 @@ pulsar:
   fullnameOverride: ""
   persistence: true
 
-  maxMessageSize: "5242880" # 5 * 1024 * 1024 Bytes, Maximum size of each message in pulsar.
+  maxMessageSize: "5242880"  # 5 * 1024 * 1024 Bytes, Maximum size of each message in pulsar.
 
   rbac:
     enabled: false
@@ -651,7 +1047,7 @@ pulsar:
   affinity:
     anti_affinity: false
 
-  ## enableAntiAffinity: no
+## enableAntiAffinity: no
 
   components:
     zookeeper: true
@@ -674,23 +1070,23 @@ pulsar:
     broker:
       repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/pulsar
       pullPolicy: IfNotPresent
-      tag: 2.8.2
+      tag: 2.9.5
     autorecovery:
       repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/pulsar
-      tag: 2.8.2
+      tag: 2.9.5
       pullPolicy: IfNotPresent
     zookeeper:
       repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/pulsar
       pullPolicy: IfNotPresent
-      tag: 2.8.2
+      tag: 2.9.5
     bookie:
       repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/pulsar
       pullPolicy: IfNotPresent
-      tag: 2.8.2
+      tag: 2.9.5
     proxy:
       repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/pulsar
       pullPolicy: IfNotPresent
-      tag: 2.8.2
+      tag: 2.9.5
     pulsar_manager:
       repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/pulsar-manager
       pullPolicy: IfNotPresent
@@ -706,14 +1102,14 @@ pulsar:
         -Xms1024m
         -Xmx1024m
       PULSAR_GC: >
-        -Dcom.sun.management.jmxremote
-        -Djute.maxbuffer=10485760
-        -XX:+ParallelRefProcEnabled
-        -XX:+UnlockExperimentalVMOptions
-        -XX:+DoEscapeAnalysis
-        -XX:+DisableExplicitGC
-        -XX:+PerfDisableSharedMem
-        -Dzookeeper.forceSync=no
+         -Dcom.sun.management.jmxremote
+         -Djute.maxbuffer=10485760
+         -XX:+ParallelRefProcEnabled
+         -XX:+UnlockExperimentalVMOptions
+         -XX:+DoEscapeAnalysis
+         -XX:+DisableExplicitGC
+         -XX:+PerfDisableSharedMem
+         -Dzookeeper.forceSync=no
     pdb:
       usePolicy: false
 
@@ -786,7 +1182,7 @@ pulsar:
       backlogQuotaDefaultLimitGB: "8"
       ttlDurationDefaultInSeconds: "259200"
       subscriptionExpirationTimeMinutes: "3"
-      backlogQuotaDefaultRetentionPolicy: producer_exception
+      backlogQuotaDefaultRetentionPolicy: producer_request_hold
     pdb:
       usePolicy: false
 
@@ -808,6 +1204,7 @@ pulsar:
       type: ClusterIP
     ports:
       pulsar: 6650
+      http: 8080
     configData:
       PULSAR_MEM: >
         -Xms2048m -Xmx2048m
@@ -826,7 +1223,8 @@ pulsar:
     image:
       # the image used for running `pulsar-cluster-initialize` job
       repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/pulsar
-      tag: 2.8.2
+      tag: 2.9.5
+
 
 ## Configuration values for the kafka dependency
 ## ref: https://artifacthub.io/packages/helm/bitnami/kafka
@@ -838,7 +1236,7 @@ kafka:
   replicaCount: 3
   image:
     repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/kafka
-    tag: 3.1.0-debian-10-r52
+    tag: 3.1.0
   ## Increase graceful termination for kafka graceful shutdown
   terminationGracePeriodSeconds: "90"
   pdb:
@@ -857,16 +1255,16 @@ kafka:
   logRetentionHours: 168
   logRetentionBytes: _-1
   extraEnvVars:
-    - name: KAFKA_CFG_MAX_PARTITION_FETCH_BYTES
-      value: "5242880"
-    - name: KAFKA_CFG_MAX_REQUEST_SIZE
-      value: "5242880"
-    - name: KAFKA_CFG_REPLICA_FETCH_MAX_BYTES
-      value: "10485760"
-    - name: KAFKA_CFG_FETCH_MESSAGE_MAX_BYTES
-      value: "5242880"
-    - name: KAFKA_CFG_LOG_ROLL_HOURS
-      value: "24"
+  - name: KAFKA_CFG_MAX_PARTITION_FETCH_BYTES
+    value: "5242880"
+  - name: KAFKA_CFG_MAX_REQUEST_SIZE
+    value: "5242880"
+  - name: KAFKA_CFG_REPLICA_FETCH_MAX_BYTES
+    value: "10485760"
+  - name: KAFKA_CFG_FETCH_MESSAGE_MAX_BYTES
+    value: "5242880"
+  - name: KAFKA_CFG_LOG_ROLL_HOURS
+    value: "24"
 
   persistence:
     enabled: true
@@ -879,15 +1277,15 @@ kafka:
     kafka:
       enabled: false
       image:
-        repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/kafka-exporter
-        tag: 1.4.2-debian-10-r182
+        repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/kafka-exporter-archived
+        tag: 1.4.2
 
     ## Prometheus JMX exporter: exposes the majority of Kafkas metrics
     jmx:
       enabled: false
       image:
         repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/jmx-exporter
-        tag: 0.16.1-debian-10-r245
+        tag: 0.16.1
 
     ## To enable serviceMonitor, you must enable either kafka exporter or jmx exporter.
     ## And you can enable them both
@@ -902,6 +1300,82 @@ kafka:
   zookeeper:
     enabled: true
     replicaCount: 3
+    image: 
+      repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/zookeeper
+      tag: 3.7.0
+
+###################################
+# Woodpecker
+# - these configs are used to enable Woodpecker message queue
+###################################
+woodpecker:
+  enabled: false
+  replicaCount: 4
+  image:
+    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/woodpecker
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  resourceGroup: rg-primary
+
+  # Network configuration
+  ports:
+    service: 18080
+    gossip: 17946
+
+  # Pod management policy
+  podManagementPolicy: Parallel
+
+  # Persistence configuration
+  persistence:
+    enabled: true
+    accessModes:
+      - ReadWriteOnce
+    size: 30Gi
+    storageClass: ""
+
+  # MinIO configuration
+  minio:
+    address: ""    # If empty, will use minio.address or default
+    port: 9000
+    accessKey: ""  # If empty, will use minio.auth.rootUser or default
+    secretKey: ""  # If empty, will use minio.auth.rootPassword or default
+    bucketName: "" # If empty, will use minio.bucketName or default
+
+  profiling:
+    enabled: false
+
+  # Logging configuration
+  logging:
+    level: info
+
+  # Resource configuration
+  resources:
+    limits:
+      cpu: "1"
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+
+  # Additional environment variables
+  extraEnv: []
+
+  # Node selector - inherits global if not specified
+  nodeSelector: {}
+
+  # Tolerations - inherits global if not specified
+  tolerations: []
+
+  # Affinity - inherits global if not specified
+  affinity: {}
+
+  # Topology spread constraints - inherits global if not specified
+  topologySpreadConstraints: []
+
+  # Security context - inherits global if not specified
+  securityContext: {}
+  containerSecurityContext: {}
 
 ###################################
 # External S3
@@ -948,7 +1422,7 @@ externalPulsar:
   enabled: false
   host: localhost
   port: 6650
-  maxMessageSize: "5242880" # 5 * 1024 * 1024 Bytes, Maximum size of each message in pulsar.
+  maxMessageSize: "5242880"  # 5 * 1024 * 1024 Bytes, Maximum size of each message in pulsar.
   tenant: public
   namespace: default
   authPlugin: ""
@@ -957,6 +1431,18 @@ externalPulsar:
 ###################################
 # External kafka
 # - these configs are only used when `externalKafka.enabled` is true
+# - note that the following are just examples, you should confirm the
+#   value of brokerList and mechanisms according to the actual external
+#   Kafka configuration. E.g. If you select the AWS MSK, the configuration
+#   should look something like this:
+#   externalKafka:
+#     enabled: true
+#     brokerList: "xxxx:9096"
+#     securityProtocol: SASL_SSL
+#     sasl:
+#       mechanisms: SCRAM-SHA-512
+#       password: "xxx"
+#       username: "xxx"
 ###################################
 externalKafka:
   enabled: false
@@ -966,3 +1452,52 @@ externalKafka:
     mechanisms: PLAIN
     username: ""
     password: ""
+
+###################################
+# Text Embeddings Inference (TEI)
+# - these configs are used to deploy TEI service
+###################################
+tei:
+  enabled: false
+  name: text-embeddings-inference
+  image:
+    repository: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/milvus/text-embeddings-inference
+    tag: cpu-1.6
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8080
+    annotations: {}
+    labels: {}
+  resources:
+    requests:
+      cpu: "4"
+      memory: "8Gi"
+    limits:
+      cpu: "8"
+      memory: "16Gi"
+  persistence:
+    enabled: true
+    mountPath: "/data"
+    annotations: {}
+    persistentVolumeClaim:
+      existingClaim: ""
+      storageClass:
+      accessModes: ReadWriteOnce
+      size: 50Gi
+      subPath: ""
+  # TEI model configuration
+  modelId: "BAAI/bge-large-en-v1.5"
+  # Additional TEI configuration
+  extraArgs: []
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+  topologySpreadConstraints: []
+  extraEnv: []
+
+###################################
+# GPU Operator (Nebius-specific)
+###################################
+gpu-operator:
+  enabled: false

@@ -6,16 +6,36 @@ categories:
   - databases
 
 images:
+  # Milvus core
   - tag: image.all.tag
     nameWithRegistry: image.all.repository
-  - tag: image.tools.tag
-    nameWithRegistry: image.tools.repository
   - tag: heaptrack.image.tag
     nameWithRegistry: heaptrack.image.repository
+  # Attu UI
   - tag: attu.image.tag
     nameWithRegistry: attu.image.repository
+  # etcd
   - tag: etcd.image.tag
     nameWithRegistry: etcd.image.repository
+  # MinIO
+  - tag: minio.image.tag
+    nameWithRegistry: minio.image.repository
+  - tag: minio.mcImage.tag
+    nameWithRegistry: minio.mcImage.repository
+  # Pulsar v3
+  - tag: pulsarv3.images.zookeeper.tag
+    nameWithRegistry: pulsarv3.images.zookeeper.repository
+  - tag: pulsarv3.images.bookie.tag
+    nameWithRegistry: pulsarv3.images.bookie.repository
+  - tag: pulsarv3.images.autorecovery.tag
+    nameWithRegistry: pulsarv3.images.autorecovery.repository
+  - tag: pulsarv3.images.broker.tag
+    nameWithRegistry: pulsarv3.images.broker.repository
+  - tag: pulsarv3.images.proxy.tag
+    nameWithRegistry: pulsarv3.images.proxy.repository
+  - tag: pulsarv3.pulsar_metadata.image.tag
+    nameWithRegistry: pulsarv3.pulsar_metadata.image.repository
+  # Pulsar v2 (legacy)
   - tag: pulsar.images.broker.tag
     nameWithRegistry: pulsar.images.broker.repository
   - tag: pulsar.images.autorecovery.tag
@@ -30,45 +50,18 @@ images:
     nameWithRegistry: pulsar.images.pulsar_manager.repository
   - tag: pulsar.pulsar_metadata.image.tag
     nameWithRegistry: pulsar.pulsar_metadata.image.repository
+  # Kafka
   - tag: kafka.image.tag
     nameWithRegistry: kafka.image.repository
   - tag: kafka.metrics.kafka.image.tag
     nameWithRegistry: kafka.metrics.kafka.image.repository
   - tag: kafka.metrics.jmx.image.tag
     nameWithRegistry: kafka.metrics.jmx.image.repository
-  - tag: internal_images.bitnami-shell.tag
-    nameWithRegistry: internal_images.bitnami-shell.repository
-  - tag: internal_images.bitnami-shell-r372.tag
-    nameWithRegistry: internal_images.bitnami-shell-r372.repository
-  - tag: internal_images.jmx-exporter.tag
-    nameWithRegistry: internal_images.jmx-exporter.repository
-  - tag: internal_images.etcd.tag
-    nameWithRegistry: internal_images.etcd.repository
-  - tag: internal_images.etcd_r38.tag
-    nameWithRegistry: internal_images.etcd_r38.repository
-  - tag: internal_images.kafka_r52.tag
-    nameWithRegistry: internal_images.kafka_r52.repository
-  - tag: internal_images.kubectl_r1.tag
-    nameWithRegistry: internal_images.kubectl_r1.repository
-  - tag: internal_images.kafka-exporter_r182.tag
-    nameWithRegistry: internal_images.kafka-exporter_r182.repository
-  - tag: internal_images.jmx-exporter_r245.tag
-    nameWithRegistry: internal_images.jmx-exporter_r245.repository
-  - tag: internal_images.minio_33Z.tag
-    nameWithRegistry: internal_images.minio_33Z.repository
-  - tag: minio.image.tag
-    nameWithRegistry: minio.image.repository
-  - tag: internal_images.mc_06Z.tag
-    nameWithRegistry: internal_images.mc_06Z.repository
-  - tag: internal_images.helm-kubectl-jq_310.tag
-    nameWithRegistry: internal_images.helm-kubectl-jq_310.repository
-  - tag: internal_images.pulsar-all_274.tag
-    nameWithRegistry: internal_images.pulsar-all_274.repository
-  - tag: internal_images.pulsar-dashboard_latest.tag
-    nameWithRegistry: internal_images.pulsar-dashboard_latest.repository
-  - tag: internal_images.pulsar-manager_v010.tag
-    nameWithRegistry: internal_images.pulsar-manager_v010.repository
-  - tag: internal_images.prometheus_v2172.tag
-    nameWithRegistry: internal_images.prometheus_v2172.repository
-  - tag: internal_images.apache-pulsar-grafana-dashboard-k8s_0010.tag
-    nameWithRegistry: internal_images.apache-pulsar-grafana-dashboard-k8s_0010.repository
+  - tag: kafka.zookeeper.image.tag
+    nameWithRegistry: kafka.zookeeper.image.repository
+  # Woodpecker — disabled, image not published upstream yet
+  # - tag: woodpecker.image.tag
+  #   nameWithRegistry: woodpecker.image.repository
+  # TEI
+  - tag: tei.image.tag
+    nameWithRegistry: tei.image.repository

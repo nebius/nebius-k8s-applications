@@ -7,6 +7,10 @@ metadata:
   namespace: {{ include "ollama.namespace" . }}
   labels:
     {{- include "ollama.labels" . | nindent 4 }}
+  {{- with .Values.knative.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   template:
     spec:
@@ -22,6 +26,9 @@ spec:
       {{- if .Values.runtimeClassName }}
       runtimeClassName: {{ .Values.runtimeClassName | quote }}
       {{- end }}
+      {{- if .Values.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+      {{- end }}
       {{- with .Values.initContainers }}
       initContainers:
         {{- tpl (toYaml . ) $ | nindent 8 }}
@@ -32,8 +39,10 @@ spec:
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           ports:
-            - containerPort: {{ .Values.service.port }}
+            - containerPort: {{ .Values.ollama.port }}
           env:
+            - name: OLLAMA_HOST
+              value: "0.0.0.0:{{ .Values.ollama.port }}"
             {{- if and .Values.ollama.gpu.enabled (or (eq .Values.ollama.gpu.type "nvidia") (not .Values.ollama.gpu.type))}}
             - name: PATH
               value: /usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -118,25 +127,29 @@ spec:
                       sleep 5
                     done
                     {{- if .Values.ollama.models.pull }}
-                    echo "{{ include "ollama.modelPullList" . }}" | xargs -n1 /bin/ollama pull {{ternary "--insecure" "" .Values.ollama.insecure | toString }}
+                    {{- range .Values.ollama.models.pull }}
+                    /bin/ollama pull {{ternary "--insecure" "" $.Values.ollama.insecure | toString }} {{ . }}
                     {{- end }}
+                    {{- end }}
+
                     {{- if .Values.ollama.models.create }}
-                    {{- range $.Values.ollama.models.create }}
+                    {{- range .Values.ollama.models.create }}
                     {{- if .template }}
                     cat <<EOF > {{ include "ollama.modelsMountPath" $ }}/{{ .name }}
                     {{- .template | nindent 20 }}
                     EOF
-                    {{- end}}
+                    /bin/ollama create {{ .name }} -f {{ include "ollama.modelsMountPath" . }}/{{ .name }}
                     {{- end }}
-                    {{- if (include "ollama.modelCreateTemplateList" .)}}
-                    echo "{{ include "ollama.modelCreateTemplateList" . }}" | xargs -n1 -I {} /bin/ollama create {} -f {{ include "ollama.modelsMountPath" . }}/{}
-                    {{- end }}
-                    {{- if (include "ollama.modelCreateConfigMapList" .)}}
-                    echo "{{ include "ollama.modelCreateConfigMapList" . }}" | xargs -n1 -I {} /bin/ollama create {} -f /models/{}
+                    {{- if .configMapRef }}
+                    /bin/ollama create {{ .name }} -f /models/{{ .name }}
                     {{- end }}
                     {{- end }}
+                    {{- end }}
+
                     {{- if .Values.ollama.models.run }}
-                    echo "{{ include "ollama.modelRunList" . }}" | xargs -n1 /bin/ollama run
+                    {{- range .Values.ollama.models.run }}
+                    /bin/ollama run {{ . }}
+                    {{- end }}
                     {{- end }}
           {{- end }}
           {{- end }}

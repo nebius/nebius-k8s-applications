@@ -3,6 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "milvus.indexnode.fullname" . }}
+  namespace: {{ .Release.Namespace }}
   labels:
 {{ include "milvus.labels" . | indent 4 }}
     component: "indexnode"
@@ -13,6 +14,10 @@ metadata:
 spec:
   {{- if ge (int .Values.indexNode.replicas) 0 }}
   replicas: {{ .Values.indexNode.replicas }}
+  {{- end }}
+  {{- with .Values.indexNode.strategy }}
+  strategy:
+    {{- toYaml . | nindent 4 }}
   {{- end }}
   selector:
     matchLabels:
@@ -30,10 +35,16 @@ spec:
         pyroscope.io/application-name: {{ template "milvus.indexnode.fullname" . }}
         pyroscope.io/port: "9091"
       {{- end }}
+      {{- if .Values.indexNode.annotations }}
+        {{- toYaml .Values.indexNode.annotations | nindent 8 }}
+      {{- end }}
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
 {{ include "milvus.ud.annotations" . | indent 8 }}
     spec:
       serviceAccountName: {{ include "milvus.serviceAccount" . }}
+      {{- if .Values.indexNode.runtimeClassName }}
+      runtimeClassName: {{ .Values.indexNode.runtimeClassName }}
+      {{- end }}
       {{- if .Values.image.all.pullSecrets }}
       imagePullSecrets:
       {{- range .Values.image.all.pullSecrets }}
@@ -49,30 +60,40 @@ spec:
         - "cp -r /opt/heaptrack /milvus/tools"
         image: "{{ .Values.heaptrack.image.repository }}:{{ .Values.heaptrack.image.tag }}"
         imagePullPolicy: {{ .Values.heaptrack.image.pullPolicy }}
+        {{ if and (.Values.containerSecurityContext) (not .Values.indexNode.containerSecurityContext) }}
+        securityContext:
+          {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+        {{ end }}
+        {{ if .Values.indexNode.containerSecurityContext }}
+        securityContext:
+          {{- toYaml .Values.indexNode.containerSecurityContext | nindent 12 }}
+        {{ end }}
         volumeMounts:
         - mountPath: /milvus/tools
           name: tools
       {{- end }}
-      - name: config
-        command:
-        - /cp
-        - /run-helm.sh,/merge
-        - /milvus/tools/run-helm.sh,/milvus/tools/merge
-        image: "{{ .Values.image.tools.repository }}:{{ .Values.image.tools.tag }}"
-        imagePullPolicy: {{ .Values.image.tools.pullPolicy}}
-        volumeMounts:
-        - mountPath: /milvus/tools
-          name: tools
       containers:
       - name: indexnode
         image: "{{ .Values.image.all.repository }}:{{ .Values.image.all.tag }}"
         imagePullPolicy: {{ .Values.image.all.pullPolicy }}
+        {{ if and (.Values.containerSecurityContext) (not .Values.indexNode.containerSecurityContext) }}
+        securityContext:
+          {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+        {{ end }}
+        {{ if .Values.indexNode.containerSecurityContext }}
+        securityContext:
+          {{- toYaml .Values.indexNode.containerSecurityContext | nindent 12 }}
+        {{ end }}
         {{- if .Values.indexNode.heaptrack.enabled }}
-        args: [ "/milvus/tools/run-helm.sh", "/milvus/tools/heaptrack/bin/heaptrack", "milvus", "run", "indexnode" ]
+        args: [ "/milvus/tools/heaptrack/bin/heaptrack", "milvus", "run", "indexnode" ]
         {{- else }}
-        args: [ "/milvus/tools/run-helm.sh", "milvus", "run", "indexnode" ]
+        args: [ "milvus", "run", "indexnode" ]
         {{- end }}
         env:
+        {{- if and .Values.streaming .Values.streaming.enabled }}
+        - name: MILVUS_STREAMING_SERVICE_ENABLED
+          value: "1"
+        {{- end }}
         {{- if .Values.indexNode.heaptrack.enabled }}
         - name: LD_LIBRARY_PATH
           value: /milvus/tools/heaptrack/lib:/milvus/lib:/usr/lib
@@ -87,10 +108,6 @@ spec:
         {{- if .Values.indexNode.extraEnv }}
           {{- toYaml .Values.indexNode.extraEnv | nindent 8 }}
         {{- end }}
-        {{- if gt (int .Values.gpu_number) 1 }}
-            - name: CUDA_VISIBLE_DEVICES
-              value: "{{ range $i, $e := until (int .Values.gpu_number) }}{{ if $i }},{{ end }}{{ $i }}{{ end }}"
-        {{- end }}
         ports:
           - name: indexnode
             containerPort: 21121
@@ -100,8 +117,7 @@ spec:
             protocol: TCP
         {{- if .Values.livenessProbe.enabled }}
         livenessProbe:
-          httpGet:
-            path: /healthz
+          tcpSocket:
             port: metrics
           initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
           periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
@@ -120,18 +136,15 @@ spec:
           successThreshold: {{ .Values.readinessProbe.successThreshold }}
           failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
         {{- end }}
-        {{- if gt (int .Values.gpu_number) 0 }}
-        resources:
-          requests:
-            nvidia.com/gpu: "{{ .Values.gpu_number }}"
-          limits:
-            nvidia.com/gpu: "{{ .Values.gpu_number }}"
-        {{- else }}
         resources:
           {{- toYaml .Values.indexNode.resources | nindent 10 }}
-        {{- end }}
-
         volumeMounts:
+        {{- if .Values.customConfigMap }}
+        - name: milvus-config
+          mountPath: /milvus/configs/user.yaml
+          subPath: milvus.yaml
+          readOnly: true
+        {{- else }}
         - name: milvus-config
           mountPath: /milvus/configs/default.yaml
           subPath: default.yaml
@@ -140,6 +153,7 @@ spec:
           mountPath: /milvus/configs/user.yaml
           subPath: user.yaml
           readOnly: true
+        {{- end }}
         {{- if .Values.log.persistence.enabled }}
         - name: milvus-logs-disk
           mountPath: {{ .Values.log.persistence.mountPath | quote }}
@@ -151,7 +165,9 @@ spec:
         - mountPath: /var/lib/milvus/data
           name: disk
         {{- end }}
-
+        {{- if .Values.volumeMounts }}
+          {{- toYaml .Values.volumeMounts | nindent 8 }}
+        {{- end}}
 
     {{- if and (.Values.nodeSelector) (not .Values.indexNode.nodeSelector) }}
       nodeSelector:
@@ -178,10 +194,31 @@ spec:
 {{ toYaml .Values.indexNode.tolerations | indent 8 }}
     {{- end }}
 
+    {{- if and (.Values.topologySpreadConstraints) (not .Values.indexNode.topologySpreadConstraints) }}
+      topologySpreadConstraints:
+{{ toYaml .Values.topologySpreadConstraints | indent 8 }}
+    {{- end }}
+    {{- if .Values.indexNode.topologySpreadConstraints }}
+      topologySpreadConstraints:
+{{ toYaml .Values.indexNode.topologySpreadConstraints | indent 8 }}
+    {{- end }}
+    {{- if and (.Values.securityContext) (not .Values.indexNode.securityContext) }}
+      securityContext:
+{{ toYaml .Values.securityContext | indent 8 }}
+    {{- end }}
+    {{- if .Values.indexNode.securityContext }}
+      securityContext:
+{{ toYaml .Values.indexNode.securityContext | indent 8 }}
+    {{- end }}
+
       volumes:
       - name: milvus-config
         configMap:
+          {{- if .Values.customConfigMap }}
+          name: {{ .Values.customConfigMap }}
+          {{- else }}
           name: {{ template "milvus.fullname" . }}
+          {{- end }}
       {{- if .Values.log.persistence.enabled }}
       - name: milvus-logs-disk
         persistentVolumeClaim:
@@ -193,4 +230,7 @@ spec:
       - name: disk
         emptyDir: {}
       {{- end }}
+      {{- if .Values.volumes }}
+        {{- toYaml .Values.volumes | nindent 6 }}
+      {{- end}}
 {{- end }}

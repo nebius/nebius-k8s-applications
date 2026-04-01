@@ -2,15 +2,30 @@
 
 For more information about installing and using Helm, see the [Helm Docs](https://helm.sh/docs/). For a quick introduction to Charts, see the [Chart Guide](https://helm.sh/docs/topics/charts/).
 
-To install Milvus, refer to [Milvus installation](https://milvus.io/docs/v2.0.x/install_cluster-helm.md).
+To install Milvus, refer to [Milvus installation](https://milvus.io/docs/install_cluster-helm.md).
 
 ## Introduction
 This chart bootstraps Milvus deployment on a Kubernetes cluster using the Helm package manager.
 
 ## Prerequisites
 
-- Kubernetes 1.14+ (Attu requires 1.18+)
-- Helm >= 3.2.0
+- Kubernetes >= 1.20.0
+- Helm >= 3.14.0
+
+## Compatibility Notice
+
+- **IMPORTANT** As of helm version 5.0.0, significant architectural changes have been introduced in Milvus v2.6.0:
+  - Coordinator consolidation: Legacy separate coordinators (dataCoord, queryCoord, indexCoord) have been consolidated into a single mixCoord
+  - New components: Introduction of Streaming Node for enhanced data processing
+  - Component removal: indexNode has been removed and consolidated
+  - Milvus v2.6.0-rc1 is not compatible with v2.6.x. Direct upgrades from release candidates are not supported.
+  - You must upgrade to v2.5.16 with mixCoordinator enabled before upgrading to v2.6.x.
+
+- **IMPORTANT** For users using pulsar2. Please don't use version 4.2.21～4.2.29 for upgrading, there're some known issues. 4.2.30 or later version is recommended. Remember to add `--set pulsar.enabled=true,pulsarv3.enabled=false` or set them in your values file when upgrading.
+
+- As of version 4.2.21, the Milvus Helm chart introduced pulsar-v3.x chart as dependency. For backward compatibility, please upgrade your helm to v3.14 or later version, and be sure to add the `--reset-then-reuse-values` option whenever you use `helm upgrade`.
+
+- As of version 4.2.0, the Milvus Helm chart no longer supports Milvus v2.3.x. If you need to deploy Milvus v2.3.x using Helm, please use Milvus Helm chart version less than 4.2.0 (e.g 4.1.36).
 
 > **IMPORTANT** The master branch is for the development of Milvus v2.x. On March 9th, 2021, we released Milvus v1.0, the first stable version of Milvus with long-term support. To use Milvus v1.x, switch to [branch 1.1](https://github.com/zilliztech/milvus-helm/tree/1.1).
 
@@ -18,7 +33,7 @@ This chart bootstraps Milvus deployment on a Kubernetes cluster using the Helm p
 
 1. Add the stable repository
 ```bash
-$ helm repo add milvus https://zilliztech.github.io/milvus-helm/
+$ helm repo add zilliztech https://zilliztech.github.io/milvus-helm/
 ```
 
 2. Update charts repositories
@@ -32,21 +47,60 @@ Assume the release name is `my-release`:
 
 ```bash
 # Helm v3.x
-$ helm upgrade --install my-release --set cluster.enabled=false --set etcd.replicaCount=1 --set pulsar.enabled=false --set minio.mode=standalone milvus/milvus
+$ helm upgrade --install my-release --set cluster.enabled=false --set etcd.replicaCount=1 --set pulsarv3.enabled=false --set minio.mode=standalone zilliztech/milvus
 ```
-By default, milvus standalone uses `rocksmq` as message queue. You can also use `pulsar` or `kafka` as message queue:
+By default, milvus standalone uses `woodpecker` as message queue. You can also use `pulsar` or `kafka` as message queue:
 
 ```bash
 # Helm v3.x
 # Milvus Standalone with pulsar as message queue
-$ helm upgrade --install my-release --set cluster.enabled=false --set standalone.messageQueue=pulsar --set etcd.replicaCount=1 --set pulsar.enabled=true --set minio.mode=standalone milvus/milvus
+$ helm upgrade --install my-release --set cluster.enabled=false --set standalone.messageQueue=pulsar --set etcd.replicaCount=1 --set pulsarv3.enabled=true --set minio.mode=standalone zilliztech/milvus
 ```
 
 ```bash
 # Helm v3.x
 # Milvus Standalone with kafka as message queue
-$ helm upgrade --install my-release --set cluster.enabled=false --set standalone.messageQueue=kafka --set etcd.replicaCount=1 --set pulsar.enabled=false --set kafka.enabled=true --set minio.mode=standalone milvus/milvus
+$ helm upgrade --install my-release --set cluster.enabled=false --set standalone.messageQueue=kafka --set etcd.replicaCount=1 --set pulsarv3.enabled=false --set kafka.enabled=true --set minio.mode=standalone zilliztech/milvus
 ```
+If you need to use standalone mode with embedded ETCD and local storage (without starting MinIO and additional ETCD), you can use the following steps:
+
+1. Prepare a values file
+```
+cat > values.yaml <<EOF
+---
+cluster:
+  enabled: false
+
+etcd:
+  enabled: false
+
+pulsarv3:
+  enabled: false
+
+minio:
+  enabled: false
+  tls:
+    enabled: false
+
+extraConfigFiles:
+  user.yaml: |+
+    etcd:
+      use:
+        embed: true
+      data:
+        dir: /var/lib/milvus/etcd
+    common:
+      storageType: local
+EOF
+
+```
+
+2. Helm install with this values file
+```
+helm upgrade --install -f values.yaml my-release zilliztech/milvus
+
+```
+
 > **Tip**: To list all releases, using `helm list`.
 
 ### Deploy Milvus with cluster mode
@@ -55,50 +109,104 @@ Assume the release name is `my-release`:
 
 ```bash
 # Helm v3.x
-$ helm upgrade --install my-release milvus/milvus
+$ helm upgrade --install my-release zilliztech/milvus
 ```
 By default, milvus cluster uses `pulsar` as message queue. You can also use `kafka` instead of `pulsar` for milvus cluster:
 
 ```bash
 # Helm v3.x
-$ helm upgrade --install my-release milvus/milvus --set pulsar.enabled=false --set kafka.enabled=true
+$ helm upgrade --install my-release zilliztech/milvus --set pulsarv3.enabled=false --set kafka.enabled=true
 ```
 
-By default, milvus cluster uses several separate coordinators. You can also use mixCoordinator instead which contains all coordinators.
+By default, milvus cluster uses `mixCoordinator` which contains all coordinators. This is the recommended deployment approach for Milvus v2.6.x and later versions.
+
+### Upgrading from Milvus v2.5.x to v2.6.x
+
+Upgrading from Milvus 2.5.x to 2.6.x involves significant architectural changes. Please follow these steps carefully:
+
+#### Requirements
+
+**System requirements:**
+- Helm version >= 3.14.0
+- Kubernetes version >= 1.20.0
+- Milvus cluster deployed via Helm Chart
+
+**Compatibility requirements:**
+- Milvus v2.6.0-rc1 is not compatible with v2.6.x. Direct upgrades from release candidates are not supported.
+- If you are currently running v2.6.0-rc1 and need to preserve your data, please refer to community guides for migration assistance.
+- You must upgrade to v2.5.16 with mixCoordinator enabled before upgrading to v2.6.x.
+
+#### Upgrade Process
+
+**Step 1: Upgrade Helm Chart**
+
+First, upgrade your Milvus Helm chart repository:
 
 ```bash
-# Helm v3.x
-$ cat << EOF > values-custom.yaml
-mixCoordinator:
-  enabled: true
-rootCoordinator:
-  enabled: false
-indexCoordinator:
-  enabled: false
-queryCoordinator:
-  enabled: false
-dataCoordinator:
-  enabled: false
-EOF
-$ helm upgrade --install my-release milvus/milvus -f values-custom.yaml
+helm repo add zilliztech https://zilliztech.github.io/milvus-helm
+helm repo update zilliztech
 ```
 
-### Upgrade an existing Milvus cluster
+**Step 2: Upgrade to v2.5.16 with mixCoordinator**
+
+Check if your cluster currently uses separate coordinators:
+
+```bash
+kubectl get pods
+```
+
+If you see separate coordinator pods (datacoord, querycoord, indexcoord), upgrade to v2.5.16 and enable mixCoordinator:
+
+```bash
+helm upgrade my-release zilliztech/milvus \
+  --set image.all.tag="v2.5.16" \
+  --set mixCoordinator.enabled=true \
+  --set rootCoordinator.enabled=false \
+  --set indexCoordinator.enabled=false \
+  --set queryCoordinator.enabled=false \
+  --set dataCoordinator.enabled=false \
+  --reset-then-reuse-values \
+  --version=4.2.58
+```
+
+If your cluster already uses mixCoordinator, simply upgrade the image:
+
+```bash
+helm upgrade my-release zilliztech/milvus \
+  --set image.all.tag="v2.5.16" \
+  --reset-then-reuse-values \
+  --version=4.2.58
+```
+
+**Step 3: Upgrade to v2.6.x**
+
+Once v2.5.16 is running successfully with mixCoordinator, upgrade to v2.6.x:
+
+```bash
+helm upgrade my-release zilliztech/milvus \
+  --set image.all.tag="v2.6.x" \
+  --set streaming.enabled=true \
+  --set indexNode.enabled=false \
+  --reset-then-reuse-values \
+  --version=5.0.0
+```
+
+### Upgrade an existing Milvus cluster (General)
 
 > **IMPORTANT** If you have installed a milvus cluster with version below v2.1.x, you need follow the instructions at here: https://github.com/milvus-io/milvus/blob/master/deployments/migrate-meta/README.md. After meta migration, you use `helm upgrade` to update your cluster again.
 
 E.g. to scale out query node from 1(default) to 2:
 
 ```bash
-# Helm v3.x
-$ helm upgrade --install --set queryNode.replicas=2 my-release milvus/milvus
+# Helm v3.14.0+
+$ helm upgrade --reset-then-reuse-values --install --set queryNode.replicas=2 my-release zilliztech/milvus
 ```
 
-### Milvus Coordinator Active Standby
-> **IMPORTANT** Milvus helm chart 4.0.7 (Milvus 2.2.3) support deploying multiple coordinators. For example, you run a Milvus cluster with two rootcoord pods:
+### Milvus Mix Coordinator Active Standby
+> **IMPORTANT** Milvus supports deploying multiple Mix Coordinator instances for high availability. For example, you can run a Milvus cluster with two mixcoord pods:
 
 ```bash
-helm upgrade --install my-release milvus/milvus --set rootCoordinator.activeStandby.enabled=true --set rootCoordinator.replicas=2
+helm upgrade --install my-release zilliztech/milvus --set mixCoordinator.activeStandby.enabled=true --set mixCoordinator.replicas=2
 ```
 
 ### Breaking Changes
@@ -122,7 +230,7 @@ By default, all the logs of milvus components will output stdout. If you wanna l
 
 ```bash
 # Install a milvus cluster with file log output
-helm install my-release milvus/milvus --set log.persistence.enabled=true --set log.persistence.persistentVolumeClaim.storageClass=<read-write-many-storageclass>
+helm install my-release zilliztech/milvus --set log.persistence.enabled=true --set log.persistence.persistentVolumeClaim.storageClass=<read-write-many-storageclass>
 ```
 
 It will output log to `/milvus/logs/` directory.
@@ -173,6 +281,27 @@ In case you want to use a different `secretName` or mount path inside pod, modif
     name: milvus-tls
 ```
 
+## Milvus with External Object Storage
+
+As of https://github.com/minio/minio/releases/tag/RELEASE.2022-10-29T06-21-33Z, the MinIO Gateway and the related filesystem mode code have been removed. It is now recommended to utilize the `externalS3` configuration for integrating with various object storage services. Notably, Milvus now provides support for popular object storage platforms such as AWS S3, GCP GCS, Azure Blob, Aliyun OSS and Tencent COS.
+
+The recommended configuration option for `externalS3.cloudProvider` includes the following choices: `aws`, `gcp`, `azure`, `aliyun`, and `tencent`. Here's an example to use AWS S3 for Milvus object storage:
+
+```
+minio:
+  enabled: false
+externalS3:
+  enabled: true
+  cloudProvider: aws
+  host: s3.aws.com
+  port: 443
+  useSSL: true
+  bucketName: <bucket-name>
+  accessKey: <s3-access-key>
+  secretKey: <s3-secret-key>
+```
+
+
 ## Uninstall the Chart
 
 ```bash
@@ -199,13 +328,20 @@ The following table lists the configurable parameters of the Milvus Service and 
 | Parameter                                 | Description                                   | Default                                                 |
 |-------------------------------------------|-----------------------------------------------|---------------------------------------------------------|
 | `cluster.enabled`                         | Enable or disable Milvus Cluster mode         | `true`                                                 |
+| `route.enabled`                           | Enable OpenShift route                        | `false`                                                |
+| `route.hostname`                          | Hostname for the OpenShift route             | `""`                                                   |
+| `route.path`                             | Path for the OpenShift route                 | `""`                                                   |
+| `route.termination`                       | TLS termination for the route                | `edge`                                                 |
+| `route.annotations`                       | Route annotations                            | `{}`                                                   |
+| `route.labels`                           | Route labels                                 | `{}`                                                   |
 | `image.all.repository`                    | Image repository                              | `milvusdb/milvus`                                       |
-| `image.all.tag`                           | Image tag                                     | `v2.3.4`                           |
+| `image.all.tag`                           | Image tag                                     | `v2.6.13`                           |
 | `image.all.pullPolicy`                    | Image pull policy                             | `IfNotPresent`                                          |
 | `image.all.pullSecrets`                   | Image pull secrets                            | `{}`                                                    |
 | `image.tools.repository`                  | Config image repository                       | `milvusdb/milvus-config-tool`                                       |
 | `image.tools.tag`                         | Config image tag                              | `v0.1.2`                           |
 | `image.tools.pullPolicy`                  | Config image pull policy                      | `IfNotPresent`                                          |
+| `customConfigMap`                         | User specified ConfigMap for configuration    |
 | `extraConfigFiles`                        | Extra config to override default milvus.yaml  | `user.yaml:`                                                     |
 | `service.type`                            | Service type                                  | `ClusterIP`                                             |
 | `service.port`                            | Port where service is exposed                 | `19530`                                                 |
@@ -255,7 +391,6 @@ The following table lists the configurable parameters of the Milvus Service and 
 | `externalS3.iamEndpoint`                  | The IAM endpoint of  the external S3 | ``                                                |
 | `externalS3.region`                  | The region of  the external S3 | ``                                                |
 | `externalS3.useVirtualHost`                  | If true, the external S3 whether use virtual host bucket mode | ``                                                |
-| `externalGcs.bucketName`                  | The Bucket Name of the external GCS. Requires GCS gateway to be enabled in the minIO configuration | `unset`                                                |
 | `externalEtcd.enabled`                    | Enable or disable external Etcd               | `false`                                                 |
 | `externalEtcd.endpoints`                  | The endpoints of the external etcd            | `{}`                                                    |
 | `externalPulsar.enabled`                  | Enable or disable external Pulsar             | `false`                                                 |
@@ -300,68 +435,30 @@ The following table lists the configurable parameters of the Milvus Standalone c
 
 The following table lists the configurable parameters of the Milvus Proxy component and their default values.
 
-| Parameter                                 | Description                                   | Default                                                 |
-|-------------------------------------------|-----------------------------------------------|---------------------------------------------------------|
-| `proxy.enabled`                           | Enable or disable Milvus Proxy Deployment     | `true`                                                  |
-| `proxy.replicas`                          | Desired number of Milvus Proxy pods            | `1`                                                    |
-| `proxy.resources`                         | Resource requests/limits for the Milvus Proxy pods | `{}`                                               |
-| `proxy.nodeSelector`                      | Node labels for Milvus Proxy pods assignment | `{}`                                                     |
-| `proxy.affinity`                          | Affinity settings for Milvus Proxy pods assignment | `{}`                                               |
-| `proxy.tolerations`                       | Toleration labels for Milvus Proxy pods assignment | `[]`                                               |
-| `proxy.heaptrack.enabled`                 | Whether to enable heaptrack                             | `false`                                          |
-| `proxy.profiling.enabled`                 | Whether to enable live profiling                   | `false`                                          |
-| `proxy.extraEnv`                          | Additional Milvus Proxy container environment variables | `[]`                                          |
-| `proxy.http.enabled`                      | Enable rest api for Milvus Proxy | `true`                                          |
-| `proxy.http.debugMode.enabled`            | Enable debug mode for rest api | `false`                                          |
-| `proxy.tls.enabled`                       | Enable porxy tls connection | `false`                                          |
+| Parameter                                 | Description                                             | Default       |
+|-------------------------------------------|---------------------------------------------------------|---------------|
+| `proxy.enabled`                           | Enable or disable Milvus Proxy Deployment               | `true`        |
+| `proxy.replicas`                          | Desired number of Milvus Proxy pods                     | `1`           |
+| `proxy.resources`                         | Resource requests/limits for the Milvus Proxy pods      | `{}`          |
+| `proxy.nodeSelector`                      | Node labels for Milvus Proxy pods assignment            | `{}`          |
+| `proxy.affinity`                          | Affinity settings for Milvus Proxy pods assignment      | `{}`          |
+| `proxy.tolerations`                       | Toleration labels for Milvus Proxy pods assignment      | `[]`          |
+| `proxy.heaptrack.enabled`                 | Whether to enable heaptrack                             | `false`       |
+| `proxy.profiling.enabled`                 | Whether to enable live profiling                        | `false`       |
+| `proxy.extraEnv`                          | Additional Milvus Proxy container environment variables | `[]`          |
+| `proxy.http.enabled`                      | Enable rest api for Milvus Proxy                        | `true`        |
+| `proxy.maxUserNum`                       | Modify the Milvus maximum user limit                    | `100`         |
+| `proxy.maxRoleNum`                       | Modify the Milvus maximum role limit                    | `10`          |
+| `proxy.http.debugMode.enabled`            | Enable debug mode for rest api                          | `false`       |
+| `proxy.tls.enabled`                       | Enable porxy tls connection                             | `false`       |
+| `proxy.strategy`                          | Deployment strategy configuration                       | RollingUpdate |
+| `proxy.annotations`                       | Additional pod annotations                              | `{}`          |
+| `proxy.hpa` | Enable hpa for proxy node | false |
+| `proxy.minReplicas` | Specify the minimum number of replicas | 1 |
+| `proxy.maxReplicas` | Specify the maximum number of replicas | 5 |
+| `proxy.cpuUtilization` | Specify the cpu auto-scaling value | 40 |
 
-### Milvus Root Coordinator Deployment Configuration
 
-The following table lists the configurable parameters of the Milvus Root Coordinator component and their default values.
-
-| Parameter                                 | Description                                   | Default                                                 |
-|-------------------------------------------|-----------------------------------------------|---------------------------------------------------------|
-| `rootCoordinator.enabled`                 | Enable or disable Milvus Root Coordinator component  | `true`                                           |
-| `rootCoordinator.resources`               | Resource requests/limits for the Milvus Root Coordinator pods | `{}`                                    |
-| `rootCoordinator.nodeSelector`            | Node labels for Milvus Root Coordinator pods assignment | `{}`                                          |
-| `rootCoordinator.affinity`                | Affinity settings for Milvus Root Coordinator pods assignment | `{}`                                    |
-| `rootCoordinator.tolerations`             | Toleration labels for Milvus Root Coordinator pods assignment | `[]`                                    |
-| `rootCoordinator.heaptrack.enabled`       | Whether to enable heaptrack                             | `false`                                          |
-| `rootCoordinator.profiling.enabled`       | Whether to enable live profiling                   | `false`                                          |
-| `rootCoordinator.activeStandby.enabled`   | Whether to enable active-standby                   | `false`                                          |
-| `rootCoordinator.extraEnv`                | Additional Milvus Root Coordinator container environment variables | `[]`                               |
-| `rootCoordinator.service.type`                       | Service type                                  | `ClusterIP`                                  |
-| `rootCoordinator.service.port`                       | Port where service is exposed                 | `19530`                                      |
-| `rootCoordinator.service.annotations`                | Service annotations                           | `{}`                                         |
-| `rootCoordinator.service.labels`                     | Service custom labels                         | `{}`                                         |
-| `rootCoordinator.service.clusterIP`                  | Internal cluster service IP                   | `unset`                                      |
-| `rootCoordinator.service.loadBalancerIP`             | IP address to assign to load balancer (if supported) | `unset`                               |
-| `rootCoordinator.service.loadBalancerSourceRanges`   | List of IP CIDRs allowed access to lb (if supported) | `[]`                                  |
-| `rootCoordinator.service.externalIPs`                | Service external IP addresses                 | `[]`                                         |
-
-### Milvus Query Coordinator Deployment Configuration
-
-The following table lists the configurable parameters of the Milvus Query Coordinator component and their default values.
-
-| Parameter                                 | Description                                   | Default                                                 |
-|-------------------------------------------|-----------------------------------------------|---------------------------------------------------------|
-| `queryCoordinator.enabled`                | Enable or disable Query Coordinator component | `true`                                                  |
-| `queryCoordinator.resources`              | Resource requests/limits for the Milvus Query Coordinator pods | `{}`                                   |
-| `queryCoordinator.nodeSelector`           | Node labels for Milvus Query Coordinator pods assignment | `{}`                                         |
-| `queryCoordinator.affinity`               | Affinity settings for Milvus Query Coordinator pods assignment | `{}`                                   |
-| `queryCoordinator.tolerations`            | Toleration labels for Milvus Query Coordinator pods assignment | `[]`                                   |
-| `queryCoordinator.heaptrack.enabled`      | Whether to enable heaptrack                             | `false`                                          |
-| `queryCoordinator.profiling.enabled`      | Whether to enable live profiling                   | `false`                                          |
-| `queryCoordinator.activeStandby.enabled`  | Whether to enable active-standby                   | `false`                                          |
-| `queryCoordinator.extraEnv`               | Additional Milvus Query Coordinator container environment variables | `[]`                              |
-| `queryCoordinator.service.type`                       | Service type                                  | `ClusterIP`                                 |
-| `queryCoordinator.service.port`                       | Port where service is exposed                 | `19530`                                     |
-| `queryCoordinator.service.annotations`                | Service annotations                           | `{}`                                        |
-| `queryCoordinator.service.labels`                     | Service custom labels                         | `{}`                                        |
-| `queryCoordinator.service.clusterIP`                  | Internal cluster service IP                   | `unset`                                     |
-| `queryCoordinator.service.loadBalancerIP`             | IP address to assign to load balancer (if supported) | `unset`                              |
-| `queryCoordinator.service.loadBalancerSourceRanges`   | List of IP CIDRs allowed access to lb (if supported) | `[]`                                 |
-| `queryCoordinator.service.externalIPs`                | Service external IP addresses                 | `[]`                                        |
 
 ### Milvus Query Node Deployment Configuration
 
@@ -379,71 +476,17 @@ The following table lists the configurable parameters of the Milvus Query Node c
 | `queryNode.disk.enabled`                  | Whether to enable disk for query                             | `true`                                          |
 | `queryNode.profiling.enabled`             | Whether to enable live profiling                   | `false`                                          |
 | `queryNode.extraEnv`                      | Additional Milvus Query Node container environment variables | `[]`                                     |
+| `queryNode.strategy`                      | Deployment strategy configuration |  RollingUpdate                                         |
+| `queryNode.annotations`                    | Additional pod annotations | `{}` |
+| `queryNode.hpa` | Enable hpa for query node | false |
+| `queryNode.minReplicas` | Specify the minimum number of replicas | 1 |
+| `queryNode.maxReplicas` | Specify the maximum number of replicas | 5 |
+| `queryNode.cpuUtilization` | Specify the cpu auto-scaling value | 40 |
+| `queryNode.memoryUtilization` | Specify the memory auto-scaling value | 60 |
 
-### Milvus Index Coordinator Deployment Configuration
 
-The following table lists the configurable parameters of the Milvus Index Coordinator component and their default values.
 
-| Parameter                                 | Description                                   | Default                                                 |
-|-------------------------------------------|-----------------------------------------------|---------------------------------------------------------|
-| `indexCoordinator.enabled`                | Enable or disable Index Coordinator component | `true`                                                  |
-| `indexCoordinator.resources`              | Resource requests/limits for the Milvus Index Coordinator pods | `{}`                                   |
-| `indexCoordinator.nodeSelector`           | Node labels for Milvus Index Coordinator pods assignment | `{}`                                         |
-| `indexCoordinator.affinity`               | Affinity settings for Milvus Index Coordinator pods assignment | `{}`                                   |
-| `indexCoordinator.tolerations`            | Toleration labels for Milvus Index Coordinator pods assignment | `[]`                                   |
-| `indexCoordinator.heaptrack.enabled`      | Whether to enable heaptrack                             | `false`                                          |
-| `indexCoordinator.profiling.enabled`      | Whether to enable live profiling                   | `false`                                          |
-| `indexCoordinator.activeStandby.enabled`  | Whether to enable active-standby                   | `false`                                          |
-| `indexCoordinator.extraEnv`               | Additional Milvus Index Coordinator container environment variables | `[]`                              |
-| `indexCoordinator.service.type`                       | Service type                                  | `ClusterIP`                                 |
-| `indexCoordinator.service.port`                       | Port where service is exposed                 | `19530`                                     |
-| `indexCoordinator.service.annotations`                | Service annotations                           | `{}`                                        |
-| `indexCoordinator.service.labels`                     | Service custom labels                         | `{}`                                        |
-| `indexCoordinator.service.clusterIP`                  | Internal cluster service IP                   | `unset`                                     |
-| `indexCoordinator.service.loadBalancerIP`             | IP address to assign to load balancer (if supported) | `unset`                              |
-| `indexCoordinator.service.loadBalancerSourceRanges`   | List of IP CIDRs allowed access to lb (if supported) | `[]`                                 |
-| `indexCoordinator.service.externalIPs`                | Service external IP addresses                 | `[]`                                        |
 
-### Milvus Index Node Deployment Configuration
-
-The following table lists the configurable parameters of the Milvus Index Node component and their default values.
-
-| Parameter                                 | Description                                   | Default                                                 |
-|-------------------------------------------|-----------------------------------------------|---------------------------------------------------------|
-| `indexNode.enabled`                       | Enable or disable Index Node component        | `true`                                                  |
-| `indexNode.replicas`                      | Desired number of Index Node pods             | `1`                                                     |
-| `indexNode.resources`                     | Resource requests/limits for the Milvus Index Node pods | `{}`                                          |
-| `indexNode.nodeSelector`                  | Node labels for Milvus Index Node pods assignment | `{}`                                                |
-| `indexNode.affinity`                      | Affinity settings for Milvus Index Node pods assignment | `{}`                                          |
-| `indexNode.tolerations`                   | Toleration labels for Milvus Index Node pods assignment | `[]`                                          |
-| `indexNode.heaptrack.enabled`             | Whether to enable heaptrack                             | `false`                                          |
-| `indexNode.disk.enabled`                  | Whether to enable disk for index node                             | `true`                                          |
-| `indexNode.profiling.enabled`             | Whether to enable live profiling                   | `false`                                          |
-| `indexNode.extraEnv`                      | Additional Milvus Index Node container environment variables | `[]`                                     |
-
-### Milvus Data Coordinator Deployment Configuration
-
-The following table lists the configurable parameters of the Milvus Data Coordinator component and their default values.
-
-| Parameter                                 | Description                                   | Default                                                 |
-|-------------------------------------------|-----------------------------------------------|---------------------------------------------------------|
-| `dataCoordinator.enabled`                 | Enable or disable Data Coordinator component  | `true`                                                  |
-| `dataCoordinator.resources`               | Resource requests/limits for the Milvus Data Coordinator pods | `{}`                                    |
-| `dataCoordinator.nodeSelector`            | Node labels for Milvus Data Coordinator pods assignment | `{}`                                          |
-| `dataCoordinator.affinity`                | Affinity settings for Milvus Data Coordinator pods assignment  | `{}`                                   |
-| `dataCoordinator.tolerations`             | Toleration labels for Milvus Data Coordinator pods assignment | `[]`                                    |
-| `dataCoordinator.heaptrack.enabled`       | Whether to enable heaptrack                             | `false`                                          |
-| `dataCoordinator.profiling.enabled`       | Whether to enable live profiling                   | `false`                                          |
-| `dataCoordinator.activeStandby.enabled`   | Whether to enable active-standby                   | `false`                                          |
-| `dataCoordinator.extraEnv`                | Additional Milvus Data Coordinator container environment variables | `[]`                               |
-| `dataCoordinator.service.type`                        | Service type                                  | `ClusterIP`                                 |
-| `dataCoordinator.service.port`                        | Port where service is exposed                 | `19530`                                     |
-| `dataCoordinator.service.annotations`                 | Service annotations                           | `{}`                                        |
-| `dataCoordinator.service.labels`                      | Service custom labels                         | `{}`                                        |
-| `dataCoordinator.service.clusterIP`                   | Internal cluster service IP                   | `unset`                                     |
-| `dataCoordinator.service.loadBalancerIP`              | IP address to assign to load balancer (if supported) | `unset`                              |
-| `dataCoordinator.service.loadBalancerSourceRanges`    | List of IP CIDRs allowed access to lb (if supported) | `[]`                                 |
-| `dataCoordinator.service.externalIPs`                 | Service external IP addresses                 | `[]`                                        |
 
 ### Milvus Data Node Deployment Configuration
 
@@ -460,22 +503,29 @@ The following table lists the configurable parameters of the Milvus Data Node co
 | `dataNode.heaptrack.enabled`              | Whether to enable heaptrack                             | `false`                                          |
 | `dataNode.profiling.enabled`              | Whether to enable live profiling                   | `false`                                          |
 | `dataNode.extraEnv`                       | Additional Milvus Data Node container environment variables | `[]`                                      |
+| `dataNode.strategy`                       | Deployment strategy configuration |  RollingUpdate                                         |
+| `dataNode.annotations`                    | Additional pod annotations | `{}` |
+| `dataNode.hpa` | Enable hpa for data node | false |
+| `dataNode.minReplicas` | Specify the minimum number of replicas | 1 |
+| `dataNode.maxReplicas` | Specify the maximum number of replicas | 5 |
+| `dataNode.cpuUtilization` | Specify the cpu auto-scaling value | 40 |
 
-### Milvus Mixture Coordinator Deployment Configuration
+### Milvus Mix Coordinator Deployment Configuration
 
-The following table lists the configurable parameters of the Milvus Mixture Coordinator component and their default values.
+The following table lists the configurable parameters of the Milvus Mix Coordinator component and their default values. The Mix Coordinator consolidates all coordinator functions (Root, Query, Index, and Data Coordinators) into a single component for improved efficiency and simplified deployment.
 
 | Parameter                                 | Description                                   | Default                                                 |
 |-------------------------------------------|-----------------------------------------------|---------------------------------------------------------|
-| `mixCoordinator.enabled`                 | Enable or disable Data Coordinator component  | `true`                                                  |
-| `mixCoordinator.resources`               | Resource requests/limits for the Milvus Data Coordinator pods | `{}`                                    |
-| `mixCoordinator.nodeSelector`            | Node labels for Milvus Data Coordinator pods assignment | `{}`                                          |
-| `mixCoordinator.affinity`                | Affinity settings for Milvus Data Coordinator pods assignment  | `{}`                                   |
-| `mixCoordinator.tolerations`             | Toleration labels for Milvus Data Coordinator pods assignment | `[]`                                    |
+| `mixCoordinator.enabled`                 | Enable or disable Mix Coordinator component  | `true`                                                  |
+| `mixCoordinator.replicas`                | Desired number of Mix Coordinator pods       | `1`                                                     |
+| `mixCoordinator.resources`               | Resource requests/limits for the Milvus Mix Coordinator pods | `{}`                                    |
+| `mixCoordinator.nodeSelector`            | Node labels for Milvus Mix Coordinator pods assignment | `{}`                                          |
+| `mixCoordinator.affinity`                | Affinity settings for Milvus Mix Coordinator pods assignment  | `{}`                                   |
+| `mixCoordinator.tolerations`             | Toleration labels for Milvus Mix Coordinator pods assignment | `[]`                                    |
 | `mixCoordinator.heaptrack.enabled`       | Whether to enable heaptrack                             | `false`                                          |
 | `mixCoordinator.profiling.enabled`       | Whether to enable live profiling                   | `false`                                          |
 | `mixCoordinator.activeStandby.enabled`   | Whether to enable active-standby                   | `false`                                          |
-| `mixCoordinator.extraEnv`                | Additional Milvus Data Coordinator container environment variables | `[]`                               |
+| `mixCoordinator.extraEnv`                | Additional Milvus Mix Coordinator container environment variables | `[]`                               |
 | `mixCoordinator.service.type`                        | Service type                                  | `ClusterIP`                                 |
 | `mixCoordinator.service.annotations`                 | Service annotations                           | `{}`                                        |
 | `mixCoordinator.service.labels`                      | Service custom labels                         | `{}`                                        |
@@ -483,10 +533,99 @@ The following table lists the configurable parameters of the Milvus Mixture Coor
 | `mixCoordinator.service.loadBalancerIP`              | IP address to assign to load balancer (if supported) | `unset`                              |
 | `mixCoordinator.service.loadBalancerSourceRanges`    | List of IP CIDRs allowed access to lb (if supported) | `[]`                                 |
 | `mixCoordinator.service.externalIPs`                 | Service external IP addresses                 | `[]`                                        |
+| `mixCoordinator.strategy`                       | Deployment strategy configuration |  RollingUpdate                                         |
+| `mixCoordinator.annotations`                    | Additional pod annotations | `{}` |
+
+### Milvus Streaming Node Deployment Configuration
+
+The following table lists the configurable parameters of the Milvus Streaming Node component and their default values. The Streaming Node is a new component introduced in Milvus v2.6.x for enhanced data processing and streaming operations.
+
+| Parameter                                 | Description                                             | Default       |
+|-------------------------------------------|---------------------------------------------------------|---------------|
+| `streamingNode.enabled`                   | Enable or disable Streaming Node component             | `true`        |
+| `streamingNode.replicas`                  | Desired number of Streaming Node pods                  | `1`           |
+| `streamingNode.resources`                 | Resource requests/limits for the Milvus Streaming Node pods | `{}`      |
+| `streamingNode.nodeSelector`              | Node labels for Milvus Streaming Node pods assignment  | `{}`          |
+| `streamingNode.affinity`                  | Affinity settings for Milvus Streaming Node pods assignment | `{}`      |
+| `streamingNode.tolerations`               | Toleration labels for Milvus Streaming Node pods assignment | `[]`      |
+| `streamingNode.securityContext`           | Security context for Streaming Node pods               | `{}`          |
+| `streamingNode.containerSecurityContext`  | Container security context for Streaming Node          | `{}`          |
+| `streamingNode.heaptrack.enabled`         | Whether to enable heaptrack                            | `false`       |
+| `streamingNode.profiling.enabled`         | Whether to enable live profiling                       | `false`       |
+| `streamingNode.extraEnv`                  | Additional Milvus Streaming Node container environment variables | `[]`  |
+| `streamingNode.strategy`                  | Deployment strategy configuration                       | `{}`          |
+| `streamingNode.woodpecker.embedded`       | Whether to use embedded Woodpecker in Streaming Node. When `false`, external Woodpecker is used and `woodpecker.enabled` must be set to `true` | `true`        |
+| `streamingNode.woodpecker.storage.type`   | Woodpecker storage type. Valid values: `minio`, `local`. Only applies when `embedded` is `true` | `minio`       |
+
+### Milvus CDC Deployment Configuration
+
+The following table lists the configurable parameters of the Milvus CDC (Change Data Capture) component and their default values. CDC is a new component introduced in Milvus v2.6.6+ that captures and replicates data changes within Milvus.
+
+| Parameter                                 | Description                                             | Default       |
+|-------------------------------------------|---------------------------------------------------------|---------------|
+| `cdc.enabled`                             | Enable or disable CDC component                         | `false`       |
+| `cdc.replicas`                            | Desired number of CDC pods                              | `1`           |
+| `cdc.resources`                           | Resource requests/limits for the Milvus CDC pods       | `{}`          |
+| `cdc.nodeSelector`                        | Node labels for Milvus CDC pods assignment             | `{}`          |
+| `cdc.affinity`                             | Affinity settings for Milvus CDC pods assignment        | `{}`          |
+| `cdc.tolerations`                          | Toleration labels for Milvus CDC pods assignment       | `[]`          |
+| `cdc.securityContext`                      | Security context for CDC pods                          | `{}`          |
+| `cdc.containerSecurityContext`            | Container security context for CDC                      | `{}`          |
+| `cdc.topologySpreadConstraints`           | Topology spread constraints for CDC pods                | `[]`          |
+| `cdc.heaptrack.enabled`                   | Whether to enable heaptrack                             | `false`       |
+| `cdc.profiling.enabled`                   | Whether to enable live profiling                        | `false`       |
+| `cdc.extraEnv`                             | Additional Milvus CDC container environment variables   | `[]`          |
+| `cdc.strategy`                             | Deployment strategy configuration                       | `{}`          |
+| `cdc.annotations`                          | Additional pod annotations                              | `{}`          |
+
+> **Note**: Currently, CDC only supports one replica. Setting `cdc.replicas` to a value greater than 1 is not recommended.
+
+### TEI Configuration
+
+The following table lists the configurable parameters of the Text Embeddings Inference (TEI) component and their default values.
+
+| Parameter                                 | Description                                             | Default                                     |
+|-------------------------------------------|---------------------------------------------------------|---------------------------------------------|
+| `tei.enabled`                             | Enable or disable TEI deployment                        | `false`                                     |
+| `tei.name`                                | Name of the TEI component                               | `text-embeddings-inference`                 |
+| `tei.image.repository`                    | TEI image repository                                    | `ghcr.io/huggingface/text-embeddings-inference` |
+| `tei.image.tag`                           | TEI image tag                                           | `cpu-1.6`                                   |
+| `tei.image.pullPolicy`                    | TEI image pull policy                                   | `IfNotPresent`                              |
+| `tei.service.type`                        | TEI service type                                        | `ClusterIP`                                 |
+| `tei.service.port`                        | TEI service port                                        | `8080`                                      |
+| `tei.service.annotations`                 | TEI service annotations                                 | `{}`                                        |
+| `tei.service.labels`                      | TEI service custom labels                               | `{}`                                        |
+| `tei.resources.requests.cpu`              | CPU resource requests for TEI pods                      | `4`                                         |
+| `tei.resources.requests.memory`           | Memory resource requests for TEI pods                   | `8Gi`                                       |
+| `tei.resources.limits.cpu`                | CPU resource limits for TEI pods                        | `8`                                         |
+| `tei.resources.limits.memory`             | Memory resource limits for TEI pods                     | `16Gi`                                      |
+| `tei.persistence.enabled`                 | Enable persistence for TEI                              | `true`                                      |
+| `tei.persistence.mountPath`               | Mount path for TEI persistence                          | `/data`                                     |
+| `tei.persistence.annotations`             | Annotations for TEI PVC                                 | `{}`                                        |
+| `tei.persistence.persistentVolumeClaim.existingClaim` | Existing PVC for TEI                       | `""`                                        |
+| `tei.persistence.persistentVolumeClaim.storageClass` | Storage class for TEI PVC                   | `""`                                        |
+| `tei.persistence.persistentVolumeClaim.accessModes` | Access modes for TEI PVC                     | `ReadWriteOnce`                             |
+| `tei.persistence.persistentVolumeClaim.size` | Size of TEI PVC                                     | `50Gi`                                      |
+| `tei.persistence.persistentVolumeClaim.subPath` | SubPath for TEI PVC                              | `""`                                        |
+| `tei.modelId`                             | Model ID for TEI                                        | `BAAI/bge-large-en-v1.5`                    |
+| `tei.extraArgs`                           | Additional arguments for TEI                            | `[]`                                        |
+| `tei.nodeSelector`                        | Node labels for TEI pods assignment                     | `{}`                                        |
+| `tei.affinity`                            | Affinity settings for TEI pods assignment               | `{}`                                        |
+| `tei.tolerations`                         | Toleration labels for TEI pods assignment               | `[]`                                        |
+| `tei.topologySpreadConstraints`           | Topology spread constraints for TEI pods                | `[]`                                        |
+| `tei.extraEnv`                            | Additional TEI container environment variables          | `[]`                                        |
+| `tei.replicas`                            | Number of TEI replicas                                  | `1`                                         |
+
 
 ### Pulsar Configuration
 
 This version of the chart includes the dependent Pulsar chart in the charts/ directory.
+- `pulsar-v3.3.0` is used for Pulsar v3
+- `pulsar-v2.7.8` is used for Pulsar v2
+
+Since milvus chart version 4.2.21, pulsar v3 is supported, but pulsar v2 will be still used by default until the release of Milvus v2.5.0. 
+
+We recommend creating new instances with pulsar v3 to avoid security vulnerabilities & some bugs in pulsar v2. To use pulsar v3, set `pulsarv3.enabled` to `true` and `pulsar.enabled` to `false`. Set other values for pulsar v3 under `pulsarv3` field.
 
 You can find more information at:
 * [https://pulsar.apache.org/charts](https://pulsar.apache.org/charts)
@@ -512,6 +651,75 @@ This version of the chart includes the dependent Kafka chart in the charts/ dire
 You can find more information at:
 * [https://artifacthub.io/packages/helm/bitnami/kafka](https://artifacthub.io/packages/helm/bitnami/kafka)
 
+### Woodpecker Configuration
+
+**Woodpecker** is a cloud-native **Write-Ahead Log (WAL) storage** implementation that serves as the default message queue for Milvus standalone deployments. It's designed specifically for cloud environments, leveraging object storage as the durable storage layer while ensuring scalability and cost-effectiveness.
+
+Woodpecker provides high-throughput writes optimized for cloud storage, efficient log reads with memory management and prefetching strategies, and guarantees strict sequential ordering for log persistence. It can be deployed as a standalone service or integrated as an embedded library in your application.
+
+For more information about Woodpecker, visit the project repository: [https://github.com/zilliztech/woodpecker](https://github.com/zilliztech/woodpecker)
+
+- `woodpecker-svc.yaml` - Contains the headless service and regular service definitions
+- `woodpecker-statefulset.yaml` - Contains the StatefulSet configuration for Woodpecker pods
+
+The following table lists the configurable parameters of the Woodpecker component and their default values.
+
+| Parameter                                 | Description                                             | Default       |
+|-------------------------------------------|---------------------------------------------------------|---------------|
+| `woodpecker.enabled`                      | Enable or disable Woodpecker deployment                | `false`        |
+| `woodpecker.replicaCount`                 | Number of Woodpecker replicas                          | `4`           |
+| `woodpecker.image.repository`             | Woodpecker image repository                             | `milvusdb/woodpecker` |
+| `woodpecker.image.tag`                    | Woodpecker image tag                                    | `latest`      |
+| `woodpecker.image.pullPolicy`             | Image pull policy                                       | `IfNotPresent` |
+| `woodpecker.service.type`                 | Woodpecker service type                                 | `ClusterIP`   |
+| `woodpecker.service.port`                 | Woodpecker service port                                 | `19530`       |
+| `woodpecker.ports.service`                | Container service port                                  | `8080`        |
+| `woodpecker.ports.gossip`                 | Container gossip port                                   | `9090`        |
+| `woodpecker.resources`                    | Resource requests/limits for Woodpecker pods           | `{}`          |
+| `woodpecker.nodeSelector`                 | Node labels for Woodpecker pods assignment             | `{}`          |
+| `woodpecker.affinity`                     | Affinity settings for Woodpecker pods assignment       | `{}`          |
+| `woodpecker.tolerations`                  | Toleration labels for Woodpecker pods assignment       | `[]`          |
+| `woodpecker.persistence.enabled`          | Enable persistence for Woodpecker                      | `false`       |
+| `woodpecker.persistence.size`             | Size of persistent volume                               | `5Gi`         |
+| `woodpecker.persistence.storageClass`     | Storage class for persistent volume                     | `""`          |
+| `woodpecker.podManagementPolicy`          | Pod management policy for StatefulSet                  | `Parallel`    |
+| `woodpecker.resourceGroup`                | Resource group for Woodpecker                          | `default`     |
+| `woodpecker.logging.level`                | Log level for Woodpecker                               | `info`        |
+| `woodpecker.minio.port`                   | MinIO port for object storage                          | `9000`        |
+| `woodpecker.minio.accessKey`              | MinIO access key                                        | `minioadmin`  |
+| `woodpecker.minio.secretKey`              | MinIO secret key                                        | `minioadmin`  |
+| `woodpecker.minio.bucketName`             | MinIO bucket name                                       | `milvus-bucket` |
+
+### Node Selector, Affinity and Tolerations Configuration Guide
+
+- [Node Selector Configuration Guide](../../docs/node-selector-configuration-guide.md)
+- [Affinity Configuration Guide](../../docs/affinity-configuration-guide.md)
+- [Tolerations Configuration Guide](../../docs/tolerations-configuration-guide.md)
+
+#### Important Configuration Considerations
+
+When configuring pod scheduling in Kubernetes, be aware of potential conflicts between different scheduling mechanisms:
+
+1. **Node Selectors vs Node Affinity**
+   - Node selectors provide a simple way to constrain pods to nodes with specific labels
+   - Node affinity provides more flexible pod scheduling rules
+   - When used together, **both** node selector and node affinity rules must be satisfied
+   - Consider using only one mechanism unless you have specific requirements
+
+2. **Scheduling Priority**
+   - Node Selectors: Hard requirement that must be satisfied
+   - Required Node Affinity: Hard requirement that must be satisfied
+   - Preferred Node Affinity: Soft preference that Kubernetes will try to satisfy
+   - Pod Anti-Affinity: Can prevent pods from being scheduled on the same node
+
+3. **Best Practices**
+   - Start with simple node selectors for basic constraints
+   - Use node/pod affinity for more complex scheduling requirements
+   - Avoid combining multiple scheduling constraints unless necessary
+   - Test your configuration in a non-production environment first
+
+For detailed examples and configurations, please refer to the documentation guides linked above.
+
 ### Milvus Live Profiling
 Profiling is an effective way of understanding which parts of your application are consuming the most resources.
 
@@ -519,3 +727,15 @@ Continuous Profiling adds a dimension of time that allows you to understand your
 
 You can enable profiling with Pyroscope and you can find more information at:
 * [https://pyroscope.io/docs/kubernetes-helm-chart/](https://pyroscope.io/docs/kubernetes-helm-chart/)
+
+## Text Embeddings Inference (TEI) Integration Guide for Milvus
+
+Text Embeddings Inference (TEI) is a high-performance text embedding model inference service that converts text into vector representations. Milvus is a vector database that can store and retrieve these vectors. By combining the two, you can build powerful semantic search and retrieval systems.
+
+TEI is an open-source project developed by Hugging Face, available at [https://github.com/huggingface/text-embeddings-inference](https://github.com/huggingface/text-embeddings-inference).
+
+This guide provides two ways to use TEI:
+1. Deploy TEI service directly through the Milvus Helm Chart
+2. Use external TEI service with Milvus integration
+
+For detailed configuration and usage instructions, please refer to the [README-TEI.md](./README-TEI.md) document.

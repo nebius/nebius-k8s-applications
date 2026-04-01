@@ -10,6 +10,18 @@
 # is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
 # or implied. See the License for the specific language governing permissions and limitations under the License.
 
+
+{{- $etcdReleaseName := "" -}}
+{{- if contains .Values.etcd.name .Release.Name }}
+  {{- $etcdReleaseName = printf "%s" .Release.Name -}}
+{{- else }}
+  {{- $etcdReleaseName = printf "%s-%s" .Release.Name  .Values.etcd.name -}}
+{{- end }}
+
+{{- $etcdPort := .Values.etcd.service.port }}
+
+{{- $namespace := .Release.Namespace }}
+
 etcd:
 {{- if .Values.externalEtcd.enabled }}
   endpoints:
@@ -18,10 +30,8 @@ etcd:
   {{- end }}
 {{- else }}
   endpoints:
-{{- if contains .Values.etcd.name .Release.Name }}
-    - {{ .Release.Name }}:{{ .Values.etcd.service.port }}
-{{- else }}
-    - {{ .Release.Name }}-{{ .Values.etcd.name }}:{{ .Values.etcd.service.port }}
+{{- range $i := until ( .Values.etcd.replicaCount | int ) }}
+  - {{ $etcdReleaseName }}-{{ $i }}.{{ $etcdReleaseName }}-headless.{{ $namespace }}.svc.{{ $.Values.etcd.clusterDomain }}:{{ $etcdPort }}
 {{- end }}
 {{- end }}
 
@@ -57,15 +67,15 @@ minio:
   accessKeyID: {{ .Values.minio.accessKey }}
   secretAccessKey: {{ .Values.minio.secretKey }}
   useSSL: {{ .Values.minio.tls.enabled }}
-{{- if .Values.minio.gcsgateway.enabled }}
-  bucketName: {{ .Values.externalGcs.bucketName }}
-{{- else }}
   bucketName: {{ .Values.minio.bucketName }}
-{{- end }}
   rootPath: {{ .Values.minio.rootPath }}
   useIAM: {{ .Values.minio.useIAM }}
+  {{- if .Values.minio.useIAM }}
   iamEndpoint: {{ .Values.minio.iamEndpoint }}
+  {{- end }}
+  {{- if ne .Values.minio.region "" }}
   region: {{ .Values.minio.region }}
+  {{- end }}
   useVirtualHost: {{ .Values.minio.useVirtualHost }}
 {{- end }}
 
@@ -100,6 +110,30 @@ pulsar:
 {{- end }}
   port: {{ .Values.pulsar.proxy.ports.pulsar }}
   maxMessageSize: {{ .Values.pulsar.maxMessageSize }}
+
+{{- else if .Values.woodpecker.enabled }}
+
+mq:
+  type: woodpecker
+
+messageQueue: woodpecker
+
+
+{{- else if .Values.pulsarv3.enabled }}
+
+mq:
+  type: pulsar
+
+messageQueue: pulsar
+
+pulsar:
+{{- if contains .Values.pulsarv3.name .Release.Name }}
+  address: {{ .Release.Name }}-proxy
+{{- else }}
+  address: {{ .Release.Name }}-{{ .Values.pulsarv3.name }}-proxy
+{{- end }}
+  port: {{ .Values.pulsarv3.proxy.ports.pulsar }}
+  maxMessageSize: {{ .Values.pulsarv3.broker.configData.maxMessageSize }}
 {{- end }}
 
 {{- if .Values.externalKafka.enabled }}
@@ -135,12 +169,12 @@ kafka:
 {{- end }}
 
 {{- if not .Values.cluster.enabled }}
-{{- if or (eq .Values.standalone.messageQueue "rocksmq") (eq .Values.standalone.messageQueue "natsmq") }}
+{{- if or (eq .Values.standalone.messageQueue "rocksmq") (eq .Values.standalone.messageQueue "natsmq") (eq .Values.standalone.messageQueue "woodpecker") }}
 
 mq:
-  type: {{ .Values.standalone.messageQueue }}
+  type: {{ include "milvus.standalone.messageQueue" . }}
 
-messageQueue: {{ .Values.standalone.messageQueue }}
+messageQueue: {{ include "milvus.standalone.messageQueue" . }}
 {{- end }}
 {{- end }}
 
@@ -218,4 +252,24 @@ log:
     maxBackups: {{ .Values.log.file.maxBackups }}
   format: {{ .Values.log.format }}
 
+woodpecker:
+{{- $useExternalWoodpecker := eq (include "milvus.woodpecker.external.enabled" .) "true" -}}
+{{- if $useExternalWoodpecker }}
+  client:
+    quorum:
+      quorumBufferPools:
+        - name: default
+          seeds: [{{ include "milvus.woodpecker.seedList"  (merge (dict "port" .Values.woodpecker.ports.service) .)  }}]
+{{- end }}
+  storage:
+{{- if $useExternalWoodpecker }}
+    type: service
+{{- else }}
+    type: {{ .Values.streaming.woodpecker.storage.type }}
+{{- end }}
+{{- if .Values.cluster.enabled }}
+    rootPath: /woodpecker/data
+{{- else }}
+    rootPath: /var/lib/milvus/wp
+{{- end }}
 {{- end }}

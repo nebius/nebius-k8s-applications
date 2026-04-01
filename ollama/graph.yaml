@@ -1,37 +1,136 @@
 releaseType: "k8s"
 components:
-  helmchart001:
-    type: "helm_chart"
+  cluster001:
+    type: "mk8s_cluster"
     spec:
-      refMap:
-        parentId: "parameters.parentId"
-        clusterId: "components.cluster001.state.result.id"
-        releaseName: "parameters.releaseName"
-        releaseNamespace: "parameters.releaseNamespace"
-        values.model: "parameters.model"
-      componentSpec:
-        productSlug: "nebius/ollama"
+      api_spec:
+        metadata:
+          parentId: "${{ .parameters.parentId }}"
+          id: "${{ .parameters.clusterId }}"
+          name: "${{ .parameters.clusterName }}"
+        spec:
+          control_plane:
+            endpoints:
+              public_endpoint:
+
+  sa001:
+    type: "service_account"
+    spec:
+      api_spec:
+        metadata:
+          parentId: "${{ .parameters.parentId }}"
+          name: "ollama-tunna-sa"
+        spec:
+          description: "Service account for Ollama tunnel"
     dependencies:
       components:
         cluster001:
 
-  cluster001:
-    type: "mk8s_cluster"
+  member001:
+    type: "group_membership"
+    spec:
+      serviceAccountId: "${{ .components.sa001.state.result.id }}"
+      parentId: "${{ .parameters.parentId }}"
+      groups: ["viewers"]
+    dependencies:
+      components:
+        sa001:
+
+  binding001:
+    type: "access_binding"
+    spec:
+      api_spec:
+        metadata:
+          parentId: "${{ .parameters.parentId }}"
+        spec:
+          subjectId: "${{ .components.sa001.state.result.id }}"
+          resourceId: "${{ .parameters.parentId }}"
+          role: "applicationtunnel.agent"
+    dependencies:
+      components:
+        sa001:
+
+  rsakeypair001:
+    type: "rsa_key_pair"
+    spec:
+      bitSize: 4096
+
+  iamauthpubkey001:
+    type: "iam_auth_public_key"
+    spec:
+      parentId: "${{ .parameters.parentId }}"
+      serviceAccountId: "${{ .components.sa001.state.result.id }}"
+      publicKey: "${{ .components.rsakeypair001.state.result.publicKey }}"
+    dependencies:
+      components:
+        sa001:
+        rsakeypair001:
+
+  tunnel001:
+    type: "application_tunnel"
+    spec:
+      parentId: "${{ .parameters.parentId }}"
+      services:
+        - "ollama"
+
+  endpoint001:
+    type: "endpoint"
     spec:
       refMap:
-        api_spec.metadata.parentId: "parameters.parentId"
-        api_spec.metadata.id: "parameters.clusterId"
-        api_spec.metadata.name: "parameters.clusterName"
+        clusterId: "components.cluster001.state.result.id"
+        helmReleaseName: "parameters.releaseName"
+        helmReleaseNamespace: "parameters.releaseNamespace"
       componentSpec:
-        api_spec:
-          metadata:
-            name: "ollama-cluster"
-          spec:
-            control_plane:
-              # fill in subnetId with default value in the code
-              endpoints:
-                public_endpoint:
+        ports: []
+    dependencies:
+      components:
+        helmchart001:
 
+  helmchart001:
+    type: "helm_chart"
+    spec:
+      parentId: "${{ .parameters.parentId }}"
+      clusterId: "${{ .components.cluster001.state.result.id }}"
+      releaseName: "${{ .parameters.releaseName }}"
+      releaseNamespace: "${{ .parameters.releaseNamespace }}"
+      productSlug: "nebius/ollama"
+      values:
+        model: "${{ .parameters.model }}"
+        ollama:
+          models:
+            pull:
+              - "${{ .parameters.model }}"
+            run:
+              - "${{ .parameters.model }}"
+        tunna-agent:
+          enabled: true
+          config:
+            tunnel_id: "${{ .components.tunnel001.state.result.tunnelId }}"
+            server_addr: "${{ .components.tunnel001.state.result.address }}"
+            iam:
+              domain: "${{ .components.tunnel001.state.result.iamDomain }}"
+              service_account:
+                service_account_id: "${{ .components.sa001.state.result.id }}"
+                public_key_id: "${{ .components.iamauthpubkey001.state.result.publicKeyId }}"
+                private_key_path: "/etc/tunna/agent/sa/private_key.pem"
+            services:
+              - name: "ollama"
+                target: '${{ .parameters.releaseName }}:11434'
+                type: "http"
+          secret:
+            data:
+              sa-private-key: "${{ .components.rsakeypair001.state.result.privateKey }}"
+            items:
+              - key: sa-private-key
+                path: sa/private_key.pem
+    dependencies:
+      components:
+        cluster001:
+        tunnel001:
+        rsakeypair001:
+        iamauthpubkey001:
+        binding001:
+        member001:
 
 parameters:
   "parentId":

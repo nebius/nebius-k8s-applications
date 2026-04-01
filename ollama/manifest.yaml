@@ -8,5 +8,5 @@ images:
   - nameWithRegistry: image.repository
     tag: image.tag
 imagesMapping:
-  ollama/ollama:0.5.7:
-    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/ollama/ollama:0.5.7
+  ollama/ollama:0.19.0:
+    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/ollama/ollama:0.19.0

@@ -1,0 +1,6 @@
+dependencies:
+- name: tunna-agent
+  repository: oci://cr.eu-north1.nebius.cloud/marketplace/chart
+  version: 0.1.1
+digest: sha256:0578d2f26134223af9646ff293ad81ea0a64ae112765bada3283609dd0f010eb
+generated: "2026-04-01T15:05:18.467233+01:00"

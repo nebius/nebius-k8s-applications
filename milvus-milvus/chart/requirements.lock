@@ -1,18 +1,21 @@
 dependencies:
 - name: etcd
-  repository: file://charts/etcd
-  version: 6.3.3
+  repository: https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami
+  version: 8.12.0
 - name: minio
-  repository: file://charts/minio
+  repository: https://zilliztech.github.io/milvus-helm
   version: 8.0.17
-- name: pulsar
-  repository: file://charts/pulsar
+- name: pulsarv2
+  repository: https://zilliztech.github.io/milvus-helm
   version: 2.7.8
+- name: pulsar
+  repository: https://pulsar.apache.org/charts
+  version: 3.3.0
 - name: kafka
-  repository: file://charts/kafka
+  repository: https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami
   version: 15.5.1
-- name: gpu-operator
-  repository: oci://cr.eu-north1.nebius.cloud/marketplace/nebius/nvidia-gpu-operator/chart
-  version: v25.3.2
-digest: sha256:257c2e20457fab1189bbd2da1e918c77f3fa076ba9d9b25130fb10ccf37b3705
-generated: "2025-08-21T13:41:36.357470234+02:00"
+- name: tei
+  repository: https://zilliztech.github.io/milvus-helm
+  version: 1.6.0
+digest: sha256:64baf6c3e3f5c0b45c050681dd2b66f27e189fd5fdb6171450d18a523342d51c
+generated: "2025-10-10T16:34:30.094368+08:00"
