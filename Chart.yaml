@@ -11,7 +11,7 @@ dependencies:
   repository: "https://airflow.apache.org"
   # dir: apache-airflow
 - name: argo-cd
-  version: "7.7.5"
+  version: "7.9.1"
   repository: "https://argoproj.github.io/argo-helm"
   # dir: argo-project-argo-cd
 - name: clearml-agent
