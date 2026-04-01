@@ -1,160 +1,260 @@
 {
   "type": "object",
-  "defaultValue": {
-    "config": {
-      "logs": {
-        "enabled": true,
-        "collectAgentLogs": false,
-        "excludedNamespaces": ["kube-system"]
-      },
-      "metrics": {
-        "enabled": true,
-        "collectAgentMetrics": false,
-        "collectK8sClusterMetrics": false,
-        "excludedNamespaces": []
-      }
-    }
-  },
+  "defaultValue": {},
   "properties": {
-    "config": {
+    "mk8sCluster": {
+      "type": "object",
+      "required": true,
+      "viewSpec": {
+        "type": "mk8s_cluster"
+      }
+    },
+    "general": {
       "type": "object",
       "viewSpec": {
         "type": "base",
-        "layout": "transparent"
+        "layout": "section",
+        "layoutTitle": "General"
       },
+      "defaultValue": {},
       "properties": {
-        "logs": {
-          "type": "object",
+        "appname": {
+          "type": "string",
+          "required": true,
           "viewSpec": {
             "type": "base",
-            "layout": "accordeon",
-            "layoutTitle": "Logs Configuration",
-            "layoutDescription": "Configure log collection settings",
-            "layoutOpen": true,
-            "order": [
-              "enabled",
-              "collectAgentLogs",
-              "excludedNamespaces"
-            ]
+            "layout": "row",
+            "layoutTitle": "Application name"
           },
-          "properties": {
-            "enabled": {
-              "type": "boolean",
-              "viewSpec": {
-                "type": "switch",
-                "layout": "row",
-                "layoutTitle": "Enable Log Collection",
-                "layoutDescription": "Enable collection of logs from pods and containers"
-              }
-            },
-            "collectAgentLogs": {
-              "type": "boolean",
-              "viewSpec": {
-                "type": "switch",
-                "layout": "row",
-                "layoutTitle": "Collect Agent Logs",
-                "layoutDescription": "Enable collection of observability agent's own logs"
-              }
-            },
-            "excludedNamespaces": {
-              "type": "array",
-              "defaultValue": [
-                "kube-system"
-              ],
-              "viewSpec": {
-                "type": "base",
-                "layout": "group",
-                "layoutTitle": "Excluded Namespaces for Logs",
-                "itemLabel": "Add namespace",
-                "layoutDescription": "Namespaces to exclude from log collection"
-              },
-              "items": {
-                "type": "string",
-                "viewSpec": {
-                  "type": "base",
-                  "layout": "transparent",
-                  "layoutTitle": "",
-                  "placeholder": "Enter namespace name"
-                }
-              }
-            }
-          }
+          "defaultValue": "nebius-observability-agent"
         },
-        "metrics": {
-          "type": "object",
+        "namespace": {
+          "type": "string",
+          "required": true,
           "viewSpec": {
             "type": "base",
-            "layout": "accordeon",
-            "layoutTitle": "Metrics Configuration",
-            "layoutDescription": "Configure metrics collection settings",
-            "layoutOpen": false,
-            "order": [
-              "enabled",
-              "collectK8sClusterMetrics",
-              "collectAgentMetrics",
-              "excludedNamespaces"
-            ]
+            "layout": "row",
+            "layoutTitle": "Namespace"
           },
-          "properties": {
-            "enabled": {
-              "type": "boolean",
-              "viewSpec": {
-                "type": "switch",
-                "layout": "row",
-                "layoutTitle": "Enable Metrics Collection",
-                "layoutDescription": "Enable collection of metrics from pods and containers"
-              }
-            },
-            "collectAgentMetrics": {
-              "type": "boolean",
-              "viewSpec": {
-                "type": "switch",
-                "layout": "row",
-                "layoutTitle": "Collect Agent Metrics",
-                "layoutDescription": "Enable collection of observability agent's own metrics"
-              }
-            },
-            "collectK8sClusterMetrics": {
-              "type": "boolean",
-              "viewSpec": {
-                "type": "switch",
-                "layout": "row",
-                "layoutTitle": "Collect Kubernetes Cluster Metrics",
-                "layoutDescription": "Enable collection of Kubernetes cluster-level metrics"
-              }
-            },
-            "excludedNamespaces": {
-              "type": "array",
-              "defaultValue": [
-                ""
-              ],
-              "viewSpec": {
-                "type": "base",
-                "layout": "group",
-                "layoutTitle": "Excluded Namespaces for Metrics",
-                "itemLabel": "Add namespace",
-                "layoutDescription": "Namespaces to exclude from metrics collection"
-              },
-              "items": {
-                "type": "string",
-                "required": true,
-                "viewSpec": {
-                  "type": "base",
-                  "layout": "transparent",
-                  "layoutTitle": "",
-                  "placeholder": "Enter namespace name"
-                }
-              }
-            }
-          }
+          "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "patternError": "namespace must consist of lower case alphanumeric characters or '-', and must start and end with an alphanumeric character (e.g. 'my-name',  or '123-abc', regex used for validation is ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "defaultValue": "nebius-observability-agent"
         }
       }
+    },
+    "setup": {
+      "type": "object",
+      "properties": {
+        "app_settings": {
+          "type": "object",
+          "properties": {
+            "config": {
+              "type": "object",
+              "viewSpec": {
+                "type": "base",
+                "layout": "transparent"
+              },
+              "properties": {
+                "logs": {
+                  "type": "object",
+                  "viewSpec": {
+                    "type": "base",
+                    "layout": "accordeon",
+                    "layoutTitle": "Logs Configuration",
+                    "layoutDescription": "Configure log collection settings",
+                    "layoutOpen": true,
+                    "order": [
+                      "enabled",
+                      "collectAgentLogs",
+                      "excludedNamespaces"
+                    ]
+                  },
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "viewSpec": {
+                        "type": "switch",
+                        "layout": "row",
+                        "layoutTitle": "Enable Log Collection",
+                        "layoutDescription": "Enable collection of logs from pods and containers"
+                      }
+                    },
+                    "collectAgentLogs": {
+                      "type": "boolean",
+                      "viewSpec": {
+                        "type": "switch",
+                        "layout": "row",
+                        "layoutTitle": "Collect Agent Logs",
+                        "layoutDescription": "Enable collection of observability agent's own logs"
+                      }
+                    },
+                    "excludedNamespaces": {
+                      "type": "array",
+                      "defaultValue": [
+                        "kube-system"
+                      ],
+                      "viewSpec": {
+                        "type": "base",
+                        "layout": "group",
+                        "layoutTitle": "Excluded Namespaces for Logs",
+                        "itemLabel": "Add namespace",
+                        "layoutDescription": "Namespaces to exclude from log collection"
+                      },
+                      "items": {
+                        "type": "string",
+                        "viewSpec": {
+                          "type": "base",
+                          "layout": "transparent",
+                          "layoutTitle": "",
+                          "placeholder": "Enter namespace name"
+                        }
+                      }
+                    }
+                  }
+                },
+                "metrics": {
+                  "type": "object",
+                  "viewSpec": {
+                    "type": "base",
+                    "layout": "accordeon",
+                    "layoutTitle": "Metrics Configuration",
+                    "layoutDescription": "Configure metrics collection settings",
+                    "layoutOpen": false,
+                    "order": [
+                      "enabled",
+                      "collectK8sClusterMetrics",
+                      "collectAgentMetrics",
+                      "excludedNamespaces"
+                    ]
+                  },
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "viewSpec": {
+                        "type": "switch",
+                        "layout": "row",
+                        "layoutTitle": "Enable Metrics Collection",
+                        "layoutDescription": "Enable collection of metrics from pods and containers"
+                      }
+                    },
+                    "collectAgentMetrics": {
+                      "type": "boolean",
+                      "viewSpec": {
+                        "type": "switch",
+                        "layout": "row",
+                        "layoutTitle": "Collect Agent Metrics",
+                        "layoutDescription": "Enable collection of observability agent's own metrics"
+                      }
+                    },
+                    "collectK8sClusterMetrics": {
+                      "type": "boolean",
+                      "viewSpec": {
+                        "type": "switch",
+                        "layout": "row",
+                        "layoutTitle": "Collect Kubernetes Cluster Metrics",
+                        "layoutDescription": "Enable collection of Kubernetes cluster-level metrics"
+                      }
+                    },
+                    "excludedNamespaces": {
+                      "type": "array",
+                      "defaultValue": [
+                        ""
+                      ],
+                      "viewSpec": {
+                        "type": "base",
+                        "layout": "group",
+                        "layoutTitle": "Excluded Namespaces for Metrics",
+                        "itemLabel": "Add namespace",
+                        "layoutDescription": "Namespaces to exclude from metrics collection"
+                      },
+                      "items": {
+                        "type": "string",
+                        "required": true,
+                        "viewSpec": {
+                          "type": "base",
+                          "layout": "transparent",
+                          "layoutTitle": "",
+                          "placeholder": "Enter namespace name"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "defaultValue": {
+            "config": {
+              "logs": {
+                "enabled": true,
+                "collectAgentLogs": false,
+                "excludedNamespaces": [
+                  "kube-system"
+                ]
+              },
+              "metrics": {
+                "enabled": true,
+                "collectAgentMetrics": false,
+                "collectK8sClusterMetrics": false,
+                "excludedNamespaces": []
+              }
+            }
+          },
+          "viewSpec": {
+            "type": "base",
+            "layout": "",
+            "order": [
+              "config"
+            ]
+          }
+        },
+        "compose": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "string",
+              "viewSpec": {
+                "type": "yaml_input",
+                "layout": "row",
+                "layoutTitle": "Values",
+                "inputProps": {
+                  "buttonText": "Compose settings",
+                  "dialogTitle": "Compose",
+                  "description": "Use the YAML editor to set application parameters. Parameters set in compose mode are not automatically applied to the application settings tab."
+                }
+              },
+              "defaultValue": "# This is a YAML-formatted file.\n# Declare variables to be passed into your templates.\n\nimage:\n  repository: cr.nebius.cloud/observability/public/nebius-observability-agent\n  pullPolicy: IfNotPresent\n  tag: \"1.0.4\"\n\nimagePullSecrets: []\nnameOverride: \"\"\nfullnameOverride: \"\"\n\nhostNetwork: false\n\nserviceAccount:\n  # Specifies whether a service account should be created\n  create: true\n  # Annotations to add to the service account\n  annotations: {}\n  # The name of the service account to use.\n  # If not set and create is true, a name is generated using the fullname template\n  name: \"\"\n\nrbac:\n  create: true\n\npodAnnotations: {}\n\npodSecurityContext: {}\n  # fsGroup: 2000\n\nsecurityContext: {}\n  # capabilities:\n  #   drop:\n  #   - ALL\n  # readOnlyRootFilesystem: true\n  # runAsNonRoot: true\n  # runAsUser: 1000\n\n#resources:\n#  limits:\n#    cpu: 2\n#    memory: 2048Mi\n#  requests:\n#    cpu: 1\n#    memory: 2048Mi\nenv:\n  - name: K8S_NODE_NAME\n    valueFrom:\n      fieldRef:\n        fieldPath: spec.nodeName\n  - name: GOMAXPROCS\n    value: \"2\"\n  - name: NEBIUS_LOG_LEVEL\n    value: \"info\"\n  - name: OTEL_METRICS_EXEMPLAR_FILTER # https://github.com/open-telemetry/opentelemetry-go/blob/8324155ac66c2000db6e6b9577de3190fb24c23d/sdk/metric/internal/x/README.md#exemplars\n    value: \"always_off\"\n\nnodeSelector: {}\n\ntolerations:\n  - key: node-role.kubernetes.io/master\n    operator: Exists\n    effect: NoSchedule\n  - operator: \"Exists\"\n    effect: \"NoSchedule\"\n\naffinity: {}\n\nrelease_version: \"\"\n\nconfig:\n  logs:\n    enabled: true\n    collectAgentLogs: false\n    excludedNamespaces:\n      - kube-system\n\n  metrics:\n    enabled: true\n    collectAgentMetrics: false\n    collectK8sClusterMetrics: false\n    excludedNamespaces: []\n\n    # Additional Prometheus scrape configs to be added to the metrics collection\n    # Each entry should be a valid Prometheus scrape_config block\n    # Example:\n    # additionalTargets:\n    #   - job_name: 'my-custom-service'\n    #     static_configs:\n    #       - targets: ['service:9090']\n    #     scrape_interval: 30s\n    #   - job_name: 'kubernetes-custom-endpoints'\n    #     kubernetes_sd_configs:\n    #       - role: endpoints\n    #     relabel_configs:\n    #       - source_labels: [__meta_kubernetes_service_annotation_custom_scrape]\n    #         action: keep\n    #         regex: true\n    additionalTargets: []\n  iam:\n    enabled: true\n    auth_scheme: \"iam-token-file\"\n    token_file: \"/mnt/cloud-metadata/tsa-token\"\n    endpoint: tokens.iam.api.nebius.cloud:443\n\n  #metadata:\n  # region: eu-north1\n  # parent_id: \"project-e00abcde...\"\n\n  \n  podLogsDiscoveryRule: 'type == \"pod\" and (\"logs.nebius.ai/collect\" in annotations ? annotations[\"logs.nebius.ai/collect\"] : \"true\") != \"false\"'\n  parentIdPath: \"/mnt/cloud-metadata/parent-id\"\n  regionPath: \"/mnt/cloud-metadata/region-name\"\n  clusterIdPath: \"/usr/local/etc/mk8s-cluster-id\"\n  nodeGroupIdPath: \"/usr/local/etc/mk8s-node-group-id\"\n  ports:\n    metrics: 9090\n"
+            }
+          },
+          "defaultValue": {},
+          "viewSpec": {
+            "type": "base"
+          }
+        }
+      },
+      "viewSpec": {
+        "type": "oneof_flat",
+        "layout": "section",
+        "layoutTitle": "Configuration",
+        "order": [
+          "app_settings",
+          "compose"
+        ]
+      },
+      "description": {
+        "app_settings": "Application settings",
+        "compose": "Compose"
+      },
+      "defaultValue": {}
     }
   },
   "viewSpec": {
     "type": "base",
     "order": [
-      "config"
-    ]
+      "mk8sCluster",
+      "general",
+      "setup"
+    ],
+    "layout": "base"
   }
 }

@@ -5,7 +5,8 @@ publisherName: Nebius
 tariff_type: free
 categories:
   - monitoring
+
 images:
-  - nameWithRegistry: image.respository
+  - nameWithRegistry: image.repository
     tag: image.tag
 

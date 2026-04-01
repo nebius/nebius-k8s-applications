@@ -73,4 +73,3 @@ o11y-agent
 {{- define "o11y-agent.configmapName" -}}
 o11y-agent-config
 {{- end }}
-

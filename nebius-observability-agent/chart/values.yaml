@@ -4,7 +4,7 @@
 image:
   repository: cr.nebius.cloud/observability/public/nebius-observability-agent
   pullPolicy: IfNotPresent
-  tag: "1.0.4"
+  tag: "1.0.5"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -37,6 +37,11 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
+service:
+  type: ClusterIP
+  port: 4317
+  targetPort: 4317
+  name: nebius-observability-agent
 #resources:
 #  limits:
 #    cpu: 2
@@ -98,6 +103,10 @@ config:
     #         action: keep
     #         regex: true
     additionalTargets: []
+
+  traces:
+    enabled: true
+
   iam:
     enabled: true
     auth_scheme: "iam-token-file"
@@ -116,3 +125,7 @@ config:
   nodeGroupIdPath: "/usr/local/etc/mk8s-node-group-id"
   ports:
     metrics: 9090
+  feature_flags:
+    fix_for_short_living_jobs:
+      enabled: true
+      target_for_pod_time_filter: ""

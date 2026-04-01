@@ -77,6 +77,15 @@
               to: body
 {{- end -}}
 
+{{- define "o11y-agent.config.persistent-dir" -}}
+{{- .Values.config.persistentDir | default "/var/lib/nebius-o11y-agent" -}}
+{{- end -}}
+
+{{- define "o11y-agent.config.container-image-statements" -}}
+- set(attributes["container.image.tag"], Split(attributes["container.image.repo_digests"][0], ":")[1]) where attributes["container.image.tag"] == nil and attributes["container.image.repo_digests"] != nil and Len(attributes["container.image.repo_digests"]) > 0 and IsMatch(attributes["container.image.repo_digests"][0], ".*:.*")
+- delete_key(attributes,"container.image.repo_digests")
+{{- end -}}
+
 
 {{- define "o11y-agent.config.region" -}}
 {{- if and .Values.config.metadata .Values.config.metadata.region -}}
@@ -93,4 +102,5 @@ ${env:REGION_NAME}
 ${env:PARENT_ID}
 {{- end -}}
 {{- end -}}
+
 

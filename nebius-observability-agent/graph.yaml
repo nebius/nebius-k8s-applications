@@ -1,0 +1,109 @@
+releaseType: "k8s"
+components:
+  helmchart001:
+    type: "helm_chart"
+    spec:
+      refMap:
+        parentId: "parameters.parentId"
+        clusterId: "components.cluster001.state.result.id"
+        releaseName: "parameters.releaseName"
+        releaseNamespace: "parameters.releaseNamespace"
+        rawValues: "parameters.rawValues"
+        values.config.logs.collectAgentLogs: "parameters.configLogsCollectAgentLogs"
+        values.config.logs.enabled: "parameters.configLogsEnabled"
+        values.config.logs.excludedNamespaces: "parameters.configLogsExcludedNamespaces"
+        values.config.metrics.collectAgentMetrics: "parameters.configMetricsCollectAgentMetrics"
+        values.config.metrics.collectK8sClusterMetrics: "parameters.configMetricsCollectK8sClusterMetrics"
+        values.config.metrics.enabled: "parameters.configMetricsEnabled"
+        values.config.metrics.excludedNamespaces: "parameters.configMetricsExcludedNamespaces"
+      componentSpec:
+        productSlug: "nebius/nebius-observability-agent"
+    dependencies:
+      components:
+        cluster001:
+
+  cluster001:
+    type: "mk8s_cluster"
+    spec:
+      refMap:
+        api_spec.metadata.parentId: "parameters.parentId"
+        api_spec.metadata.id: "parameters.clusterId"
+        api_spec.metadata.name: "parameters.clusterName"
+      componentSpec:
+        api_spec:
+          metadata:
+            name: "nebius-observability-agent-cluster"
+          spec:
+            control_plane:
+              # fill in subnetId with default value in the code
+              endpoints:
+                public_endpoint:
+
+
+parameters:
+  "parentId":
+    type: "string"
+    description: "The project ID for the Nebius Observability Agent for Kubernetes deployment."
+
+  "clusterId":
+    type: "string"
+    description: "Existing mk8s cluster ID for the Nebius Observability Agent for Kubernetes deployment."
+
+  "clusterName":
+    type: "string"
+    description: "Existing mk8s cluster name for the Nebius Observability Agent for Kubernetes deployment."
+
+  "releaseName":
+    type: "string"
+    description: "Helm release name."
+
+  "releaseNamespace":
+    type: "string"
+    description: "Helm release namespace."
+
+  "configLogsCollectAgentLogs":
+    type: "bool"
+    description: "Value for Helm key 'config.logs.collectAgentLogs'."
+
+  "configLogsEnabled":
+    type: "bool"
+    description: "Value for Helm key 'config.logs.enabled'."
+
+  "configLogsExcludedNamespaces":
+    type: "any"
+    description: "Value for Helm key 'config.logs.excludedNamespaces'."
+
+  "configMetricsCollectAgentMetrics":
+    type: "bool"
+    description: "Value for Helm key 'config.metrics.collectAgentMetrics'."
+
+  "configMetricsCollectK8sClusterMetrics":
+    type: "bool"
+    description: "Value for Helm key 'config.metrics.collectK8sClusterMetrics'."
+
+  "configMetricsEnabled":
+    type: "bool"
+    description: "Value for Helm key 'config.metrics.enabled'."
+
+  "configMetricsExcludedNamespaces":
+    type: "any"
+    description: "Value for Helm key 'config.metrics.excludedNamespaces'."
+
+  "rawValues":
+    type: "string"
+    description: "Helm values YAML (compose mode)."
+
+ui:
+  mapping:
+    clusterId: "mk8sCluster.clusterId"
+    clusterName: "mk8sCluster.name"
+    configLogsCollectAgentLogs: 'setup.app_settings.config.logs.collectAgentLogs'
+    configLogsEnabled: 'setup.app_settings.config.logs.enabled'
+    configLogsExcludedNamespaces: 'setup.app_settings.config.logs.excludedNamespaces'
+    configMetricsCollectAgentMetrics: 'setup.app_settings.config.metrics.collectAgentMetrics'
+    configMetricsCollectK8sClusterMetrics: 'setup.app_settings.config.metrics.collectK8sClusterMetrics'
+    configMetricsEnabled: 'setup.app_settings.config.metrics.enabled'
+    configMetricsExcludedNamespaces: 'setup.app_settings.config.metrics.excludedNamespaces'
+    releaseName: "general.appname"
+    releaseNamespace: "general.namespace"
+    rawValues: "setup.compose.data"

@@ -16,12 +16,19 @@ extensions:
     observe_pods: true
     observe_nodes: false
     observe_services: false
-#    list_only_running_pods: false
-#    target_for_pod: podName
+    {{- if and .Values.config.feature_flags (hasKey .Values.config.feature_flags "fix_for_short_living_jobs") .Values.config.feature_flags.fix_for_short_living_jobs.enabled }}
+    list_only_running_pods: false
+    target_for_pod: podName
+    target_for_pod_time_filter: ${env:FIX_SHORT_JOBS_TIME_FILTER}
+    {{- end }}
 
   pprof:
 
   goruntimemetrics:
+
+  agentdiskcleanupextension:
+    metrics_period: 1m
+    directory: {{ include "o11y-agent.config.persistent-dir" . }}
 
   zpages:
 
@@ -30,15 +37,20 @@ extensions:
     path: /health
 
   file_storage/filelog:
-    directory: {{ .Values.config.persistentDir | default "/var/lib/nebius-o11y-agent" }}
+    directory: {{ include "o11y-agent.config.persistent-dir" . }}
     timeout: 1s
     compaction:
       on_start: true
       on_rebound: true
-      directory: {{ .Values.config.persistentDir | default "/var/lib/nebius-o11y-agent" }}
+      directory: {{ include "o11y-agent.config.persistent-dir" . }}
 
 receivers:
 {{- include "o11y-agent.config.receivercreator" . | nindent 2 }}
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+        max_recv_msg_size_mib: 8
 {{- include "o11y-agent.config.metrics.receivers" . | nindent 2 }}
 
 exporters:
@@ -50,6 +62,15 @@ exporters:
     {{- if .Values.config.iam.enabled }}
       authenticator: nebiusiamauth
     {{- end }}
+{{ include "o11y-agent.config.grpc-common-options" . }}
+  nebius/traces:
+    endpoint: dns:///write.tracing.{{ include "o11y-agent.config.region" . }}.nebius.cloud:443
+
+    auth:
+    {{- if .Values.config.iam.enabled  }}
+      authenticator: nebiusiamauth
+    {{- end }}
+
 {{ include "o11y-agent.config.grpc-common-options" . }}
 
 processors:
@@ -69,44 +90,22 @@ processors:
     log_statements:
       - context: resource
         statements:
+{{- include "o11y-agent.config.container-image-statements" . | nindent 10 }}
           - set(attributes["k8s.cluster.id"], "${env:CLUSTER_ID}")
           - set(attributes["k8s.node_group.id"], "${env:NODE_GROUP_ID}")
-
+    trace_statements:
+      - context: resource
+        statements:
+{{- include "o11y-agent.config.container-image-statements" . | nindent 10 }}
+          - set(attributes["k8s.cluster.id"], "${env:CLUSTER_ID}")
+          - set(attributes["k8s.node_group.id"], "${env:NODE_GROUP_ID}")
   memory_limiter:
     check_interval: 5s
     limit_percentage: 90
     spike_limit_percentage: 5
 
-  k8sattributes:
-    filter:
-        node_from_env_var: K8S_NODE_NAME
-    wait_for_metadata: true
-    wait_for_metadata_timeout: 30s
-    pod_association:
-      - sources:
-          - from: resource_attribute
-            name: k8s.pod.ip
-      - sources:
-          - from: resource_attribute
-            name: k8s.pod.uid
-      - sources:
-          - from: connection
-    extract:
-      labels:
-        - tag_name: app.kubernetes.io/name
-          key: app.kubernetes.io/name
-          from: pod
-      metadata:
-        - k8s.namespace.name
-        - k8s.deployment.name
-        - k8s.statefulset.name
-        - k8s.daemonset.name
-        - k8s.cronjob.name
-        - k8s.job.name
-        - k8s.node.name
-        - k8s.pod.name
-        - k8s.pod.start_time
-        - container.image.tag
+{{- include "o11y-agent.config.k8sattributes" (dict "root" . "type" "logs") | nindent 2 }}
+{{- include "o11y-agent.config.k8sattributes" (dict "root" . "type" "traces") | nindent 2 }}
 
 service:
     telemetry:
@@ -136,6 +135,12 @@ service:
                 attribute_keys:
                   excluded:
                     - receiver
+            - selector:
+                instrument_name: otelcol_receiver_failed_log_records
+              stream:
+                attribute_keys:
+                  excluded:
+                    - receiver
 
         # remove redundant metric labels
         resource:
@@ -143,3 +148,41 @@ service:
             service.name: ~
             release.version:  {{ .Chart.Version | quote }}
 {{- end -}}
+
+{{- define "o11y-agent.config.k8sattributes" -}}
+k8sattributes/{{ .type }}:
+    filter:
+        node_from_env_var: K8S_NODE_NAME
+    wait_for_metadata: true
+    wait_for_metadata_timeout: 30s
+    pod_association:
+      - sources:
+          - from: resource_attribute
+            name: k8s.pod.ip
+      - sources:
+          - from: resource_attribute
+            name: k8s.pod.uid
+      - sources:
+          - from: connection
+    extract:
+      labels:
+        - tag_name: app.kubernetes.io/name
+          key: app.kubernetes.io/name
+          from: pod
+      metadata:
+        - k8s.namespace.name
+        - k8s.deployment.name
+        - k8s.statefulset.name
+        - k8s.daemonset.name
+        - k8s.cronjob.name
+        - k8s.job.name
+        - k8s.node.name
+        - k8s.pod.name
+{{- if eq .type "traces" }}
+        - k8s.pod.ip
+{{- end }}
+        - k8s.pod.start_time
+        - container.image.tag
+        - container.image.repo_digests
+{{- end -}}
+

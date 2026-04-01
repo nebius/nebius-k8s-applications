@@ -52,11 +52,13 @@ spec:
           ports:
             - containerPort: {{ .Values.config.ports.metrics}}
               name: metrics
+            - containerPort: {{ .Values.service.port }}
+              name: otlp
           livenessProbe:
             httpGet:
               path: /health
               port: 13133
-            initialDelaySeconds: 15
+            initialDelaySeconds: 240
             periodSeconds: 20
           readinessProbe:
             httpGet:
@@ -100,6 +102,12 @@ spec:
           env:
             {{- with .Values.env }}
               {{- toYaml . | nindent 12 }}
+            {{- end }}
+            {{- if and .Values.config.feature_flags (hasKey .Values.config.feature_flags "fix_for_short_living_jobs") .Values.config.feature_flags.fix_for_short_living_jobs.enabled }}
+            - name: SHORT_LIVING_JOBS_ENABLED
+              value: "true"
+            - name: PERSISTENT_DIR
+              value: {{ .Values.config.persistentDir | default "/var/lib/nebius-o11y-agent" }}
             {{- end }}
             {{- if ne .Values.config.parentIdPath "" }}
             - name: PARENT_ID_PATH

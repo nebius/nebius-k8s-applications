@@ -11,6 +11,7 @@
            - '/var/log/pods/`namespace`_`name`_*/*/*.tmp'
           start_at: beginning
           force_flush_period: 1m
+          poll_interval: '`phase == "Running" || phase == "Pending" ? "100ms" : "5s"`'
           include_file_name: false
           include_file_path: true
           storage: file_storage/filelog

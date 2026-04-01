@@ -1,0 +1,9 @@
+dependencies:
+- name: grafana
+  repository: file://./charts/grafana
+  version: 8.15.0
+- name: tunna-agent
+  repository: oci://cr.eu-north1.nebius.cloud/marketplace/chart
+  version: 0.1.1
+digest: sha256:23de41ffdf5fd924d14877edc5e122f9e72f90cc53250eee8c64fd261b23b535
+generated: "2026-03-16T13:49:23.118367+01:00"

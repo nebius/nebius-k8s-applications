@@ -1,71 +1,133 @@
 {
-  "viewSpec": {
-    "type": "base",
-    "layout": "base",
-    "order": ["grafana"]
-  },
-  "defaultValue": {
-    "grafana": {
-      "adminPassword": ""
-    }
-  },
   "type": "object",
   "properties": {
-    "grafana": {
+    "mk8sCluster": {
       "type": "object",
       "required": true,
       "viewSpec": {
+        "type": "mk8s_cluster"
+      }
+    },
+    "general": {
+      "type": "object",
+      "viewSpec": {
         "type": "base",
-        "order": ["adminPassword", "nebius"],
-        "layout": ""
+        "layout": "section",
+        "layoutTitle": "General"
       },
+      "defaultValue": {},
       "properties": {
-        "adminPassword": {
+        "appname": {
           "type": "string",
-          "required": true,
-          "pattern": "[a-zA-Z0-9-!?@#&$%\\~_\\/=\\(\\);.\\,\":\\|\\'<>+^`\\{\\}\\[\\]&*]{12,}",
-          "viewSpec": {
-            "type": "password",
-            "layout": "row",
-            "layoutTitle": "Grafana admin password",
-            "layoutDescription": "Set an administrator password to access the Grafana UI. It must be at least 12 characters long and include special characters such as !@#$%^&*-",
-            "generateRandomValueButton": true
-          }
-        },
-        "nebius": {
-          "type": "object",
           "required": true,
           "viewSpec": {
             "type": "base",
-            "order": ["projectId", "accessToken"],
-            "layout": ""
+            "layout": "row",
+            "layoutTitle": "Application name"
           },
-          "properties": {
-            "projectId": {
-              "nebiusType": "ProjectID",
-              "type": "string",
-              "required": true,
-              "viewSpec": {
-                "type": "base",
-                "layout": "row",
-                "layoutTitle": "Nebius project ID"
-              }
-            },
-            "accessToken": {
-              "nebiusType": "ServiceAccount",
-              "nebiusParams": "viewers",
-              "type": "string",
-              "required": true,
-              "viewSpec": {
-                "type": "password",
-                "layout": "row",
-                "layoutTitle": "Nebius access token",
-                "layoutDescription": "Authentication key for your account"
-              }
-            }
-          }
+          "defaultValue": "grafana-solution-by-nebius"
+        },
+        "namespace": {
+          "type": "string",
+          "required": true,
+          "viewSpec": {
+            "type": "base",
+            "layout": "row",
+            "layoutTitle": "Namespace"
+          },
+          "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "patternError": "namespace must consist of lower case alphanumeric characters or '-', and must start and end with an alphanumeric character (e.g. 'my-name',  or '123-abc', regex used for validation is ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "defaultValue": "grafana-solution-by-nebius"
         }
       }
+    },
+    "setup": {
+      "type": "object",
+      "properties": {
+        "app_settings": {
+          "type": "object",
+          "properties": {
+            "serviceAccount": {
+              "type": "string",
+              "required": true,
+              "viewSpec": {
+                "type": "service_account_select",
+                "layout": "row",
+                "layoutTitle": "Service account"
+              }
+            },
+            "adminPassword": {
+              "type": "string",
+              "required": true,
+              "viewSpec": {
+                "type": "password_generator",
+                "layout": "row",
+                "layoutTitle": "Grafana admin password",
+                "layoutDescription": "Set a password for the Grafana admin. It must be at least 15 characters long and include a number, a lowercase letter, an uppercase letter, and one of these symbols: !@#$%^&*-",
+                "generateRandomValueButton": true
+              }
+            }
+          },
+          "defaultValue": {
+            "adminPassword": ""
+          },
+          "viewSpec": {
+            "type": "base",
+            "layout": "",
+            "order": [
+              "serviceAccount",
+              "adminPassword"
+            ]
+          }
+        },
+        "compose": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "string",
+              "viewSpec": {
+                "type": "yaml_input",
+                "layout": "row",
+                "layoutTitle": "Values",
+                "inputProps": {
+                  "buttonText": "Compose settings",
+                  "dialogTitle": "Compose",
+                  "description": "Use the YAML editor to set application parameters. Parameters set in compose mode are not automatically applied to the application settings tab."
+                }
+              },
+              "defaultValue": "grafana:\n  nebius:\n    projectId: REPLACE WITH PROJECT ID\n    accessToken: REPLACE WITH ACCESS TOKEN\n\n  persistence:\n    enabled: true\n    size: 10Gi\n\n  resources:\n    requests: # https://grafana.com/docs/grafana/latest/setup-grafana/installation/kubernetes/#minimum-hardware-requirements\n      cpu: 250m\n      memory: 750Mi\n\n  service:\n    annotations:\n      nebius.com/MarketplaceServiceAccess: title=Grafana,ssl=false,type=web,port=service\n\n  datasources:\n    datasources.yaml:\n      apiVersion: 1\n      datasources:\n        - name: Nebius Services\n          type: prometheus\n          access: proxy\n          url: 'https://read.monitoring.api.nebius.cloud/projects/{{ .Values.nebius.projectId }}/service-provider/prometheus'\n          jsonData:\n            httpHeaderName1: 'Authorization'\n          secureJsonData:\n            httpHeaderValue1: 'Bearer {{ .Values.nebius.accessToken }}'\n          isDefault: true\n          version: 1\n\n        - name: Nebius Monitoring\n          type: prometheus\n          access: proxy\n          url: 'https://read.monitoring.api.nebius.cloud/projects/{{ .Values.nebius.projectId }}/prometheus'\n          jsonData:\n            httpHeaderName1: 'Authorization'\n          secureJsonData:\n            httpHeaderValue1: 'Bearer {{ .Values.nebius.accessToken }}'\n          isDefault: false\n          version: 1\n\n        - name: Nebius Logging\n          type: loki\n          access: proxy\n          url: 'https://read.logging.api.nebius.cloud/projects/{{ .Values.nebius.projectId }}'\n          jsonData:\n            httpHeaderName1: 'Authorization'\n          secureJsonData:\n            httpHeaderValue1: 'Bearer {{ .Values.nebius.accessToken }}'\n          isDefault: false\n          version: 1\n\n        - name: Nebius Tracing\n          type: tempo\n          access: proxy\n          url: 'https://read.tracing.api.nebius.cloud/projects/{{ .Values.nebius.projectId }}/tempo'\n          jsonData:\n            httpHeaderName1: 'Authorization'\n          secureJsonData:\n            httpHeaderValue1: 'Bearer {{ .Values.nebius.accessToken }}'\n          isDefault: false\n          version: 1\n\n  dashboardProviders:\n    dashboardproviders.yaml:\n      apiVersion: 1\n      providers:\n        - name: nebius\n          disableDeletion: false\n          editable: true\n          options:\n            path: /var/lib/grafana/dashboards/nebius\n\n  dashboards:\n    nebius:\n      nebius-disk:\n        gnetId: 23425  # https://grafana.com/dashboards/23425\n        revision: 2\n      nebius-gpu:\n        gnetId: 23423  # https://grafana.com/dashboards/23423\n        revision: 2\n      nebius-object-storage:\n        gnetId: 23392  # https://grafana.com/dashboards/23392\n        revision: 5\n      nebius-shared-filesystems:\n        gnetId: 23313  # https://grafana.com/dashboards/23313\n        revision: 5\n      nebius-observability:\n        gnetId: 24246  # https://grafana.com/dashboards/24246\n        revision: 2\n      node-exporter-full:\n        gnetId: 1860  # https://grafana.com/dashboards/1860\n        revision: 40\n        datasource:\n          - name: DS_PROMETHEUS\n            value: '${datasource}'\n"
+            }
+          },
+          "defaultValue": {},
+          "viewSpec": {
+            "type": "base"
+          }
+        }
+      },
+      "viewSpec": {
+        "type": "oneof_flat",
+        "layout": "section",
+        "layoutTitle": "Configuration",
+        "order": [
+          "app_settings",
+          "compose"
+        ]
+      },
+      "description": {
+        "app_settings": "Application settings",
+        "compose": "Compose"
+      },
+      "defaultValue": {}
     }
+  },
+  "defaultValue": {},
+  "viewSpec": {
+    "type": "base",
+    "layout": "base",
+    "order": [
+      "mk8sCluster",
+      "general",
+      "setup"
+    ]
   }
 }

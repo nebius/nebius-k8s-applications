@@ -7,3 +7,7 @@ dependencies:
   - name: grafana
     version: 8.15.0
     repository: "file://./charts/grafana"
+  - name: tunna-agent
+    version: "0.1.1"
+    repository: "oci://cr.eu-north1.nebius.cloud/marketplace/chart"
+    condition: tunna-agent.enabled

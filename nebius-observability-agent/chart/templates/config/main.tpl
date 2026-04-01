@@ -6,8 +6,8 @@ extensions:
   - k8s_observer
   - file_storage/filelog
   - pprof
-  - zpages
   - goruntimemetrics
+  - agentdiskcleanupextension
 {{- include "o11y-agent.config.metrics.extensions-list" . | nindent 2 }}
 
 {{- if .Values.config.logs.enabled }}
@@ -18,7 +18,7 @@ pipelines:
       processors:
         - memory_limiter
         - logcounter
-        - k8sattributes
+        - k8sattributes/logs
         - transform/set_attributes
         - nebiusbatch
       exporters:
@@ -27,6 +27,19 @@ pipelines:
 
 {{- if .Values.config.metrics.enabled }}
 {{- include "o11y-agent.config.metrics.pipelines" . | nindent 4 }}
+{{- end }}
+
+{{- if .Values.config.traces.enabled }}
+    traces:
+      receivers:
+        - otlp
+      processors:
+        - memory_limiter
+        - k8sattributes/traces
+        - transform/set_attributes
+        - nebiusbatch
+      exporters:
+        - nebius/traces
 {{- end }}
 
 {{- end -}}
