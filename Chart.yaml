@@ -60,7 +60,7 @@ dependencies:
   version: "6.25.1"
   repository: "https://grafana.github.io/helm-charts"
 - name: milvus
-  version: "4.1.11"
+  version: "4.2.58"
   repository: "https://zilliztech.github.io/milvus-helm/"
   # dir: milvus-milvus
 - name: mlflow
