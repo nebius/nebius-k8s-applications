@@ -1,0 +1,12 @@
+dependencies:
+- name: kuberay-operator
+  repository: file://./charts/kuberay-operator
+  version: 1.2.2
+- name: gradio-ui
+  repository: file://charts/gradio-ui
+  version: 1.0.0
+- name: tunna-agent
+  repository: oci://cr.eu-north1.nebius.cloud/marketplace/chart
+  version: 0.1.1
+digest: sha256:0ec0e2275bdf268c4d0f1c963e26ea05e4942118cd8369fdfc97551cbc8adc47
+generated: "2026-04-13T13:51:46.534797+01:00"

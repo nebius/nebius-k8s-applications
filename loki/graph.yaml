@@ -36,9 +36,7 @@ components:
             control_plane:
               # fill in subnetId with default value in the code
               endpoints:
-                public_endpoint:
-
-
+                public_endpoint: {}
 parameters:
   "parentId":
     type: "string"

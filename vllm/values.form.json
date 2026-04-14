@@ -16,20 +16,19 @@
   },
   "defaultValue": {
     "global": {
-      "model": "deepseek-ai/DeepSeek-R1"
+      "model": "Qwen/Qwen2.5-7B-Instruct"
     },
-    "gpuPlatform": "NVIDIA® H200 NVLink with Intel Sapphire Rapids",
+    "gpuPlatform": "NVIDIA® L40S with Intel Ice Lake",
     "gradio-ui": {
-      "enabled": false,
-      "enablePublicIP": false,
-      "secret": {
+      "enabled": true,
+"secret": {
         "env": {
           "AUTH_PASSWORD": null,
           "AUTH_USER": null
         }
       }
     },
-    "gpuPerWorker": "8",
+    "gpuPerWorker": "1",
     "vllm": {
       "env": {
         "HF_TOKEN": null
@@ -114,7 +113,9 @@
       "enum": [
         "NVIDIA® H100 NVLink with Intel Sapphire Rapids",
         "NVIDIA® H200 NVLink with Intel Sapphire Rapids",
-        "NVIDIA® B200 NVLink with Intel Emerald Rapids"
+        "NVIDIA® B200 NVLink with Intel Emerald Rapids",
+        "NVIDIA® L40S with Intel Ice Lake",
+        "NVIDIA® L40S with AMD Genoa"
       ]
     },
     "gradio-ui": {
@@ -123,7 +124,6 @@
         "type": "base",
         "order": [
           "enabled",
-          "enablePublicIP",
           "secret"
         ],
         "layout": ""
@@ -135,15 +135,6 @@
             "disabled": false,
             "layout": "row",
             "layoutTitle": "Enable Gradio UI",
-            "type": "switch"
-          }
-        },
-        "enablePublicIP": {
-          "type": "boolean",
-          "viewSpec": {
-            "disabled": false,
-            "layout": "row",
-            "layoutTitle": "Enable Public IP for Gradio UI",
             "type": "switch"
           }
         },

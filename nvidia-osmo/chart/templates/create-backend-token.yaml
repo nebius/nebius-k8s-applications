@@ -1,3 +1,6 @@
+{{- $backendOperator := index .Values "backend-operator" -}}
+{{- $bootstrap := $backendOperator.bootstrap.backendToken -}}
+{{- if $bootstrap.enabled }}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -116,6 +119,12 @@ spec:
           # Replace this with your custom generator image and command.
           image: ubuntu:latest
           command: ["/bin/bash", "-c"]
+{{- if eq $bootstrap.mode "existingAdminToken" }}
+          volumeMounts:
+            - name: bootstrap-admin-token
+              mountPath: /var/run/osmo-bootstrap-admin-token
+              readOnly: true
+{{- end }}
           args:
             - |
               set -euo pipefail
@@ -125,10 +134,40 @@ spec:
               install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
               curl -fsSL https://raw.githubusercontent.com/NVIDIA/OSMO/refs/heads/main/install.sh | bash
-              /usr/local/bin/osmo login http://osmo-service --method=dev --username=testuser
-              export BACKEND_TOKEN=$(/usr/local/bin/osmo token set backend-token-$(date '+%Y%m%d%H%M%S') --expires-at "2027-01-01" --description "Backend Operator Token" --service --roles osmo-backend -t json | jq -r '.token')
 
-              kubectl create secret generic osmo-operator-token --from-literal=token=$BACKEND_TOKEN --namespace osmo-operator --dry-run=client -o yaml | kubectl apply -f -
+              AUTH_URL={{ $bootstrap.serviceUrl | quote }}
+              SUBJECT_USER={{ $bootstrap.subjectUser | quote }}
+              BACKEND_ROLE={{ $bootstrap.role | quote }}
+              BACKEND_TOKEN_SECRET={{ $backendOperator.global.accountTokenSecret | quote }}
+              BACKEND_TOKEN_NAMESPACE={{ $backendOperator.global.agentNamespace | quote }}
+
+              case {{ $bootstrap.mode | quote }} in
+                devLogin)
+                  /usr/local/bin/osmo login "$AUTH_URL" --method=dev --username={{ $bootstrap.adminUser | quote }}
+                  ;;
+                existingAdminToken)
+                  /usr/local/bin/osmo login "$AUTH_URL" --method=token --token-file=/var/run/osmo-bootstrap-admin-token/{{ required "backend-operator.bootstrap.backendToken.existingAdminToken.secretKey is required when mode=existingAdminToken" $bootstrap.existingAdminToken.secretKey }}
+                  ;;
+                *)
+                  echo "Unsupported backend token bootstrap mode: {{ $bootstrap.mode }}" >&2
+                  exit 1
+                  ;;
+              esac
+
+              if ! /usr/local/bin/osmo user get "$SUBJECT_USER" >/dev/null 2>&1; then
+                /usr/local/bin/osmo user create "$SUBJECT_USER" --roles "$BACKEND_ROLE" >/dev/null
+              else
+                /usr/local/bin/osmo user update "$SUBJECT_USER" --add-roles "$BACKEND_ROLE" >/dev/null 2>&1 || true
+              fi
+
+              export BACKEND_TOKEN=$(/usr/local/bin/osmo token set backend-token-$(date '+%Y%m%d%H%M%S') --expires-at "2027-01-01" --description "Backend Operator Token" --user "$SUBJECT_USER" --roles "$BACKEND_ROLE" -t json | jq -r '.token')
+
+              if [ -z "${BACKEND_TOKEN:-}" ] || [ "${#BACKEND_TOKEN}" -lt 10 ]; then
+                echo "Generated backend token is empty or unexpectedly short." >&2
+                exit 1
+              fi
+
+              kubectl create secret generic "$BACKEND_TOKEN_SECRET" --from-literal=token="$BACKEND_TOKEN" --namespace "$BACKEND_TOKEN_NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
 
               cat <<'EOF' > /tmp/workflow_data_config.json
               {
@@ -195,3 +234,10 @@ spec:
                 -d "$BODY"
 
               echo "Generator finished."
+{{- if eq $bootstrap.mode "existingAdminToken" }}
+      volumes:
+        - name: bootstrap-admin-token
+          secret:
+            secretName: {{ required "backend-operator.bootstrap.backendToken.existingAdminToken.secretName is required when mode=existingAdminToken" $bootstrap.existingAdminToken.secretName }}
+{{- end }}
+{{- end }}

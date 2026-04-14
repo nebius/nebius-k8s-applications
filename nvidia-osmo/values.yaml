@@ -20,4 +20,4 @@ router:
 
 backend-operator:
   global:
-    serviceUrl: http://osmo-agent.default
+    serviceUrl: http://osmo-agent

@@ -1,0 +1,9 @@
+dependencies:
+- name: headlamp
+  repository: https://kubernetes-sigs.github.io/headlamp/
+  version: 0.41.0
+- name: tunna-agent
+  repository: oci://cr.eu-north1.nebius.cloud/marketplace/chart
+  version: 0.1.1
+digest: sha256:acced0058b810365aaaad2cef418c23d96d4a447f6a71414d9bc54e42eb9415e
+generated: "2026-04-13T20:03:56.925721+01:00"

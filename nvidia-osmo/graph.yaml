@@ -14,7 +14,62 @@ components:
           spec:
             control_plane:
               endpoints:
-                public_endpoint:
+                public_endpoint: {}
+  s3_bucket001:
+    type: "s3_bucket"
+    spec:
+      refMap:
+        api_spec.metadata.parentId: "parameters.parentId"
+        api_spec.metadata.id: "parameters.bucketId"
+      componentSpec:
+        api_spec:
+          metadata: {}
+
+  service_account001:
+    type: "service_account"
+    spec:
+      refMap:
+        api_spec.metadata.parentId: "parameters.parentId"
+      componentSpec:
+        api_spec:
+          metadata:
+            name: '${{ printf "%s-osmo-s3-sa-%s" .parameters.releaseName (randchar 5) | trunc 63 | trimSuffix "-" }}'
+          spec:
+            description: "Service account for OSMO S3 integration"
+
+  sa_access_key001:
+    type: "sa_access_key"
+    spec:
+      refMap:
+        api_spec.metadata.parentId: "parameters.parentId"
+        api_spec.spec.account.serviceAccount.id: "components.service_account001.state.result.id"
+      componentSpec:
+        api_spec:
+          metadata: {}
+          spec:
+            account:
+              serviceAccount: {}
+    dependencies:
+      components:
+        service_account001:
+
+  access_binding001:
+    type: "access_binding"
+    spec:
+      refMap:
+        api_spec.metadata.parentId: "parameters.parentId"
+        api_spec.spec.subjectId: "components.service_account001.state.result.id"
+        api_spec.spec.resourceId: "components.s3_bucket001.state.result.bucket.metadata.id"
+      componentSpec:
+        api_spec:
+          metadata:
+            name: '${{ printf "%s-s3-access-binding-%s" .parameters.releaseName (randchar 5) | trunc 63 | trimSuffix "-" }}'
+          spec:
+            role: "storage.object-editor"
+    dependencies:
+      components:
+        service_account001:
+        s3_bucket001:
 
   helmchart001:
     type: "helm_chart"
@@ -25,53 +80,59 @@ components:
         releaseName: "parameters.releaseName"
         releaseNamespace: "parameters.releaseNamespace"
         rawValues: "parameters.rawValues"
-        values.workflowData.bucket: "parameters.s3Bucketname"
-        values.workflowData.accessKeyId: "parameters.s3AccessKeyId"
-        values.workflowData.accessKey: "parameters.s3SecretAccessKey"
-        values.workflowData.endpoint: "parameters.s3Endpoint"
-        values.osmo.dbPassword: "parameters.osmoDbPassword"
-        values.osmo.redisPassword: "parameters.osmoRedisPassword"
-        values.keycloak.adminPassword: "parameters.osmoKeycloakPassword"
-        values.service.services.service.hostname: "parameters.hostname"
-        values.web-ui.services.ui.hostname: "parameters.hostname"
-        values.router.services.service.hostname: "parameters.hostname"
-        values.backend-operator.global.serviceUrl: "parameters.backendOperatorServiceUrl"
       componentSpec:
         productSlug: "nebius/nvidia-osmo"
         values:
+          workflowData:
+            bucket: '${{ .components.s3_bucket001.state.result.bucket.metadata.name }}'
+            accessKeyId: '${{ .components.sa_access_key001.state.result.accessKey.status.awsAccessKeyId }}'
+            accessKey: '${{ .components.sa_access_key001.state.result.accessKey.status.secret }}'
+            endpoint: '${{ .components.s3_bucket001.state.result.bucket.status.domainName }}'
+          osmo:
+            dbPassword: '${{ .parameters.osmoDbPassword }}'
+            redisPassword: '${{ .parameters.osmoRedisPassword }}'
+          keycloak:
+            adminPassword: '${{ .parameters.osmoKeycloakPassword }}'
+          web-ui:
+            services:
+              ui:
+                hostname: '${{ .parameters.hostname }}'
+          router:
+            services:
+              service:
+                hostname: '${{ .parameters.hostname }}'
+          backend-operator:
+            global:
+              serviceUrl: '${{ .parameters.backendOperatorServiceUrl }}'
           service:
             services:
               service:
-                extraEnv: |
-                  ${{- if .parameters.s3Endpoint }}
+                hostname: '${{ .parameters.hostname }}'
+                extraEnv:
                   - name: AWS_ENDPOINT_URL_S3
-                    value: ${{ printf "https://%s:443" .parameters.s3Endpoint | quote }}
+                    value: '${{ printf "https://%s:443" .components.s3_bucket001.state.result.bucket.status.domainName }}'
                   - name: OSMO_SKIP_DATA_AUTH
-                    value: "1"
+                    value: '1'
                   - name: AWS_S3_FORCE_PATH_STYLE
-                    value: "true"
+                    value: 'true'
                   - name: AWS_DEFAULT_REGION
-                    value: "eu-north1"
-                  ${{- else }}
-                  []
-                  ${{- end }}
+                    value: '${{ .components.s3_bucket001.state.result.bucket.status.region }}'
               worker:
-                extraEnv: |
-                  ${{- if .parameters.s3Endpoint }}
+                extraEnv:
                   - name: AWS_ENDPOINT_URL_S3
-                    value: ${{ printf "https://%s:443" .parameters.s3Endpoint | quote }}
+                    value: '${{ printf "https://%s:443" .components.s3_bucket001.state.result.bucket.status.domainName }}'
                   - name: OSMO_SKIP_DATA_AUTH
-                    value: "1"
+                    value: '1'
                   - name: AWS_S3_FORCE_PATH_STYLE
-                    value: "true"
+                    value: 'true'
                   - name: AWS_DEFAULT_REGION
-                    value: "eu-north1"
-                  ${{- else }}
-                  []
-                  ${{- end }}
+                    value: '${{ .components.s3_bucket001.state.result.bucket.status.region }}'
     dependencies:
       components:
         cluster001:
+        s3_bucket001:
+        sa_access_key001:
+        access_binding001:
 
   endpoint001:
     type: "endpoint"
@@ -112,21 +173,9 @@ parameters:
     type: "string"
     description: "Helm values YAML (compose mode)."
 
-  "s3Bucketname":
+  "bucketId":
     type: "string"
-    description: "Value for Helm key 'workflowData.bucket'."
-
-  "s3AccessKeyId":
-    type: "string"
-    description: "Value for Helm key 'workflowData.accessKeyId'."
-
-  "s3SecretAccessKey":
-    type: "string"
-    description: "Value for Helm key 'workflowData.accessKey'."
-
-  "s3Endpoint":
-    type: "string"
-    description: "Value for Helm key 'workflowData.endpoint'."
+    description: "Selected S3 bucket resource ID for OSMO workflow data."
 
   "osmoDbPassword":
     type: "string"
@@ -154,10 +203,7 @@ ui:
     clusterName: "mk8sCluster.name"
     releaseName: "general.appname"
     releaseNamespace: "general.namespace"
-    s3Bucketname: "setup.app_settings.s3Bucketname"
-    s3AccessKeyId: "setup.app_settings.s3AccessKeyId"
-    s3SecretAccessKey: "setup.app_settings.s3SecretAccessKey"
-    s3Endpoint: "setup.app_settings.s3Endpoint"
+    bucketId: "setup.app_settings.bucketId"
     osmoDbPassword: "setup.app_settings.osmoDbPassword"
     osmoRedisPassword: "setup.app_settings.osmoRedisPassword"
     osmoKeycloakPassword: "setup.app_settings.osmoKeycloakPassword"

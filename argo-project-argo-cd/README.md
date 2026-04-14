@@ -8,10 +8,33 @@
 
 GitOps tool for declarative, automated Kubernetes app deployment & sync.
 
+## Tutorial
+
+1. Configure the application:
+   - Set the admin password (or generate a random one).
+
+1. Click **Install**.
+
+1. Wait for the application to change its status to `Deployed`.
+
+## Usage
+
+After installation, the Argo CD UI is accessible via the tunnel endpoint shown on the product's page in the cloud console.
+
+To log in, use the following credentials:
+- Username: `admin`
+- Password: The password you set during installation.
+
+If you left the password field empty during installation, Argo CD generates a random password. To retrieve it:
+
+```bash
+kubectl -n <namespace> get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+```
+
 ## Use cases
 
 - Automating deployment of Kubernetes applications.
-- Managing multiple Kubernetes clusters at the same time
+- Managing multiple Kubernetes clusters at the same time.
 - Setting up Git as a source of truth for application configurations.
 - Integrating applications with single sign-on (SSO) providers.
 - Gathering metrics related to application health, sync history etc.
@@ -24,43 +47,3 @@ GitOps tool for declarative, automated Kubernetes app deployment & sync.
 ## Legal
 
 By using the application, you agree to their terms and conditions: [the helm-chart](https://github.com/nebius/nebius-k8s-applications/blob/main/LICENSE) and [Argo CD](https://github.com/argoproj/argo-cd/blob/master/LICENSE).
-
-## Tutorial
-
-1. Configure the application.
-
-1. Click **Install**.
-
-1. Wait for the application to change its status to `Deployed`.
-
-## Usage
-
-1. [Install the kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl) and [configure it to work with the created cluster](https://docs.nebius.com/kubernetes/connect).
-
-1. To access the Argo CD UI:
-
-   1. Get the administrator’s password:
-
-      ```bash
-
-      kubectl --namespace <namespace> get secret argocd-initial-admin-secret \
-
-        --output jsonpath="{.data.password}" | base64 -d
-
-      ```
-
-   1. Set up port forwarding:
-
-      ```bash
-
-      kubectl port-forward service/<application_name>-argocd-server \
-
-        --namespace <namespace> 8080:443
-
-      ```
-
-   1. Go to [http://localhost:8080](http://localhost:8080) and use the following credentials to log in:
-
-      - Username: `admin`.
-
-      - Password: The administrator's password you obtained earlier.

@@ -11,7 +11,7 @@ dependencies:
   repository: "https://airflow.apache.org"
   # dir: apache-airflow
 - name: argo-cd
-  version: "7.7.5"
+  version: "9.5.0"
   repository: "https://argoproj.github.io/argo-helm"
   # dir: argo-project-argo-cd
 - name: clearml-agent
@@ -52,7 +52,7 @@ dependencies:
   version: "4.3.3"
   repository: "https://hub.jupyter.org/helm-chart"
 - name: kubernetes-dashboard-readonly
-  version: "1.0.0"
+  version: "1.1.0"
   # dir: kubernetes-dashboard
 - name: litellm
   version: "0.1.759"
@@ -60,7 +60,7 @@ dependencies:
   version: "6.25.1"
   repository: "https://grafana.github.io/helm-charts"
 - name: milvus
-  version: "4.1.11"
+  version: "5.0.16"
   repository: "https://zilliztech.github.io/milvus-helm/"
   # dir: milvus-milvus
 - name: mlflow
@@ -87,7 +87,7 @@ dependencies:
   version: "0.1.0"
   # dir: nvidia-osmo
 - name: ollama
-  version: "1.5.0"
+  version: "1.54.0"
   repository: "https://otwld.github.io/ollama-helm/"
 - name: qdrant
   version: "0.7.6"
@@ -103,8 +103,10 @@ dependencies:
 - name: stable-diffusion
   version: "0.3.0"
   # dir: stable-diffusion-webui
-- name: vllm
+- name: headlamp
   version: "1.0.0"
+- name: vllm
+  version: "1.1.0"
 - name: volcano
   version: "1.11.0"
   repository: "https://volcano-sh.github.io/charts/"

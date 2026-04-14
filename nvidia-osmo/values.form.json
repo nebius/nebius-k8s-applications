@@ -102,65 +102,15 @@
                 "layoutTitle": "Backend operator service URL."
               }
             },
-            "s3Endpoint": {
-              "type": "string",
-              "required": true,
-              "enum": [
-                "storage.us-central1.nebius.cloud",
-                "storage.eu-north1.nebius.cloud",
-                "storage.uk-south1.nebius.cloud",
-                "storage.eu-west1.nebius.cloud",
-                "storage.me-west1.nebius.cloud",
-                "storage.eu-north2.nebius.cloud"
-              ],
-              "viewSpec": {
-                "type": "select",
-                "layout": "row",
-                "layoutTitle": "S3 endpoint",
-                "selectParams": {
-                  "meta": {
-                    "storage.us-central1.nebius.cloud": "US Kansas",
-                    "storage.eu-north1.nebius.cloud": "Finland",
-                    "storage.uk-south1.nebius.cloud": "UK",
-                    "storage.eu-west1.nebius.cloud": "France",
-                    "storage.me-west1.nebius.cloud": "Isreal",
-                    "storage.eu-north2.nebius.cloud": "Iceland"
-                  }
-                }
-              }
-            },
-            "s3Bucketname": {
+            "bucketId": {
               "type": "string",
               "required": true,
               "viewSpec": {
-                "disabled": false,
-                "type": "base",
+                "type": "bucket_select",
                 "layout": "row",
-                "layoutTitle": "Bucket name",
-                "layoutDescription": ""
-              }
-            },
-            "s3AccessKeyId": {
-              "type": "string",
-              "required": true,
-              "viewSpec": {
-                "disabled": false,
-                "type": "base",
-                "layout": "row",
-                "layoutTitle": "Object storage access key",
-                "layoutDescription": "Enter the Object storage Access Key"
-              }
-            },
-            "s3SecretAccessKey": {
-              "type": "string",
-              "required": true,
-              "viewSpec": {
-                "disabled": false,
-                "type": "base",
-                "layout": "row",
-                "layoutTitle": "Object storage secret key",
-                "layoutDescription": "Enter the Object storage Secret Key"
-              }
+                "layoutTitle": "Bucket"
+              },
+              "description": "Select an existing S3 bucket or create a new one for OSMO workflow data."
             }
           },
           "defaultValue": {
@@ -173,10 +123,7 @@
             "order": [
               "osmoDbPassword",
               "osmoRedisPassword",
-              "s3Endpoint",
-              "s3Bucketname",
-              "s3AccessKeyId",
-              "s3SecretAccessKey"
+              "bucketId"
             ]
           }
         },
@@ -195,7 +142,7 @@
                   "description": "Use the YAML editor to set application parameters. Parameters set in compose mode are not automatically applied to the application settings tab."
                 }
               },
-              "defaultValue": "postgresql:\n  global:\n    security:\n      allowInsecureImages: true\n  image:\n    registry: docker.io\n\n  architecture: standalone\n  auth:\n    username: osmo\n    database: osmo\n    existingSecret: \"db-secret\"\n    secretKeys:\n      adminPasswordKey: db-password\n      userPasswordKey: db-password\n      replicationPasswordKey: db-password\n\nosmo:\n  mek: REPLACE WITH MEK\n  dbPassword: REPLACE WITH DATABASE PASSWORD\n  redisPassword: REPLACE WITH REDIS PASSWORD\n\nservice:\n  global:\n    osmoImageTag: latest\n\n  services:\n    configFile:\n      enabled: true\n\n    postgres:\n      enabled: false\n      db: osmo\n      user: osmo\n      serviceName: osmo-postgresql-hl\n\n    redis:\n      enabled: true\n      port: 6379\n      tlsEnabled: true\n      storageClassName: compute-csi-default-sc\n\n    service:\n      scaling:\n        minReplicas: 1\n        maxReplicas: 1\n\n      hostname: osmo.example.com\n      extraEnv:\n        - name: AWS_ENDPOINT_URL_S3\n          value: \"${S3_NEBIUS_ENDPOINT}:443\"\n      ingress:\n        enabled: true\n        ingressClass: nginx\n        annotations:\n          nginx.ingress.kubernetes.io/proxy-buffer-size: \"16k\"\n          nginx.ingress.kubernetes.io/proxy-buffers: \"8 16k\"\n          nginx.ingress.kubernetes.io/proxy-busy-buffers-size: \"32k\"\n          nginx.ingress.kubernetes.io/large-client-header-buffers: \"4 16k\"\n\n    agent:\n      scaling:\n        minReplicas: 1\n        maxReplicas: 1\n\n    worker:\n      scaling:\n        minReplicas: 1\n        maxReplicas: 1\n\n    logger:\n      scaling:\n        minReplicas: 1\n        maxReplicas: 1\n\n  sidecars:\n    envoy:\n      enabled: false\n    logAgent:\n      enabled: false\n      logrotate:\n        enabled: false\n    otel:\n      enabled: false\n    rateLimit:\n      enabled: false\n\nweb-ui:\n  global:\n    osmoImageTag: latest\n\n  services:\n    ui:\n      hostname: osmo.example.com\n      apiHostname: osmo-service:80\n      ingress:\n        enabled: true\n        ingressClass: nginx\n        annotations:\n          nginx.ingress.kubernetes.io/proxy-buffer-size: \"16k\"\n          nginx.ingress.kubernetes.io/proxy-buffers: \"8 16k\"\n          nginx.ingress.kubernetes.io/proxy-busy-buffers-size: \"32k\"\n          nginx.ingress.kubernetes.io/large-client-header-buffers: \"4 16k\"\n\n  sidecars:\n    envoy:\n      enabled: false\n\nrouter:\n  global:\n    osmoImageTag: latest\n\n  services:\n    configFile:\n      enabled: true\n\n    postgres:\n      db: osmo\n      user: osmo\n      serviceName: osmo-postgresql-hl\n      passwordSecretName: osmo-postgresql\n\n    service:\n      scaling:\n        minReplicas: 1\n        maxReplicas: 1\n      hostname: osmo.example.com\n      ingress:\n        enabled: true\n        ingressClass: nginx\n        annotations:\n          nginx.ingress.kubernetes.io/proxy-buffer-size: \"16k\"\n          nginx.ingress.kubernetes.io/proxy-buffers: \"8 16k\"\n          nginx.ingress.kubernetes.io/proxy-busy-buffers-size: \"32k\"\n          nginx.ingress.kubernetes.io/large-client-header-buffers: \"4 16k\"\n\n  sidecars:\n    envoy:\n      enabled: false\n    logAgent:\n      enabled: false\n    otel:\n      enabled: false\n\nbackend-operator:\n  global:\n    osmoImageTag: latest\n    serviceUrl: http://osmo-agent.default\n    agentNamespace: osmo-operator\n    backendNamespace: osmo-workflows\n    backendName: default\n    accountTokenSecret: osmo-operator-token\n    loginMethod: token\n\n  services:\n    backendListener:\n      resources:\n        requests:\n          cpu: \"125m\"\n          memory: \"128Mi\"\n        limits:\n          cpu: \"250m\"\n          memory: \"256Mi\"\n    backendWorker:\n      resources:\n        requests:\n          cpu: \"125m\"\n          memory: \"128Mi\"\n        limits:\n          cpu: \"250m\"\n          memory: \"256Mi\"\n\n  sidecars:\n    otel:\n      enabled: false\n"
+              "defaultValue": "postgresql:\n  global:\n    security:\n      allowInsecureImages: true\n  image:\n    registry: docker.io\n\n  architecture: standalone\n  auth:\n    username: osmo\n    database: osmo\n    existingSecret: \"db-secret\"\n    secretKeys:\n      adminPasswordKey: db-password\n      userPasswordKey: db-password\n      replicationPasswordKey: db-password\n\nosmo:\n  mek: REPLACE WITH MEK\n  dbPassword: REPLACE WITH DATABASE PASSWORD\n  redisPassword: REPLACE WITH REDIS PASSWORD\n\nworkflowData:\n  # Filled automatically by the marketplace bucket selector flow.\n  bucket: AUTO_FILLED_BY_MARKETPLACE\n  accessKeyId: AUTO_FILLED_BY_MARKETPLACE\n  accessKey: AUTO_FILLED_BY_MARKETPLACE\n  endpoint: AUTO_FILLED_BY_MARKETPLACE\n\nservice:\n  global:\n    osmoImageTag: latest\n\n  services:\n    configFile:\n      enabled: true\n\n    postgres:\n      enabled: false\n      db: osmo\n      user: osmo\n      serviceName: osmo-postgresql-hl\n\n    redis:\n      enabled: true\n      port: 6379\n      tlsEnabled: true\n      storageClassName: compute-csi-default-sc\n\n    service:\n      scaling:\n        minReplicas: 1\n        maxReplicas: 1\n\n      hostname: osmo.example.com\n      ingress:\n        enabled: true\n        ingressClass: nginx\n        annotations:\n          nginx.ingress.kubernetes.io/proxy-buffer-size: \"16k\"\n          nginx.ingress.kubernetes.io/proxy-buffers: \"8 16k\"\n          nginx.ingress.kubernetes.io/proxy-busy-buffers-size: \"32k\"\n          nginx.ingress.kubernetes.io/large-client-header-buffers: \"4 16k\"\n\n    agent:\n      scaling:\n        minReplicas: 1\n        maxReplicas: 1\n\n    worker:\n      scaling:\n        minReplicas: 1\n        maxReplicas: 1\n\n    logger:\n      scaling:\n        minReplicas: 1\n        maxReplicas: 1\n\n  sidecars:\n    envoy:\n      enabled: false\n    logAgent:\n      enabled: false\n      logrotate:\n        enabled: false\n    otel:\n      enabled: false\n    rateLimit:\n      enabled: false\n\nweb-ui:\n  global:\n    osmoImageTag: latest\n\n  services:\n    ui:\n      hostname: osmo.example.com\n      apiHostname: osmo-service:80\n      ingress:\n        enabled: true\n        ingressClass: nginx\n        annotations:\n          nginx.ingress.kubernetes.io/proxy-buffer-size: \"16k\"\n          nginx.ingress.kubernetes.io/proxy-buffers: \"8 16k\"\n          nginx.ingress.kubernetes.io/proxy-busy-buffers-size: \"32k\"\n          nginx.ingress.kubernetes.io/large-client-header-buffers: \"4 16k\"\n\n  sidecars:\n    envoy:\n      enabled: false\n\nrouter:\n  global:\n    osmoImageTag: latest\n\n  services:\n    configFile:\n      enabled: true\n\n    postgres:\n      db: osmo\n      user: osmo\n      serviceName: osmo-postgresql-hl\n      passwordSecretName: osmo-postgresql\n\n    service:\n      scaling:\n        minReplicas: 1\n        maxReplicas: 1\n      hostname: osmo.example.com\n      ingress:\n        enabled: true\n        ingressClass: nginx\n        annotations:\n          nginx.ingress.kubernetes.io/proxy-buffer-size: \"16k\"\n          nginx.ingress.kubernetes.io/proxy-buffers: \"8 16k\"\n          nginx.ingress.kubernetes.io/proxy-busy-buffers-size: \"32k\"\n          nginx.ingress.kubernetes.io/large-client-header-buffers: \"4 16k\"\n\n  sidecars:\n    envoy:\n      enabled: false\n    logAgent:\n      enabled: false\n    otel:\n      enabled: false\n\nbackend-operator:\n  global:\n    osmoImageTag: latest\n    serviceUrl: http://osmo-agent.default\n    agentNamespace: osmo-operator\n    backendNamespace: osmo-workflows\n    backendName: default\n    accountTokenSecret: osmo-operator-token\n    loginMethod: token\n\n  services:\n    backendListener:\n      resources:\n        requests:\n          cpu: \"125m\"\n          memory: \"128Mi\"\n        limits:\n          cpu: \"250m\"\n          memory: \"256Mi\"\n    backendWorker:\n      resources:\n        requests:\n          cpu: \"125m\"\n          memory: \"128Mi\"\n        limits:\n          cpu: \"250m\"\n          memory: \"256Mi\"\n\n  sidecars:\n    otel:\n      enabled: false\n"
             }
           },
           "defaultValue": {},

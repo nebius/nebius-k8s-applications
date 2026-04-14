@@ -1,0 +1,6 @@
+tunna-agent:
+  enabled: false
+  config:
+    logging:
+      level: error
+      format: json

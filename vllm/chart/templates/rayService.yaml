@@ -67,11 +67,12 @@ spec:
                 medium: Memory
           affinity:
             nodeAffinity:
-              requiredDuringSchedulingIgnoredDuringExecution:
-                nodeSelectorTerms:
-                - matchExpressions:
-                  - key: nvidia.com/gpu.count
-                    operator: DoesNotExist
+              preferredDuringSchedulingIgnoredDuringExecution:
+                - weight: 100
+                  preference:
+                    matchExpressions:
+                      - key: nvidia.com/gpu.count
+                        operator: DoesNotExist
     workerGroupSpecs:
     - groupName: vllm
       replicas: {{ tpl .Values.worker.replicas . }}
