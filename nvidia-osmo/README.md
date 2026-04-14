@@ -28,7 +28,9 @@ Cloud-native orchestration and simulation workflows for robotics development.
     1. Set up port forwarding (you will need to [install](https://kubernetes.io/docs/tasks/tools/#kubectl) and [configure](https://docs.nebius.com/kubernetes/connect) `kubectl` for that):
 
        ```bash
-       kubectl --namespace=osmo port-forward service/osmo-ingress-nginx-controller 8080:http
+       kubectl --namespace=<namespace> get svc
+
+       kubectl --namespace=<namespace> port-forward service/<release-name>-ingress-nginx-controller 8080:http
        ```
 
     1. Go to <http://localhost:8080> in your browser.

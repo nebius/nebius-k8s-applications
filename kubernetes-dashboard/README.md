@@ -1,3 +1,9 @@
+## Deprecation Notice
+
+The Kubernetes Dashboard project has been deprecated by its upstream maintainers. We recommend using [Headlamp](https://console.eu.nebius.com/applications/overview/nebius/headlamp) instead — a modern, extensible Kubernetes web UI with plugin support and an active community.
+
+This product will continue to receive security updates but no new features.
+
 ## Description
 Kubernetes Dashboard is a web-based UI for conveniently inspecting the state of your Kubernetes cluster.  
 This package deploys the Dashboard together with an automatically created **ServiceAccount** that is granted the built-in **`view`** (read-only) ClusterRole, **with additional permissions to view Nodes, StorageClasses, and PersistentVolumes**.
@@ -13,7 +19,7 @@ Key features:
 
 This makes the Dashboard safe to use: you can explore resources and their state without the risk of accidental modifications or exposure of sensitive data.
 
-After installation, a direct link to the Dashboard will be available on the product’s page in the cloud console.
+After installation, the Dashboard will be accessible via the tunnel endpoint shown on the product’s page in the cloud console.
 
 ## Short description
 Kubernetes Dashboard with automatic read-only access setup via ServiceAccount
@@ -23,7 +29,7 @@ This is a standard installation that requires no configuration.
 Simply install the product and start using the Kubernetes Dashboard.
 
 ## Usage
-For convenient access to the UI, create an Endpoint link in the **Endpoints** block and open it to launch the Dashboard.
+Open the tunnel endpoint URL to access the Dashboard. Authentication is handled automatically via the read-only ServiceAccount.
 
 ## Use cases
 

@@ -1,6 +1,9 @@
 dependencies:
 - name: redis-ha
   repository: https://dandydeveloper.github.io/charts/
-  version: 4.29.4
-digest: sha256:1257baf1c5e0db036af659d44095223e28ac0c9ec1ed8300a02d5def2281c9c7
-generated: "2024-11-13T09:07:36.494128+09:00"
+  version: 4.34.11
+- name: tunna-agent
+  repository: oci://cr.eu-north1.nebius.cloud/marketplace/chart
+  version: 0.1.1
+digest: sha256:c2e6e82fc79c85d2c0829d0cf2cdea135489ddd135c6391745163a33e2751e0d
+generated: "2026-04-14T18:28:24.773186+01:00"

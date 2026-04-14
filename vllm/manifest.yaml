@@ -14,3 +14,7 @@ images:
     nameWithRegistry: kuberay-operator.image.repository
   - tag: curl.image.tag
     nameWithRegistry: curl.image.repository
+
+imagesMapping:
+  vllm/vllm-openai:v0.8.5-ray:
+    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/vllm/vllm-openai:v0.8.5-ray

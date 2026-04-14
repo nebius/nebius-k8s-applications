@@ -1,0 +1,15 @@
+slug: headlamp
+ownerName: Kubernetes SIGs
+publisherName: Nebius
+name: Headlamp
+categories:
+  - monitoring
+
+images:
+  - tag: headlamp.image.tag
+    registry: headlamp.image.registry
+    nameWithoutRegistry: headlamp.image.repository
+
+imagesMapping:
+  ghcr.io/headlamp-k8s/headlamp:v0.41.0:
+    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/headlamp/headlamp:v0.41.0

@@ -13,8 +13,7 @@ components:
         spec:
           control_plane:
             endpoints:
-              public_endpoint:
-
+              public_endpoint: {}
   sa001:
     type: "service_account"
     spec:

@@ -16,6 +16,9 @@ A fast and easy-to-use library for LLM inference and serving.
 
       - NVIDIA® H100 NVLink with Intel Sapphire Rapids
       - NVIDIA® H200 NVLink with Intel Sapphire Rapids
+      - NVIDIA® B200 NVLink with Intel Emerald Rapids
+      - NVIDIA® L40S with Intel Ice Lake
+      - NVIDIA® L40S with AMD Genoa
 
       Make sure that boot disk of the nodes have enough storage space for model.
 
@@ -53,13 +56,13 @@ A fast and easy-to-use library for LLM inference and serving.
         services/<application_name>-serve-svc 8000:8000
       ```
 
-   1. Send a request to the API (the example uses the default `h2oai/h2o-danube2-1.8b-chat` model; you can modify it):
+   1. Send a request to the API (the example uses the default `Qwen/Qwen2.5-7B-Instruct` model; you can modify it):
 
       ```bash
       curl -s http://localhost:8000/v1/chat/completions \
         -H "Content-Type: application/json" \
         -d '{
-          "model": "h2oai/h2o-danube2-1.8b-chat",
+          "model": "Qwen/Qwen2.5-7B-Instruct",
           "messages": [
             {"role": "user", "content": "Hello"}
           ],
@@ -86,6 +89,29 @@ If you enabled Gradio, to check that it is working, access it:
       ```
 
    1. Go to [http://localhost:7860/](http://localhost:7860/) in your web browser. If you have set credentials when installing the product, use them to log into the UI.
+
+## Accessing via Tunna (Application Tunnel)
+
+When installed through the Nebius console, vLLM is accessible via a secure HTTP/2 tunnel (Tunna) without requiring port forwarding or a public IP.
+
+After installation, the tunnel endpoints are available in the application details page:
+
+- **vLLM API** — OpenAI-compatible endpoint for sending inference requests
+- **Gradio UI** — Web interface for interacting with the model (if Gradio is enabled)
+
+To send a request to the vLLM API via the tunnel:
+
+   ```bash
+   curl -s https://<tunnel-endpoint>/v1/chat/completions \
+     -H "Content-Type: application/json" \
+     -d '{
+       "model": "Qwen/Qwen2.5-7B-Instruct",
+       "messages": [
+         {"role": "user", "content": "Hello"}
+       ],
+       "temperature": 0.7
+     }'
+   ```
 
 ## Use cases
 

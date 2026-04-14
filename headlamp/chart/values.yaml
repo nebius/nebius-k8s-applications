@@ -1,0 +1,17 @@
+headlamp:
+  config:
+    inCluster: true
+  service:
+    type: ClusterIP
+    port: 80
+  image:
+    registry: cr.eu-north1.nebius.cloud
+    repository: e00vzg8t0148cc4zex/nebius/headlamp/headlamp
+    tag: "v0.41.0"
+
+tunna-agent:
+  enabled: false
+  config:
+    logging:
+      level: error
+      format: json

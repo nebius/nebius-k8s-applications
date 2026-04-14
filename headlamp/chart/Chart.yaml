@@ -1,0 +1,15 @@
+apiVersion: v2
+name: headlamp
+description: Headlamp - Kubernetes web UI
+type: application
+version: 1.0.0
+appVersion: "0.41.0"
+
+dependencies:
+  - name: headlamp
+    version: "0.41.0"
+    repository: "https://kubernetes-sigs.github.io/headlamp/"
+  - name: tunna-agent
+    version: "0.1.1"
+    repository: "oci://cr.eu-north1.nebius.cloud/marketplace/chart"
+    condition: tunna-agent.enabled

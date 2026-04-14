@@ -1,5 +1,4 @@
 slug: argo-cd
-# TODO: Swap values between publisherName and ownerName
 publisherName: Nebius
 ownerName: Argo Project
 name: Argo CD
@@ -25,5 +24,16 @@ images:
   - nameWithRegistry: redis-ha.exporter.image
     tag: redis-ha.exporter.tag
 
-  - nameWithRegistry: server.extensions.image.repository
-    tag: server.extensions.image.tag
+imagesMapping:
+  quay.io/argoproj/argocd:v3.3.6:
+    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/argo-cd/argocd:v3.3.6
+  ghcr.io/dexidp/dex:v2.45.1:
+    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/argo-cd/dex:v2.45.1
+  ghcr.io/oliver006/redis_exporter:v1.82.0:
+    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/argo-cd/redis-exporter:v1.82.0
+  ghcr.io/oliver006/redis_exporter:v1.75.0:
+    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/argo-cd/redis-exporter:v1.75.0
+  ecr-public.aws.com/docker/library/redis:8.2.3-alpine:
+    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/argo-cd/redis:8.2.3-alpine
+  ecr-public.aws.com/docker/library/haproxy:3.0.8-alpine:
+    dst: cr.eu-north1.nebius.cloud/e00vzg8t0148cc4zex/nebius/argo-cd/haproxy:3.0.8-alpine

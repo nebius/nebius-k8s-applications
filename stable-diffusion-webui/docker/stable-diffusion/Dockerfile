@@ -3,6 +3,8 @@ FROM cr.ai.nebius.cloud/crng6buqs6ev01fc6sff/nebius/stable-diffusion-webui/cuda:
 ARG PYTHON_VERSION=3.10
 ARG STABLE_DIFFUSION_VERSION=1.7.0
 
+RUN useradd -m -u 1000 appuser
+
 RUN install-python ${PYTHON_VERSION}
 RUN apt-install wget libgl1 libglib2.0-0
 
@@ -18,6 +20,11 @@ RUN cp launch.py /tmp/launch.py \
   && sed -i -e 's/    start()/    #start()/g' launch.py \
   && /usr/share/stable-diffusion-webui/bin/python launch.py --skip-torch-cuda-test \
   && mv /tmp/launch.py launch.py
+
+RUN chown -R appuser:appuser /stable-diffusion-webui /usr/share/stable-diffusion-webui /tmp
+RUN setcap 'cap_net_bind_service=+ep' /usr/share/stable-diffusion-webui/bin/python
+
+USER appuser
 
 EXPOSE 80
 CMD /usr/share/stable-diffusion-webui/bin/python launch.py  --xformers --listen  --cors-allow-origins=* --api --port=80 --enable-insecure-extension-access
