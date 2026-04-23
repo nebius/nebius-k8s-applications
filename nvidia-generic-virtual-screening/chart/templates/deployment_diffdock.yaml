@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: diffdock-{{ .Release.Name | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "generative-virtual-screening-chart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: diffdock
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "generative-virtual-screening-chart.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: diffdock
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "generative-virtual-screening-chart.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: diffdock
+    spec:
+      {{- if .Values.imagePullSecret }}
+      imagePullSecrets:
+        - name: {{ .Values.imagePullSecret.name }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Values.diffdock.containerName }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.diffdock.repository }}:{{ .Values.diffdock.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.diffdock.pullPolicy }}
+          env:
+            - name: NGC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.imagePullSecret.secretName }}
+                  key: {{ .Values.imagePullSecret.secretKey }}
+            - name: NIM_DISABLE_MODEL_DOWNLOAD
+              value: "False"
+            - name: NIM_HTTP_TRITON_PORT
+              value: {{ .Values.diffdock.tritonPort | quote }}
+            - name: TRITON_HTTP_PORT
+              value: {{ .Values.diffdock.tritonPort | quote }}
+            - name: NIM_API_PORT
+              value: {{ .Values.diffdock.containerPort | quote }}
+            - name: NIM_TRITON_LOG_VERBOSE
+              value: "1"
+            - name: DD_USE_BF16
+              value: "1"
+            - name: NIM_CACHE_PATH
+              value: {{ .Values.diffdock.cacheFolder }}
+            - name: NIM_LOG_LEVEL
+              value: "DEBUG"
+          volumeMounts:
+          - mountPath : {{ .Values.diffdock.cacheFolder | quote }}
+            name: diffdock-pv1
+          command: ["/opt/nim/start_server.sh"]
+          ports:
+            - name: http
+              containerPort: {{ .Values.diffdock.containerPort }}
+              protocol: TCP
+          startupProbe:
+            httpGet:
+              path: /v1/health/ready
+              port: {{ .Values.diffdock.containerPort }}
+            initialDelaySeconds: 300
+            periodSeconds: 10
+            failureThreshold: 240 # 40 minutes
+          livenessProbe:
+            initialDelaySeconds: 0
+            httpGet:
+              path: /v1/health/live
+              port: {{ .Values.diffdock.containerPort }}
+          readinessProbe:
+            initialDelaySeconds: 0
+            httpGet:
+              path: /v1/health/ready
+              port: {{ .Values.diffdock.containerPort }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: diffdock-pv1
+          persistentVolumeClaim:
+            claimName: gvs-shared-vol
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
