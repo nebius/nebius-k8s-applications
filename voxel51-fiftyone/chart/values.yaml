@@ -1,0 +1,116 @@
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+fiftyone:
+  replicaCount: 1
+
+  image:
+    repository: voxel51/fiftyone
+    tag: "1.15.0"
+    pullPolicy: IfNotPresent
+
+  imagePullSecrets: []
+
+  storage:
+    size: 128Gi
+    mountPath: /fiftyone
+
+  service:
+    type: ClusterIP
+    port: 5151
+
+  updateStrategy:
+    type: Recreate
+
+  podAnnotations: {}
+  podLabels: {}
+
+  podSecurityContext:
+    fsGroup: 1000
+
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
+
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: "4"
+      memory: 8Gi
+
+  startupProbe:
+    httpGet:
+      path: /
+      port: http
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 30
+
+  livenessProbe:
+    httpGet:
+      path: /
+      port: http
+    initialDelaySeconds: 30
+    periodSeconds: 20
+    timeoutSeconds: 5
+    failureThreshold: 6
+
+  readinessProbe:
+    httpGet:
+      path: /
+      port: http
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+
+  extraEnv: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+mongodb:
+  image:
+    repository: mongo
+    tag: "7.0.15"
+    pullPolicy: IfNotPresent
+
+  port: 27017
+
+  storage:
+    mountPath: /data/db
+
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      add:
+        - CHOWN
+        - DAC_OVERRIDE
+        - FOWNER
+        - SETGID
+        - SETUID
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
+
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: "2"
+      memory: 2Gi

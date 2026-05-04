@@ -1,0 +1,131 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "fiftyone.fullname" . }}
+  labels:
+    {{- include "fiftyone.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.fiftyone.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "fiftyone.selectorLabels" . | nindent 6 }}
+  {{- with .Values.fiftyone.updateStrategy }}
+  strategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "fiftyone.selectorLabels" . | nindent 8 }}
+        {{- with .Values.fiftyone.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.fiftyone.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ include "fiftyone.serviceAccountName" . }}
+      {{- with .Values.fiftyone.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.fiftyone.podSecurityContext | nindent 8 }}
+      {{- with .Values.fiftyone.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.fiftyone.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.fiftyone.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: fiftyone
+          securityContext:
+            {{- toYaml .Values.fiftyone.securityContext | nindent 12 }}
+          image: "{{ .Values.fiftyone.image.repository }}:{{ .Values.fiftyone.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.fiftyone.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -ec
+          args:
+            - |
+              until python - <<'PY'
+              import pymongo
+              import sys
+
+              try:
+                  pymongo.MongoClient("mongodb://127.0.0.1:{{ .Values.mongodb.port }}", serverSelectionTimeoutMS=1000).admin.command("ping")
+              except Exception:
+                  sys.exit(1)
+              PY
+              do
+                sleep 2
+              done
+              exec python -m fiftyone.server.main --port {{ .Values.fiftyone.service.port }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.fiftyone.service.port }}
+              protocol: TCP
+          env:
+            - name: FIFTYONE_DATABASE_URI
+              value: {{ printf "mongodb://127.0.0.1:%v" .Values.mongodb.port | quote }}
+            - name: FIFTYONE_DATABASE_DIR
+              value: {{ printf "%s/db" .Values.fiftyone.storage.mountPath | quote }}
+            - name: FIFTYONE_DEFAULT_APP_ADDRESS
+              value: "0.0.0.0"
+            - name: FIFTYONE_DEFAULT_DATASET_DIR
+              value: {{ printf "%s/default" .Values.fiftyone.storage.mountPath | quote }}
+            - name: FIFTYONE_DATASET_ZOO_DIR
+              value: {{ printf "%s/zoo/datasets" .Values.fiftyone.storage.mountPath | quote }}
+            - name: FIFTYONE_MODEL_ZOO_DIR
+              value: {{ printf "%s/zoo/models" .Values.fiftyone.storage.mountPath | quote }}
+            {{- range $name, $value := .Values.fiftyone.extraEnv }}
+            - name: {{ $name }}
+              value: {{ $value | quote }}
+            {{- end }}
+          {{- with .Values.fiftyone.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.fiftyone.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.fiftyone.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.fiftyone.resources | nindent 12 }}
+          volumeMounts:
+            - name: fiftyone-data
+              mountPath: {{ .Values.fiftyone.storage.mountPath }}
+              subPath: fiftyone
+        - name: mongodb
+          securityContext:
+            {{- toYaml .Values.mongodb.securityContext | nindent 12 }}
+          image: "{{ .Values.mongodb.image.repository }}:{{ .Values.mongodb.image.tag }}"
+          imagePullPolicy: {{ .Values.mongodb.image.pullPolicy }}
+          args:
+            - --bind_ip
+            - 127.0.0.1
+          ports:
+            - name: mongodb
+              containerPort: {{ .Values.mongodb.port }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.mongodb.resources | nindent 12 }}
+          volumeMounts:
+            - name: fiftyone-data
+              mountPath: {{ .Values.mongodb.storage.mountPath }}
+              subPath: mongodb
+      volumes:
+        - name: fiftyone-data
+          persistentVolumeClaim:
+            claimName: {{ include "fiftyone.fullname" . }}-data

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: fiftyone
+description: A Helm chart for deploying Voxel51 FiftyOne on Nebius AI
+type: application
+version: 1.15.0
+appVersion: "1.15.0"

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "fiftyone.fullname" . }}
+  labels:
+    {{- include "fiftyone.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.fiftyone.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.fiftyone.service.port }}
+      targetPort: http
+      protocol: TCP
+  selector:
+    {{- include "fiftyone.selectorLabels" . | nindent 4 }}
