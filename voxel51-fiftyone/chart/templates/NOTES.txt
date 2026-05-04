@@ -1,0 +1,9 @@
+FiftyOne has been deployed.
+
+Run this command to open the app locally:
+
+  kubectl --namespace {{ .Release.Namespace }} port-forward service/{{ include "fiftyone.fullname" . }} 5151:{{ .Values.fiftyone.service.port }}
+
+Then visit:
+
+  http://127.0.0.1:5151

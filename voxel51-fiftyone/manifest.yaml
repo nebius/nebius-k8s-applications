@@ -1,0 +1,14 @@
+slug: fiftyone
+ownerName: Voxel51
+publisherName: Nebius
+name: FiftyOne
+categories:
+  - dataset-preparation
+  - ml-ai
+tariff_type: free
+
+images:
+  - nameWithRegistry: fiftyone.image.repository
+    tag: fiftyone.image.tag
+  - nameWithRegistry: mongodb.image.repository
+    tag: mongodb.image.tag
